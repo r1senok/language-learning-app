@@ -30,6 +30,7 @@ jobs:
           fi
 
           npx --yes supabase@3.3.0 functions deploy import-vocabulary \
-            --project-ref clgthcxiwybgqbccrptc \
+            --remote=clgthcxiwybgqbccrptc \
+            --yes \
             --use-api \
             --no-verify-jwt
