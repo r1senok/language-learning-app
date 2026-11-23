@@ -1,84 +1,42 @@
-# Takku Supabase setup
+# Первая миграция Supabase для Takku
 
-Cloud authentication and synchronization are intentionally disabled until a
-Supabase project is connected in Figma Make. Guest learning remains fully
-functional through local storage.
+Миграция [20261123000000_initial_takku_schema.sql](supabase/migrations/20261123000000_initial_takku_schema.sql) создаёт схему и справочник языков `et` и `ru`. Начальный каталог будет пустым. Гостевой тренажёр продолжает читать и записывать `localStorage`.
 
-## 1. Connect and configure authentication
+## Применение через SQL Editor
 
-1. Connect the intended Supabase project from Figma Make.
-2. In Supabase, open **Authentication → Providers → Email**.
-3. Enable email OTP or magic-link authentication.
-4. Add the deployed Takku URL and the Make preview URL under
-   **Authentication → URL Configuration → Redirect URLs**.
-5. Use only the project URL and public anon key in client configuration. Never
-   expose a service-role key to the browser.
+1. Откройте нужный **тестовый** проект Supabase и выберите **SQL Editor → New query**. Для первой проверки используйте проект без предыдущего черновика схемы. Если таблица `public.vocabulary_progress` уже создана вручную, сначала проверьте её данные и подготовьте отдельную миграцию совместимости.
+2. Вставьте SQL-файл целиком и нажмите **Run** один раз. Скрипт выполняется в транзакции. При ошибке проверьте сообщение и исправьте причину перед повторным запуском.
+3. В **Table Editor** проверьте, что созданы таблицы каталога, личных слов, прогресса и импорта и что на них включён RLS. Схему `takku_private` оставьте вне списка схем, доступных через Data API.
+4. Когда понадобится редактор каталога, создайте или выберите пользователя в **Authentication → Users**. Скопируйте его UUID и через SQL Editor добавьте его в список редакторов. По умолчанию список пуст.
 
-## 2. Progress schema and RLS
+   ```sql
+   insert into takku_private.catalog_admins (user_id)
+   values ('UUID-пользователя-из-Authentication');
+   ```
 
-Run this in the Supabase SQL editor after connecting the project:
+5. Проверяйте доступ через гостевую и обычную пользовательскую сессии. SQL Editor запускает запросы с повышенными привилегиями, поэтому результаты запросов из него сами по себе не подтверждают изоляцию RLS.
 
-```sql
-create table if not exists public.vocabulary_progress (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  vocabulary_id bigint not null,
-  stage smallint not null default 0 check (stage between 0 and 3),
-  queue_position integer,
-  client_id text not null,
-  client_updated_at timestamptz not null,
-  server_updated_at timestamptz not null default now(),
-  revision bigint not null default 1,
-  primary key (user_id, vocabulary_id)
-);
+## Что хранится
 
-alter table public.vocabulary_progress enable row level security;
+| Таблицы | Данные |
+|---|---|
+| `languages`, `vocabulary_entries`, `vocabulary_translations` | Языки, словарные записи с UUID, формы, эмодзи и упорядоченные переводы по языкам. |
+| `categories`, `vocabulary_categories` | Темы и связи «многие ко многим». |
+| `books`, `lessons`, `sources`, `vocabulary_sources` | Учебники, уроки и ссылки на страницы или другие источники. Одна запись может ссылаться на несколько источников. |
+| `personal_words` | Личные слова и переводы, доступные их владельцу. |
+| `vocabulary_progress` | Прогресс владельца для общего или личного слова и пары языков, позиция в очереди и метаданные синхронизации. |
+| `vocabulary_import_jobs`, `vocabulary_import_items` | Закрытые задания для будущего импорта из фото или JSON и строки для проверки перед публикацией. Фотографии в будущем будут храниться в отдельном закрытом бакете. |
+| `takku_private.catalog_admins` | Список редакторов. Обычный пользователь не может выдать себе права. |
 
-create policy "Users read their own vocabulary progress"
-on public.vocabulary_progress for select
-using (auth.uid() = user_id);
+Гостям доступны язык и опубликованные записи. Связи с категориями и источниками видны, только если опубликованы обе стороны связи. Для уроков и страниц учитывается публикация родительского учебника. Редакторы видят черновики и задания импорта. Права редактора каталога не дают доступа к личным данным пользователей.
 
-create policy "Users insert their own vocabulary progress"
-on public.vocabulary_progress for insert
-with check (auth.uid() = user_id);
+## Совместимость с гостевым прогрессом
 
-create policy "Users update their own vocabulary progress"
-on public.vocabulary_progress for update
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+- Стадии сохраняют значения из `Progress`. `0` — новое или сброшенное слово, `1` — оригинал → перевод, `2` — перевод → оригинал, `3` — выучено. Для Takku начальная пара — `et` и `ru`.
+- Стабильный идентификатор базы — UUID. При будущем наполнении каталога нужно явно сопоставить встроенным записям их существующие числовые ID через `vocabulary_entries.legacy_id`. Для гостевых личных слов используется `personal_words.legacy_id`, уникальный в пределах владельца. При импорте нужно различать встроенные и личные слова по известному сопоставлению каталога.
+- При переносе `StoredProgress.queue` нужно сопоставить числовые ID с UUID, убрать дубликаты и назначить позиции с нуля по сохранённому порядку. Активным словам, пропущенным в очереди, нужно назначить позиции в её конце. Для стадий `0` и `3` позиция равна `NULL`. Перестановку существующих позиций можно выполнить одной транзакцией с `SET CONSTRAINTS vocabulary_progress_queue_unique DEFERRED`.
+- Миграция не читает браузерные данные. Будущему клиенту предстоит предложить перенос после входа, разделять кэши по аккаунтам и согласовывать конфликтующие изменения. `server_updated_at` и `revision` выставляет база. `client_updated_at` передаёт клиент.
 
-create policy "Users delete their own vocabulary progress"
-on public.vocabulary_progress for delete
-using (auth.uid() = user_id);
-```
+## Что понадобится при подключении приложения
 
-Stages map directly to the existing learning state machine:
-
-- `0`: New
-- `1`: Estonian → Russian
-- `2`: Russian → Estonian
-- `3`: Learned
-
-## 3. Required synchronization behavior
-
-- Keep the local guest store as the offline source of pending changes.
-- Scope authenticated local caches by Supabase user ID.
-- On sign-in, compare each stable vocabulary ID using `client_updated_at`.
-- The newest explicit change wins. If timestamps are equal, use the highest
-  revision and then the highest stage as the deterministic tie-breaker.
-- Rebuild the queue from non-null queue positions, deduplicate IDs, and append
-  studying words missing a position.
-- Ask before merging guest data into an account. Never silently replace either
-  local or cloud data.
-- After a successful merge, write the merged result to both cloud storage and
-  the signed-in user's isolated local cache.
-- On sign-out, remove the signed-in cache from active memory and restore the
-  separate guest cache. Never show one user's cached data to another user.
-- Failed requests remain queued locally and retry after the browser returns
-  online.
-
-## 4. Client integration boundary
-
-Implement the `CloudProgressAdapter` contract in
-`src/services/cloudSync.ts` only after Figma Make has generated the connected
-Supabase project files. At that point, replace the current `unconfigured`
-capability with real session, sync, error, and last-successful-sync state.
+Настройте провайдера входа и точные URL возврата в **Authentication → URL Configuration**. Клиенту Vite передавайте URL проекта и публичный ключ. Секреты OAuth и ключ `service_role` в браузерную сборку не передавайте. Хранилище фотографий, его политики, обработчик импорта и клиентская синхронизация относятся к следующим этапам.
