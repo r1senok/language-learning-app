@@ -668,3 +668,28 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Safari: isolate the two card faces in the same compositing context. */
+.screen--study .flashcard { -webkit-perspective: 1200px; perspective: 1200px; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.screen--study .flashcard__inner { -webkit-transform-style: preserve-3d; transform-style: preserve-3d; will-change: transform; }
+.screen--study .flashcard__face {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform-style: flat;
+  transform-style: flat;
+  -webkit-transform: translateZ(1px) rotateY(0deg);
+  transform: translateZ(1px) rotateY(0deg);
+}
+.screen--study .flashcard__face--back {
+  -webkit-transform: rotateY(180deg) translateZ(1px);
+  transform: rotateY(180deg) translateZ(1px);
+}
+.screen--study .flashcard__inner { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
+.screen--study .flashcard--flipped .flashcard__inner { -webkit-transform: rotateY(180deg); transform: rotateY(180deg); }
+.screen--study .flashcard__face--front { visibility: visible; transition: visibility 0s linear .29s; }
+.screen--study .flashcard--flipped .flashcard__face--front { visibility: hidden; }
+.screen--study .flashcard__face--back { visibility: hidden; }
+.screen--study .flashcard--flipped .flashcard__face--back { visibility: visible; }
+.screen--study .flashcard, .screen--study .flashcard * { -webkit-user-select: none; user-select: none; }
+.screen--study .flashcard { touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+.screen--study .flashcard__main h2, .screen--study .answer-original { overflow-wrap: anywhere; word-break: normal; }
