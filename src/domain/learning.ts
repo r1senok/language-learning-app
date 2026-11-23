@@ -1,4 +1,4 @@
-import type { Progress, Word } from '../types'
+import type { Progress, StoredProgress, Word } from '../types'
 
 export function advanceProgress(progress: Progress, known: boolean): Progress {
   if (!known) return 1
@@ -21,4 +21,17 @@ export function setWordProgress(word: Word, progress: Progress): Word {
 
 export function completesActiveSession(progress: Progress, known: boolean, queue: number[], wordId: number): boolean {
   return known && progress === 2 && queue.length > 0 && queue.every((id) => id === wordId)
+}
+
+export function applyAnswer(session: StoredProgress, wordId: number, known: boolean): StoredProgress {
+  if (session.queue[0] !== wordId) return session
+
+  const word = session.words.find(({ id }) => id === wordId)
+  if (!word || (word.progress !== 1 && word.progress !== 2)) return session
+
+  const progress = advanceProgress(word.progress, known)
+  return {
+    words: session.words.map((entry) => entry.id === wordId ? setWordProgress(entry, progress) : entry),
+    queue: requeueAfterAnswer(session.queue, wordId, progress === 3),
+  }
 }
