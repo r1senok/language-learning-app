@@ -249,3 +249,33 @@ test('hidden catalog rows do not make a visible missed card repeat immediately',
   const plan = planAction(current, action(first, 1, 1, 'answer'), catalog)
   assert.deepEqual(projectProgress(plan.snapshot, catalog).queue, [second.id, first.id])
 })
+
+test('an unpublished unsent word stays dormant locally while other cloud actions persist', async () => {
+  const api = server(), user = uid(), disk = storage()
+  const sync = await device(api, user, disk)
+  api.offline = true
+  await sync.enqueue(action(first, 0, 1))
+  await sync.enqueue(action(second, 0, 1))
+  sync.setCatalog([second])
+  api.offline = false
+  await sync.refresh()
+  await sync.refresh()
+  assert.equal(sync.getView().dormant, true)
+  assert.equal(sync.getView().conflict, false)
+  assert.deepEqual(api.account(user).data.progress.map(({ id }) => id), [second.catalogId])
+  sync.setCatalog([first, second])
+  await sync.refresh()
+  assert.equal(sync.getView().dormant, false)
+  assert.equal(api.account(user).data.progress.length, 2)
+})
+
+test('an import with an unpublished UUID keeps syncing the available and personal words', async () => {
+  const api = server(), user = uid()
+  const retired = { ...first, id: uid(), catalogId: uid(), progress: 2 }
+  const guest = { words: [retired, { ...second, progress: 1 }], queue: [retired.id, second.id] }
+  const sync = await device(api, user, storage(), guest)
+  await sync.decide(true)
+  assert.deepEqual(api.account(user).data.progress.map(({ id }) => id), [second.catalogId])
+  assert.equal(guest.words[0].progress, 2)
+  assert.ok(api.account(user).data.imported)
+})

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { isCatalogId } from '../domain/wordId.ts'
+import { isCatalogId, legacyCatalogIds } from '../domain/wordId.ts'
 import type { StoredProgress, Word, WordId } from '../types'
 
 type CatalogRow = {
@@ -20,55 +20,50 @@ export async function loadPublishedCatalog(
   bundledIds: ReadonlySet<WordId>,
   signal?: AbortSignal,
 ): Promise<Word[]> {
-  if (!client) return []
+  if (!client) throw new Error('Catalog client is unavailable')
 
-  try {
-    const words: Word[] = []
-    for (let offset = 0; ; offset += pageSize) {
-      const query = client.from('vocabulary_entries').select(`
-        id, legacy_id, lemma, part_of_speech, grammatical_forms, hint_emojis,
-        vocabulary_translations!inner(glosses),
-        vocabulary_categories(categories(name))
-      `)
-        .eq('is_published', true)
-        .eq('language_code', 'et')
-        .eq('vocabulary_translations.language_code', 'ru')
-        .eq('vocabulary_categories.categories.is_published', true)
-        .order('id')
-        .range(offset, offset + pageSize - 1)
-        .retry(false)
+  const words: Word[] = []
+  for (let offset = 0; ; offset += pageSize) {
+    const query = client.from('vocabulary_entries').select(`
+      id, legacy_id, lemma, part_of_speech, grammatical_forms, hint_emojis,
+      vocabulary_translations!inner(glosses),
+      vocabulary_categories(categories(name))
+    `)
+      .eq('is_published', true)
+      .eq('language_code', 'et')
+      .eq('vocabulary_translations.language_code', 'ru')
+      .eq('vocabulary_categories.categories.is_published', true)
+      .order('id')
+      .range(offset, offset + pageSize - 1)
+      .retry(false)
 
-      const request = signal ? query.abortSignal(signal) : query
-      const { data, error } = await request.overrideTypes<CatalogRow[], { merge: false }>()
-      if (error || !data) return []
-      for (const row of data) {
-        const glosses = row.vocabulary_translations.flatMap(({ glosses }) => glosses).filter((text) => text.trim())
-        if (!isCatalogId(row.id) || !glosses.length) continue
+    const request = signal ? query.abortSignal(signal) : query
+    const { data, error } = await request.overrideTypes<CatalogRow[], { merge: false }>()
+    if (error || !data) throw error ?? new Error('Missing catalog response')
+    for (const row of data) {
+      const glosses = row.vocabulary_translations.flatMap(({ glosses }) => glosses).filter((text) => text.trim())
+      if (!isCatalogId(row.id) || !glosses.length) continue
 
-        const categories = [...new Set(row.vocabulary_categories.flatMap(({ categories }) => {
-          const name = categories?.name.trim()
-          return name ? [name] : []
-        }))].sort()
-        const forms = Object.values(row.grammatical_forms).flat()
-          .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-        words.push({
-          id: row.legacy_id !== null && bundledIds.has(row.legacy_id) ? row.legacy_id : row.id,
-          catalogId: row.id,
-          estonian: row.lemma,
-          russian: glosses.join(', '),
-          emojis: row.hint_emojis,
-          category: categories[0] ?? 'Общение',
-          categories,
-          ...(row.part_of_speech && { partOfSpeech: row.part_of_speech }),
-          ...(forms.length > 0 && { forms: forms.join(', ') }),
-          progress: 0,
-        })
-      }
-      if (data.length < pageSize) return words
+      const categories = [...new Set(row.vocabulary_categories.flatMap(({ categories }) => {
+        const name = categories?.name.trim()
+        return name ? [name] : []
+      }))].sort()
+      const forms = Object.values(row.grammatical_forms).flat()
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      words.push({
+        id: row.legacy_id !== null && bundledIds.has(row.legacy_id) ? row.legacy_id : row.id,
+        catalogId: row.id,
+        estonian: row.lemma,
+        russian: glosses.join(', '),
+        emojis: row.hint_emojis,
+        category: categories[0] ?? 'Общение',
+        categories,
+        ...(row.part_of_speech && { partOfSpeech: row.part_of_speech }),
+        ...(forms.length > 0 && { forms: forms.join(', ') }),
+        progress: 0,
+      })
     }
-  } catch {
-    // The local catalog remains usable when fetch fails or is cancelled.
-    return []
+    if (data.length < pageSize) return words
   }
 }
 
@@ -95,16 +90,42 @@ export function mergePublishedCatalog(guest: StoredProgress, catalog: readonly W
   return { words: [...words.values()], queue }
 }
 
-export function wordsInDictionary(
-  words: readonly Word[],
-  bundledIds: ReadonlySet<WordId>,
-  publishedIds: ReadonlySet<WordId> | null,
-): Word[] {
-  return words.filter((word) => {
-    if (word.progress !== 0) return true
-    if (word.personalId) return true
-    if (publishedIds?.has(word.id)) return true
-    if (!publishedIds && bundledIds.has(word.id)) return true
-    return typeof word.id === 'number' && !bundledIds.has(word.id)
+export function isPersonalWord(word: Word): boolean {
+  return !legacyCatalogIds.has(word.id) && (Boolean(word.personalId) || !word.catalogId)
+}
+
+export function availableLearningProgress(progress: StoredProgress, catalog: readonly Word[] | undefined): StoredProgress {
+  const published = new Map(catalog?.map((word) => [word.id, word]))
+  const words = progress.words.flatMap((word) => {
+    if (isPersonalWord(word)) return [word]
+
+    const entry = published.get(word.id)
+    if (entry) return [{ ...entry, progress: word.progress, ...(word.personalId && { personalId: word.personalId }) }]
+    // While offline, only previously downloaded catalog words remain usable.
+    return catalog === undefined && word.catalogId ? [word] : []
   })
+  const ids = new Set(words.map(({ id }) => id))
+  return { words, queue: progress.queue.filter((id) => ids.has(id)) }
+}
+
+export function sharedCatalogWithProgress(catalog: readonly Word[], words: readonly Word[]): Word[] {
+  const stages = new Map(words.filter((word) => !isPersonalWord(word)).map(({ id, progress }) => [id, progress]))
+  return catalog.map((word) => ({ ...word, progress: stages.get(word.id) ?? 0 }))
+}
+
+// The active queue is a projection. Keep archived progress and the original
+// hidden queue entries in storage when the guest changes the visible queue.
+export function preserveDormantGuestProgress(saved: StoredProgress, before: StoredProgress, next: StoredProgress): StoredProgress {
+  const activeIds = new Set(before.words.map(({ id }) => id))
+  const words = new Map(saved.words.map((word) => [word.id, word]))
+  for (const word of next.words) words.set(word.id, word)
+
+  const queue: WordId[] = []
+  let position = 0
+  for (const id of saved.queue) {
+    const entry = activeIds.has(id) ? next.queue[position++] : id
+    if (entry !== undefined) queue.push(entry)
+  }
+  queue.push(...next.queue.slice(position))
+  return { words: [...words.values()], queue }
 }

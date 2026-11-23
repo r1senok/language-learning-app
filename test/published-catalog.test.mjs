@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { createClient } from '@supabase/supabase-js'
 import { applyAnswer } from '../src/domain/learning.ts'
 import { loadGuestProgress, saveGuestProgress } from '../src/services/localProgress.ts'
-import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from '../src/services/publishedCatalog.ts'
+import { availableLearningProgress, isPersonalWord, loadPublishedCatalog, mergePublishedCatalog, preserveDormantGuestProgress, sharedCatalogWithProgress } from '../src/services/publishedCatalog.ts'
 import { createSupabaseClient } from '../src/services/supabase.ts'
 
 const bundledIds = new Set([1, 2])
@@ -62,21 +62,20 @@ test('paginates in ID order', async () => {
   assert.deepEqual(offsets, [0, 100])
 })
 
-test('keeps the guest dictionary available for missing config, empty catalog and failed requests', async () => {
+test('returns an empty published catalog and propagates load failures separately', async () => {
   assert.equal(await createSupabaseClient(), null)
   assert.equal(await createSupabaseClient('invalid-url', 'sb_publishable_example'), null)
-  const clients = [
+  assert.deepEqual(await loadPublishedCatalog(makeClient(async () => response([])), bundledIds), [])
+  for (const client of [
     null,
-    makeClient(async () => response([])),
     makeClient(async () => new Response('forbidden', { status: 403 })),
     makeClient(async () => { throw new Error('offline') }),
-  ]
-  for (const client of clients) {
-    const catalog = await loadPublishedCatalog(client, bundledIds)
-    assert.deepEqual(catalog, [])
-    assert.equal(mergePublishedCatalog(guest, catalog), guest)
-    assert.deepEqual(wordsInDictionary(guest.words, bundledIds, null), words)
+  ]) {
+    await assert.rejects(loadPublishedCatalog(client, bundledIds))
   }
+
+  assert.deepEqual(sharedCatalogWithProgress([], guest.words), [])
+  assert.deepEqual(availableLearningProgress(guest, []).queue, [words[2].id])
 })
 
 test('retains numeric stages and personal words, restores UUID progress and queue after reload', async () => {
@@ -93,8 +92,8 @@ test('retains numeric stages and personal words, restores UUID progress and queu
     assert.equal(merged.words.find(({ id }) => id === 1).progress, 2)
     assert.equal(merged.words.find(({ id }) => id === 1).russian, 'солнце, солнышко')
     assert.equal(merged.words.find(({ id }) => id === words[2].id).progress, 1)
-    assert.deepEqual(wordsInDictionary(merged.words, bundledIds, new Set([1, uuid(5)])).map(({ id }) => id),
-      [1, words[2].id, uuid(5)])
+    assert.deepEqual(sharedCatalogWithProgress(catalog, merged.words).map(({ id }) => id), [1, uuid(5)])
+    assert.deepEqual(merged.words.filter(isPersonalWord).map(({ id }) => id), [words[2].id])
 
     const queued = {
       words: merged.words.map((word) => word.id === uuid(5) ? { ...word, progress: 1 } : word),
@@ -106,8 +105,46 @@ test('retains numeric stages and personal words, restores UUID progress and queu
     assert.deepEqual(restored, answered)
     assert.equal(restored.words.find(({ id }) => id === uuid(5)).progress, 2)
     assert.deepEqual(mergePublishedCatalog(restored, catalog), restored)
-    assert.ok(wordsInDictionary(restored.words, bundledIds, null).some(({ id }) => id === uuid(5)))
+    assert.ok(availableLearningProgress(restored, undefined).queue.includes(uuid(5)))
   } finally {
     Reflect.deleteProperty(globalThis, 'localStorage')
   }
+})
+
+test('guest and account see the same koer and newly published words with independent stages', async () => {
+  const koer = { ...row(1), lemma: 'koer', vocabulary_translations: [{ glosses: ['собака'] }] }
+  let published = [koer]
+  const client = makeClient(async () => response(published))
+  const personal = { ...words[2], id: uuid(30), personalId: uuid(31) }
+  const guestProgress = [...guest.words, { id: uuid(1), catalogId: uuid(1), progress: 2 }]
+  const accountProgress = [personal, { id: uuid(1), catalogId: uuid(1), progress: 3 }]
+  const content = (entry) => [entry.id, entry.estonian, entry.russian, entry.categories]
+
+  const initial = await loadPublishedCatalog(client, bundledIds)
+  assert.deepEqual(sharedCatalogWithProgress(initial, guestProgress).map(content),
+    sharedCatalogWithProgress(initial, accountProgress).map(content))
+  assert.deepEqual(sharedCatalogWithProgress(initial, guestProgress).map((word) => [word.estonian, word.progress]), [['koer', 2]])
+  assert.deepEqual(sharedCatalogWithProgress(initial, accountProgress).map((word) => [word.estonian, word.progress]), [['koer', 3]])
+
+  published = [koer, { ...row(2), lemma: 'kass' }]
+  const refreshed = await loadPublishedCatalog(client, bundledIds)
+  for (const progress of [guestProgress, accountProgress]) {
+    assert.deepEqual(sharedCatalogWithProgress(refreshed, progress).map(({ estonian }) => estonian), ['koer', 'kass'])
+  }
+  assert.deepEqual(guestProgress.filter(isPersonalWord), [words[2]])
+  assert.deepEqual(accountProgress.filter(isPersonalWord), [personal])
+})
+
+test('dormant numeric and UUID progress stays stored after a visible answer and returns when republished', () => {
+  const retired = { ...words[0], id: uuid(10), catalogId: uuid(10), progress: 1 }
+  const shown = { ...words[0], id: uuid(11), catalogId: uuid(11), progress: 1 }
+  const before = { words: [words[0], retired, shown], queue: [1, retired.id, shown.id] }
+  const visible = availableLearningProgress(before, [shown])
+  assert.deepEqual(visible.queue, [shown.id])
+
+  const acted = applyAnswer(visible, shown.id, true)
+  const saved = preserveDormantGuestProgress(before, visible, acted)
+  assert.deepEqual(saved.queue, before.queue)
+  assert.deepEqual(saved.words.map(({ progress }) => progress), [2, 1, 2])
+  assert.deepEqual(availableLearningProgress(saved, [retired, shown]).queue, [retired.id, shown.id])
 })

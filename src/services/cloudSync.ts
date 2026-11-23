@@ -104,6 +104,7 @@ export interface CloudView {
   choice: 'empty' | 'existing' | null
   conflict: boolean
   storageFailed: boolean
+  dormant: boolean
 }
 
 export class CloudSync {
@@ -112,6 +113,7 @@ export class CloudSync {
   private running?: Promise<void>
   private confirmed = false
   private catalogReady = false
+  private catalogKnown = false
   private offline = false
   private conflict = false
   private storageFailed = false
@@ -156,10 +158,13 @@ export class CloudSync {
     this.running = undefined
   }
 
-  setCatalog(catalog: Word[]) {
-    if (catalog.length) this.cache.catalog = catalog
+  setCatalog(catalog: Word[] | undefined) {
+    if (catalog !== undefined) {
+      this.cache.catalog = catalog
+      this.catalogKnown = true
+    }
     this.catalogReady = true
-    this.publish(catalog.length > 0)
+    this.publish(catalog !== undefined)
     if (this.running) void this.running.then(() => this.refresh())
     else void this.refresh()
   }
@@ -184,7 +189,7 @@ export class CloudSync {
 
   discardConflict() {
     if (!this.conflict || this.running) return
-    this.complete(this.cache.pending[0]?.id)
+    this.complete(this.nextAction()?.id)
     this.conflict = false
     this.publish(true)
     return this.refresh()
@@ -227,8 +232,8 @@ export class CloudSync {
   }
 
   private complete(id: string | undefined) {
-    if (!id || this.cache.pending[0]?.id !== id) return
-    this.cache.pending.shift()
+    if (!id) return
+    this.cache.pending = this.cache.pending.filter((action) => action.id !== id)
     this.unpersisted.delete(id)
     try { this.storage?.removeItem(this.outboxKey(id)) } catch { /* a receipt makes future retries safe */ }
   }
@@ -246,10 +251,22 @@ export class CloudSync {
     return snapshot.progress.length || snapshot.personal.length ? 'existing' : 'empty'
   }
 
+  private isDormant(action: CloudAction) {
+    if (!this.catalogKnown || action.type !== 'study' || action.word.personalId || !action.word.catalogId) return false
+    const id = action.word.catalogId
+    return !this.cache.catalog.some((word) => word.catalogId === id) &&
+      !this.cache.snapshot?.progress.some((row) => row.kind === 'catalog' && row.id === id)
+  }
+
+  private nextAction() {
+    return this.cache.pending.find((action) => !this.isDormant(action))
+  }
+
   private buildView(): CloudView {
     const catalog = this.catalog()
     let snapshot = this.cache.snapshot ?? emptyCloud
     for (const action of this.cache.pending) {
+      if (this.isDormant(action)) continue
       const plan = planAction(snapshot, action, catalog)
       if (!plan) break
       snapshot = plan.snapshot
@@ -258,10 +275,11 @@ export class CloudSync {
     return {
       progress: projectProgress(snapshot, catalog),
       status: this.offline ? 'offline'
-        : this.running || this.cache.pending.length || !this.confirmed ? 'syncing' : 'synced',
+        : this.running || this.nextAction() || !this.confirmed ? 'syncing' : 'synced',
       choice: this.importChoice(),
       conflict: this.conflict,
       storageFailed: this.storageFailed || this.unpersisted.size > 0,
+      dormant: this.cache.pending.some((action) => this.isDormant(action)),
     }
   }
 
@@ -283,7 +301,7 @@ export class CloudSync {
   private async sync(signal: AbortSignal) {
     let attempt = 0
     while (!signal.aborted) {
-      const action = this.cache.pending[0]
+      const action = this.nextAction()
       const snapshot = await this.transport.read(action?.id, signal)
       if (signal.aborted) return
       this.cache.snapshot = snapshot
@@ -293,10 +311,10 @@ export class CloudSync {
       if (!action || this.importChoice()) {
         this.conflict = false
         // A new action might have arrived while reading the initial snapshot.
-        if (!action && this.cache.pending.length && !this.importChoice()) continue
+        if (!action && this.nextAction() && !this.importChoice()) continue
         return
       }
-      if (this.cache.pending[0]?.id !== action.id) continue
+      if (this.nextAction()?.id !== action.id) continue
 
       if (snapshot.acknowledged || (action.type === 'import' && snapshot.imported && !action.guest)) {
         this.complete(action.id)

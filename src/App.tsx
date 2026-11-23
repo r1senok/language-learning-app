@@ -7,59 +7,16 @@ import { useAuth } from './useAuth'
 import { useCloudProgress } from './useCloudProgress'
 import type { CloudAction } from './domain/cloudProgress'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
-import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from './services/publishedCatalog'
+import { availableLearningProgress, isPersonalWord, mergePublishedCatalog, preserveDormantGuestProgress,
+  sharedCatalogWithProgress } from './services/publishedCatalog'
+import { usePublishedCatalog } from './usePublishedCatalog'
+import type { CatalogState } from './usePublishedCatalog'
 import { createSupabaseClient } from './services/supabase'
 import type { Progress, StoredProgress, Word, WordId } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
 type VocabularyTab = 'dictionary' | 'study' | 'learned'
 
-const starterWords: Word[] = [
-  { id: 1, estonian: 'päike', russian: 'солнце', emojis: ['☀️'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'päikese, päikest', progress: 1 },
-  { id: 2, estonian: 'uudishimulik', russian: 'любопытный', emojis: ['🧐', '✨'], category: 'Характер', partOfSpeech: 'прил.', forms: 'uudishimuliku', progress: 2 },
-  { id: 3, estonian: 'reis', russian: 'путешествие', emojis: ['🧳', '🗺️'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'reisi, reisi', progress: 0 },
-  { id: 4, estonian: 'hubane', russian: 'уютный', emojis: ['🧶', '🕯️'], category: 'Дом', partOfSpeech: 'прил.', forms: 'hubase', progress: 0 },
-  { id: 5, estonian: 'merikarp', russian: 'морская ракушка', emojis: ['🐚', '🌊'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'merikarbi, merikarpi', progress: 0 },
-  { id: 6, estonian: 'maitsev', russian: 'вкусный', emojis: ['🥞', '😋'], category: 'Еда', partOfSpeech: 'прил.', forms: 'maitsva', progress: 3 },
-  { id: 7, estonian: 'tuul', russian: 'ветер', emojis: ['🍃', '💨'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'tuule, tuult', progress: 3 },
-  { id: 8, estonian: 'pagarikoda', russian: 'пекарня', emojis: ['🥐', '🍞'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'pagarikoja, pagarikoda', progress: 0 },
-  { id: 9, estonian: 'mets', russian: 'лес', emojis: ['🌲', '🍄'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'metsa, metsa', progress: 0 },
-  { id: 10, estonian: 'järv', russian: 'озеро', emojis: ['🏞️', '💧'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'järve, järve', progress: 0 },
-  { id: 11, estonian: 'lill', russian: 'цветок', emojis: ['🌷', '🌼'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'lille, lille', progress: 0 },
-  { id: 12, estonian: 'vihm', russian: 'дождь', emojis: ['🌧️', '☔'], category: 'Природа', partOfSpeech: 'сущ.', forms: 'vihma, vihma', progress: 0 },
-  { id: 13, estonian: 'lahke', russian: 'добрый', emojis: ['🤗', '💚'], category: 'Характер', partOfSpeech: 'прил.', forms: 'lahke', progress: 0 },
-  { id: 14, estonian: 'julge', russian: 'смелый', emojis: ['🦁', '💪'], category: 'Характер', partOfSpeech: 'прил.', forms: 'julge', progress: 0 },
-  { id: 15, estonian: 'rahulik', russian: 'спокойный', emojis: ['😌', '🌿'], category: 'Характер', partOfSpeech: 'прил.', forms: 'rahuliku', progress: 0 },
-  { id: 16, estonian: 'rõõmus', russian: 'радостный', emojis: ['😊', '🎈'], category: 'Характер', partOfSpeech: 'прил.', forms: 'rõõmsa', progress: 0 },
-  { id: 17, estonian: 'sõbralik', russian: 'дружелюбный', emojis: ['👋', '🙂'], category: 'Характер', partOfSpeech: 'прил.', forms: 'sõbraliku', progress: 0 },
-  { id: 18, estonian: 'lennujaam', russian: 'аэропорт', emojis: ['✈️', '🧳'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'lennujaama, lennujaama', progress: 0 },
-  { id: 19, estonian: 'rong', russian: 'поезд', emojis: ['🚆'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'rongi, rongi', progress: 0 },
-  { id: 20, estonian: 'pilet', russian: 'билет', emojis: ['🎫'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'pileti, piletit', progress: 0 },
-  { id: 21, estonian: 'kohver', russian: 'чемодан', emojis: ['🧳'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'kohvri, kohvrit', progress: 0 },
-  { id: 22, estonian: 'kaart', russian: 'карта', emojis: ['🗺️', '📍'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'kaardi, kaarti', progress: 0 },
-  { id: 23, estonian: 'hotell', russian: 'гостиница', emojis: ['🏨', '🛏️'], category: 'Путешествия', partOfSpeech: 'сущ.', forms: 'hotelli, hotelli', progress: 0 },
-  { id: 24, estonian: 'leib', russian: 'хлеб', emojis: ['🍞'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'leiva, leiba', progress: 0 },
-  { id: 25, estonian: 'juust', russian: 'сыр', emojis: ['🧀'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'juustu, juustu', progress: 0 },
-  { id: 26, estonian: 'maasikas', russian: 'клубника', emojis: ['🍓'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'maasika, maasikat', progress: 0 },
-  { id: 27, estonian: 'hommikusöök', russian: 'завтрак', emojis: ['🍳', '☕'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'hommikusöögi, hommikusööki', progress: 0 },
-  { id: 28, estonian: 'kohv', russian: 'кофе', emojis: ['☕'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'kohvi, kohvi', progress: 0 },
-  { id: 29, estonian: 'õun', russian: 'яблоко', emojis: ['🍎'], category: 'Еда', partOfSpeech: 'сущ.', forms: 'õuna, õuna', progress: 0 },
-  { id: 30, estonian: 'aken', russian: 'окно', emojis: ['🪟', '☀️'], category: 'Дом', partOfSpeech: 'сущ.', forms: 'akna, akent', progress: 0 },
-  { id: 31, estonian: 'köök', russian: 'кухня', emojis: ['🍳', '🏠'], category: 'Дом', partOfSpeech: 'сущ.', forms: 'köögi, kööki', progress: 0 },
-  { id: 32, estonian: 'voodi', russian: 'кровать', emojis: ['🛏️', '😴'], category: 'Дом', partOfSpeech: 'сущ.', forms: 'voodi, voodit', progress: 0 },
-  { id: 33, estonian: 'raamat', russian: 'книга', emojis: ['📚'], category: 'Дом', partOfSpeech: 'сущ.', forms: 'raamatu, raamatut', progress: 0 },
-  { id: 34, estonian: 'võti', russian: 'ключ', emojis: ['🔑'], category: 'Дом', partOfSpeech: 'сущ.', forms: 'võtme, võtit', progress: 0 },
-  { id: 35, estonian: 'tere', russian: 'привет', emojis: ['👋', '🙂'], category: 'Общение', partOfSpeech: 'межд.', progress: 0 },
-  { id: 36, estonian: 'aitäh', russian: 'спасибо', emojis: ['🙏', '💚'], category: 'Общение', partOfSpeech: 'межд.', progress: 0 },
-  { id: 37, estonian: 'palun', russian: 'пожалуйста', emojis: ['🤲'], category: 'Общение', partOfSpeech: 'нареч.', progress: 0 },
-  { id: 38, estonian: 'vabandust', russian: 'извините', emojis: ['😅', '🙏'], category: 'Общение', partOfSpeech: 'межд.', progress: 0 },
-  { id: 39, estonian: 'kohtumiseni', russian: 'до встречи', emojis: ['👋', '🕐'], category: 'Общение', partOfSpeech: 'выражение', progress: 0 },
-  { id: 40, estonian: 'kuidas läheb?', russian: 'как дела?', emojis: ['💬', '😊'], category: 'Общение', partOfSpeech: 'выражение', progress: 0 },
-  { id: 41, estonian: 'armastama', russian: 'любить', emojis: ['❤️', '🤗'], category: 'Общение', partOfSpeech: 'глаг.', forms: 'armastada, armastan', progress: 0 },
-  { id: 42, estonian: 'õppima', russian: 'учиться', emojis: ['📖', '✏️'], category: 'Общение', partOfSpeech: 'глаг.', forms: 'õppida, õpin', progress: 0 },
-]
-
-const bundledIds = new Set(starterWords.map(({ id }) => id))
 const returningFromAuth = isAuthReturn(window.location.href)
 const supabaseClient = createSupabaseClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -124,23 +81,25 @@ function VocabularyNavigation({ active, studyingCount, onChange }: { active: Voc
 
 export default function App() {
   const auth = useAuth(supabaseClient, returningFromAuth)
+  const { catalog, reload } = usePublishedCatalog()
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'vocabulary')
   return <Takku key={auth.session?.user.id ?? 'guest'} auth={auth}
-    primaryTab={primaryTab} setPrimaryTab={setPrimaryTab} />
+    primaryTab={primaryTab} setPrimaryTab={setPrimaryTab} catalog={catalog} reloadCatalog={reload} />
 }
 
-function Takku({ auth, primaryTab, setPrimaryTab }: {
+function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   auth: ReturnType<typeof useAuth>
   primaryTab: PrimaryTab
   setPrimaryTab: (tab: PrimaryTab) => void
+  catalog: CatalogState
+  reloadCatalog: () => void
 }) {
   const { client, session, ready: authReady, returnError } = auth
-  const { sync, view: cloud } = useCloudProgress(client, session?.user.id, starterWords)
+  const { sync, view: cloud } = useCloudProgress(client, session?.user.id)
   const [guest, setGuest] = useState(() => session
     ? { words: [], queue: [] } satisfies StoredProgress
-    : loadGuestProgress(starterWords))
+    : loadGuestProgress([]))
   const latestGuest = useRef(guest)
-  const [publishedIds, setPublishedIds] = useState<ReadonlySet<WordId> | null>(null)
   const answerTimer = useRef<number | null>(null)
   const [vocabularyTab, setVocabularyTab] = useState<VocabularyTab>('study')
   const [category, setCategory] = useState('Все')
@@ -168,24 +127,9 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
   }, [])
 
   useEffect(() => {
-    const request = new AbortController()
-    void supabaseClient.then((client) => {
-      if (request.signal.aborted) return []
-      return loadPublishedCatalog(client, bundledIds, request.signal)
-    }).then((catalog) => {
-      if (request.signal.aborted) return
-
-      if (sync) sync.setCatalog(catalog)
-      if (!catalog.length) return
-      if (!sync) {
-        const next = mergePublishedCatalog(latestGuest.current, catalog)
-        latestGuest.current = next
-        setGuest(next)
-      }
-      setPublishedIds(new Set(catalog.map(({ id }) => id)))
-    })
-    return () => request.abort()
-  }, [sync])
+    if (catalog.status === 'loading') return
+    if (sync) sync.setCatalog(catalog.words)
+  }, [catalog.status, catalog.words, sync])
 
   useEffect(() => {
     if (session) setAuthIntent(null)
@@ -206,7 +150,9 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
   }
 
   function currentProgress() {
-    return sync?.getView().progress ?? latestGuest.current
+    const account = sync?.getView().progress
+    const raw = account ?? mergePublishedCatalog(latestGuest.current, catalog.words ?? [])
+    return availableLearningProgress(raw, catalog.words)
   }
 
   function commitProgress(next: StoredProgress, actions: CloudAction[]) {
@@ -214,30 +160,39 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
       for (const action of actions) void sync.enqueue(action)
       return
     }
-    latestGuest.current = next
-    saveGuestProgress(next)
-    setGuest(next)
+    const saved = mergePublishedCatalog(latestGuest.current, catalog.words ?? [])
+    const merged = preserveDormantGuestProgress(saved, availableLearningProgress(saved, catalog.words), next)
+    latestGuest.current = merged
+    saveGuestProgress(merged)
+    setGuest(merged)
   }
 
-  const { words, queue } = feedback?.before ?? cloud?.progress ?? guest
+  const individualProgress = useMemo(() => {
+    if (feedback) return feedback.before
+    const progress = cloud?.progress ?? mergePublishedCatalog(guest, catalog.words ?? [])
+    return availableLearningProgress(progress, catalog.words)
+  }, [feedback, cloud?.progress, guest, catalog.words])
+  const { words, queue } = individualProgress
 
-  const dictionary = useMemo(() => wordsInDictionary(words, bundledIds, publishedIds), [words, publishedIds])
+  const dictionary = useMemo(() => sharedCatalogWithProgress(catalog.words ?? [], words), [catalog.words, words])
+  const personalWords = words.filter(isPersonalWord)
   const filterCategories = useMemo(() => {
     const names = new Set(categories.map(({ label }) => label))
     const additional = dictionary.flatMap((word) => word.categories?.length ? word.categories : [word.category])
     return [...categories, ...[...new Set(additional)].filter((label) => !names.has(label))
       .sort().map((label) => ({ label, icon: '✦' }))]
   }, [dictionary])
-  const filteredWords = useMemo(() => dictionary.filter((word) =>
-    (category === 'Все' || word.category === category || word.categories?.includes(category)) &&
+  const matchesSearch = (word: Word) =>
     `${word.estonian} ${word.russian} ${word.forms || ''}`.toLowerCase().includes(search.toLowerCase())
-  ), [dictionary, category, search])
+  const filteredWords = dictionary.filter((word) =>
+    (category === 'Все' || word.category === category || word.categories?.includes(category)) && matchesSearch(word))
+  const filteredPersonal = personalWords.filter(matchesSearch)
   const learnedWords = words.filter((word) => word.progress === 3)
   const filteredLearned = learnedWords.filter((word) => `${word.estonian} ${word.russian}`.toLowerCase().includes(learnedSearch.toLowerCase()))
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
   const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
   const statusWord = words.find((word) => word.id === statusWordId)
-  const progress = dictionary.length ? Math.round(learnedWords.length / dictionary.length * 100) : 0
+  const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
 
   const addToStudy = (ids: WordId[]) => {
     const { words, queue } = currentProgress()
@@ -331,6 +286,16 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
     setNewEstonian(''); setNewRussian(''); setNewEmoji(''); setNewPart(''); setNewForms(''); setShowAdd(false)
   }
 
+  function renderDictionaryWord(word: Word, index: number) {
+    const status = statusOf(word)
+    const emojis = word.emojis.slice(0, 3)
+    return <article className={`word-card word-card--${status}`} key={word.id} style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}>
+      <div className={`word-card__emoji word-card__emoji--${emojis.length}`} aria-label={`Подсказка: ${emojis.join(' ')}`}>{emojis.map((emoji, emojiIndex) => <span key={`${emoji}-${emojiIndex}`}>{emoji}</span>)}</div>
+      <div className="word-card__copy"><h3>{word.estonian}</h3><p>{word.russian}</p><div className="word-meta"><span className="status-label">{status === 'learned' ? 'Выучено' : status === 'studying' ? (word.progress === 1 ? 'ET → RU' : 'RU → ET') : word.category}</span>{word.partOfSpeech && <span>{word.partOfSpeech}</span>}</div>{word.forms && <small className="word-forms">{word.forms}</small>}</div>
+      {status === 'new' ? <button className="add-study" onClick={(event) => { event.stopPropagation(); addToStudy([word.id]) }}><Icon name="plus" /><span>Учить</span></button> : status === 'learned' ? <button className="learned-check status-button" aria-label={`Действия для выученного слова ${word.estonian}`} aria-haspopup="dialog" onClick={(event) => { event.stopPropagation(); setStatusWordId(word.id) }}><Icon name="check" /></button> : <button className="studying-dot status-button" aria-label={`Действия для изучаемого слова ${word.estonian}`} aria-haspopup="dialog" onClick={(event) => { event.stopPropagation(); setStatusWordId(word.id) }}><Icon name="cards" /></button>}
+    </article>
+  }
+
   return <div className="app-shell">
     <div className="ambient ambient--one" /><div className="ambient ambient--two" />
     <main className="phone-frame">
@@ -363,18 +328,23 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
           </div>
           <label className="search-box"><Icon name="search" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Искать на эстонском или русском" /></label>
           <div className="category-scroll" aria-label="Категории">{filterCategories.map((item) => <button key={item.label} className={category === item.label ? 'category active' : 'category'} onClick={() => setCategory(item.label)}><span>{item.icon}</span>{item.label}</button>)}</div>
-          <div className="word-list">
-            {filteredWords.map((word, index) => {
-              const status = statusOf(word)
-              const emojis = word.emojis.slice(0, 3)
-              return <article className={`word-card word-card--${status}`} key={word.id} style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}>
-                <div className={`word-card__emoji word-card__emoji--${emojis.length}`} aria-label={`Подсказка: ${emojis.join(' ')}`}>{emojis.map((emoji, emojiIndex) => <span key={`${emoji}-${emojiIndex}`}>{emoji}</span>)}</div>
-                <div className="word-card__copy"><h3>{word.estonian}</h3><p>{word.russian}</p><div className="word-meta"><span className="status-label">{status === 'learned' ? 'Выучено' : status === 'studying' ? (word.progress === 1 ? 'ET → RU' : 'RU → ET') : word.category}</span>{word.partOfSpeech && <span>{word.partOfSpeech}</span>}</div>{word.forms && <small className="word-forms">{word.forms}</small>}</div>
-                {status === 'new' ? <button className="add-study" onClick={(event) => { event.stopPropagation(); addToStudy([word.id]) }}><Icon name="plus" /><span>Учить</span></button> : status === 'learned' ? <button className="learned-check status-button" aria-label={`Действия для выученного слова ${word.estonian}`} aria-haspopup="dialog" onClick={(event) => { event.stopPropagation(); setStatusWordId(word.id) }}><Icon name="check" /></button> : <button className="studying-dot status-button" aria-label={`Действия для изучаемого слова ${word.estonian}`} aria-haspopup="dialog" onClick={(event) => { event.stopPropagation(); setStatusWordId(word.id) }}><Icon name="cards" /></button>}
-              </article>
-            })}
-            {!filteredWords.length && <div className="empty-state"><span>🔎</span><h3>Слово спряталось</h3><p>Попробуй другой запрос или категорию.</p></div>}
-          </div>
+          {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем словарь…</h3></div>}
+          {catalog.status === 'error' && <div className="empty-state" role="alert">
+            <h3>Не удалось загрузить словарь</h3><p>Проверьте подключение и попробуйте снова.</p>
+            <button className="profile-secondary" onClick={reloadCatalog}>Повторить загрузку</button>
+          </div>}
+          {catalog.status === 'ready' && <div className="word-list" aria-label="Общий словарь">
+            {filteredWords.map(renderDictionaryWord)}
+            {!dictionary.length && <div className="empty-state"><h3>Пока нет опубликованных слов</h3></div>}
+            {dictionary.length > 0 && !filteredWords.length && <div className="empty-state"><span>🔎</span><h3>Слово спряталось</h3><p>Попробуй другой запрос или категорию.</p></div>}
+            <button className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
+          </div>}
+          {personalWords.length > 0 && <section aria-labelledby="personal-words-heading">
+            <div className="section-row"><h2 id="personal-words-heading">Личные слова</h2></div>
+            <div className="word-list">{filteredPersonal.map(renderDictionaryWord)}
+              {!filteredPersonal.length && <div className="empty-state"><h3>Личные слова не найдены</h3></div>}
+            </div>
+          </section>}
         </section>}
 
         {primaryTab === 'vocabulary' && vocabularyTab === 'study' && <section className="screen screen--study">
@@ -474,7 +444,7 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
           </div>
           <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>{session ? 'Облачный прогресс' : 'Прогресс на этом устройстве'}</b><p role="status">{session
             ? cloud?.status === 'synced' ? 'Синхронизировано' : cloud?.status === 'offline' ? 'Нет подключения' : 'Синхронизация…'
-            : 'Доступен в этом браузере'}</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
+            : 'Доступен в этом браузере'}</p></div><span>{learnedWords.length}/{words.length}</span></div>
           {session ? (
             <button className="profile-secondary" disabled={signingOut} onClick={() => void logout()}>
               {signingOut ? 'Выходим…' : 'Выйти'}
@@ -483,6 +453,7 @@ function Takku({ auth, primaryTab, setPrimaryTab }: {
             <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
             <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
           </> : <p role="status">Проверяем вход…</p>}
+          {cloud?.dormant && <p>Действия для снятых с публикации слов сохранены на этом устройстве.</p>}
           {cloud?.storageFailed && <p role="alert">Локальное сохранение ограничено. Оставьте Takku открытым до синхронизации.</p>}
           {cloud?.conflict && <div className="cloud-unavailable" role="alert"><div><Icon name="cloud" /></div>
             <span><b>Ожидающее действие нельзя применить</b>

@@ -7,3 +7,6 @@ export function isCatalogId(value: unknown): value is string {
 export function isWordId(value: unknown): value is WordId {
   return isCatalogId(value) || (typeof value === 'number' && Number.isSafeInteger(value) && value > 0)
 }
+
+// IDs 1–42 were reserved for the original bundled catalog.
+export const legacyCatalogIds: ReadonlySet<WordId> = new Set(Array.from({ length: 42 }, (_, index) => index + 1))
