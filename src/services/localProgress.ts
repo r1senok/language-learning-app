@@ -1,15 +1,11 @@
-import type { Category, Progress, StoredProgress, Word } from '../types'
+import { isCatalogId, isWordId } from '../domain/wordId.ts'
+import type { Progress, StoredProgress, Word, WordId } from '../types'
 
 const GUEST_STORAGE_KEY = 'takku-estonian-v1'
 const LEGACY_STORAGE_KEY = ['slov', 'etto-estonian-v2'].join('')
-const categories: readonly Category[] = ['Природа', 'Характер', 'Путешествия', 'Еда', 'Дом', 'Общение']
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function isId(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0
 }
 
 function isProgress(value: unknown): value is Progress {
@@ -20,8 +16,8 @@ function isText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
-function recoverWord(value: unknown, starters: ReadonlyMap<number, Word>): Word | undefined {
-  if (!isRecord(value) || !isId(value.id)) return
+function recoverWord(value: unknown, starters: ReadonlyMap<WordId, Word>): Word | undefined {
+  if (!isRecord(value) || !isWordId(value.id)) return
 
   const starter = starters.get(value.id)
   const estonian = isText(value.estonian) ? value.estonian : starter?.estonian
@@ -33,27 +29,29 @@ function recoverWord(value: unknown, starters: ReadonlyMap<number, Word>): Word 
     estonian,
     russian,
     emojis: Array.isArray(value.emojis) ? value.emojis.filter(isText) : starter?.emojis ?? [],
-    category: categories.find((category) => category === value.category) ?? starter?.category ?? 'Общение',
+    category: isText(value.category) ? value.category : starter?.category ?? 'Общение',
+    ...(isCatalogId(value.catalogId) && { catalogId: value.catalogId }),
+    ...(Array.isArray(value.categories) && { categories: value.categories.filter(isText) }),
     ...(typeof value.partOfSpeech === 'string' && { partOfSpeech: value.partOfSpeech }),
     ...(typeof value.forms === 'string' && { forms: value.forms }),
     progress: isProgress(value.progress) ? value.progress : starter?.progress ?? 0,
   }
 }
 
-function recoverQueue(words: Word[], storedQueue: unknown): number[] {
+function recoverQueue(words: Word[], storedQueue: unknown): WordId[] {
   const active = new Set(words.filter(({ progress }) => progress === 1 || progress === 2).map(({ id }) => id))
-  const queue: number[] = []
+  const queue: WordId[] = []
 
   if (Array.isArray(storedQueue)) {
     for (const id of storedQueue) {
-      if (isId(id) && active.delete(id)) queue.push(id)
+      if (isWordId(id) && active.delete(id)) queue.push(id)
     }
   }
 
   return [...queue, ...active]
 }
 
-function recoverProgress(raw: string | null, starters: ReadonlyMap<number, Word>): StoredProgress | undefined {
+function recoverProgress(raw: string | null, starters: ReadonlyMap<WordId, Word>): StoredProgress | undefined {
   if (!raw) return
 
   let value: unknown
@@ -64,8 +62,8 @@ function recoverProgress(raw: string | null, starters: ReadonlyMap<number, Word>
   }
   if (!isRecord(value) || !Array.isArray(value.words)) return
 
-  const words = new Map<number, Word>()
-  const validStages = new Set<number>()
+  const words = new Map<WordId, Word>()
+  const validStages = new Set<WordId>()
   for (const entry of value.words) {
     const word = recoverWord(entry, starters)
     if (!word || !isRecord(entry)) continue

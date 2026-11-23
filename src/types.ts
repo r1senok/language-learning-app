@@ -1,12 +1,15 @@
 export type Progress = 0 | 1 | 2 | 3
-export type Category = 'Природа' | 'Характер' | 'Путешествия' | 'Еда' | 'Дом' | 'Общение'
+
+export type WordId = number | string
 
 export type Word = {
-  id: number
+  id: WordId
+  catalogId?: string
   estonian: string
   russian: string
   emojis: string[]
-  category: Category
+  category: string
+  categories?: string[]
   partOfSpeech?: string
   forms?: string
   progress: Progress
@@ -14,5 +17,5 @@ export type Word = {
 
 export type StoredProgress = {
   words: Word[]
-  queue: number[]
+  queue: WordId[]
 }

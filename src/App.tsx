@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { cloudCapability, supabaseSetup } from './services/cloudSync'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
-import type { Category, Progress, StoredProgress, Word } from './types'
+import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from './services/publishedCatalog'
+import { createCatalogClient } from './services/supabase'
+import type { Progress, StoredProgress, Word, WordId } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
 type VocabularyTab = 'dictionary' | 'study' | 'learned'
@@ -51,6 +53,12 @@ const starterWords: Word[] = [
   { id: 41, estonian: 'armastama', russian: 'любить', emojis: ['❤️', '🤗'], category: 'Общение', partOfSpeech: 'глаг.', forms: 'armastada, armastan', progress: 0 },
   { id: 42, estonian: 'õppima', russian: 'учиться', emojis: ['📖', '✏️'], category: 'Общение', partOfSpeech: 'глаг.', forms: 'õppida, õpin', progress: 0 },
 ]
+
+const bundledIds = new Set(starterWords.map(({ id }) => id))
+const catalogClient = createCatalogClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+)
 
 const categories = [
   { label: 'Все', icon: '✦' }, { label: 'Природа', icon: '🌿' }, { label: 'Характер', icon: '✨' },
@@ -111,6 +119,7 @@ function VocabularyNavigation({ active, studyingCount, onChange }: { active: Voc
 export default function App() {
   const [guest, setGuest] = useState(() => loadGuestProgress(starterWords))
   const latestGuest = useRef(guest)
+  const [publishedIds, setPublishedIds] = useState<ReadonlySet<WordId> | null>(null)
   const answerTimer = useRef<number | null>(null)
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>('vocabulary')
   const [vocabularyTab, setVocabularyTab] = useState<VocabularyTab>('study')
@@ -128,12 +137,28 @@ export default function App() {
   const [newForms, setNewForms] = useState('')
   const [newPart, setNewPart] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
-  const [statusWordId, setStatusWordId] = useState<number | null>(null)
+  const [statusWordId, setStatusWordId] = useState<WordId | null>(null)
   const [authIntent, setAuthIntent] = useState<'signup' | 'signin' | null>(null)
   const [sessionCompleted, setSessionCompleted] = useState(false)
 
   useEffect(() => () => {
     if (answerTimer.current !== null) window.clearTimeout(answerTimer.current)
+  }, [])
+
+  useEffect(() => {
+    const request = new AbortController()
+    void catalogClient.then((client) => {
+      if (request.signal.aborted) return []
+      return loadPublishedCatalog(client, bundledIds, request.signal)
+    }).then((catalog) => {
+      if (request.signal.aborted || !catalog.length) return
+
+      const next = mergePublishedCatalog(latestGuest.current, catalog)
+      latestGuest.current = next
+      setGuest(next)
+      setPublishedIds(new Set(catalog.map(({ id }) => id)))
+    })
+    return () => request.abort()
   }, [])
 
   function commitGuest(next: StoredProgress) {
@@ -144,18 +169,25 @@ export default function App() {
 
   const { words, queue } = feedback?.before ?? guest
 
-  const filteredWords = useMemo(() => words.filter((word) =>
-    (category === 'Все' || word.category === category) &&
+  const dictionary = useMemo(() => wordsInDictionary(words, bundledIds, publishedIds), [words, publishedIds])
+  const filterCategories = useMemo(() => {
+    const names = new Set(categories.map(({ label }) => label))
+    const additional = dictionary.flatMap((word) => word.categories?.length ? word.categories : [word.category])
+    return [...categories, ...[...new Set(additional)].filter((label) => !names.has(label))
+      .sort().map((label) => ({ label, icon: '✦' }))]
+  }, [dictionary])
+  const filteredWords = useMemo(() => dictionary.filter((word) =>
+    (category === 'Все' || word.category === category || word.categories?.includes(category)) &&
     `${word.estonian} ${word.russian} ${word.forms || ''}`.toLowerCase().includes(search.toLowerCase())
-  ), [words, category, search])
+  ), [dictionary, category, search])
   const learnedWords = words.filter((word) => word.progress === 3)
   const filteredLearned = learnedWords.filter((word) => `${word.estonian} ${word.russian}`.toLowerCase().includes(learnedSearch.toLowerCase()))
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
   const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
   const statusWord = words.find((word) => word.id === statusWordId)
-  const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
+  const progress = dictionary.length ? Math.round(learnedWords.length / dictionary.length * 100) : 0
 
-  const addToStudy = (ids: number[]) => {
+  const addToStudy = (ids: WordId[]) => {
     const { words, queue } = latestGuest.current
     const fresh = ids.filter((id) => words.some((word) => word.id === id && word.progress === 0))
     if (!fresh.length) return
@@ -198,7 +230,7 @@ export default function App() {
     window.speechSynthesis.speak(utterance)
   }
 
-  const returnToStudy = (id: number) => {
+  const returnToStudy = (id: WordId) => {
     const { words, queue } = latestGuest.current
     commitGuest({
       words: words.map((word) => word.id === id ? setWordProgress(word, 1) : word),
@@ -207,7 +239,7 @@ export default function App() {
     setSessionCompleted(false)
   }
 
-  const removeFromStudy = (id: number) => {
+  const removeFromStudy = (id: WordId) => {
     const { words, queue } = latestGuest.current
     commitGuest({
       words: words.map((word) => word.id === id ? setWordProgress(word, 0) : word),
@@ -258,7 +290,7 @@ export default function App() {
         {primaryTab === 'vocabulary' && vocabularyTab === 'dictionary' && <section className="screen screen--dictionary">
           <div className="section-row"><h2>Слова</h2></div>
           <label className="search-box"><Icon name="search" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Искать на эстонском или русском" /></label>
-          <div className="category-scroll" aria-label="Категории">{categories.map((item) => <button key={item.label} className={category === item.label ? 'category active' : 'category'} onClick={() => setCategory(item.label)}><span>{item.icon}</span>{item.label}</button>)}</div>
+          <div className="category-scroll" aria-label="Категории">{filterCategories.map((item) => <button key={item.label} className={category === item.label ? 'category active' : 'category'} onClick={() => setCategory(item.label)}><span>{item.icon}</span>{item.label}</button>)}</div>
           <div className="word-list">
             {filteredWords.map((word, index) => {
               const status = statusOf(word)
@@ -368,7 +400,7 @@ export default function App() {
             <h1>Сохрани свой прогресс</h1>
             <p>Создай аккаунт, чтобы продолжать обучение на любом устройстве</p>
           </div>
-          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>Гостевой режим</b><p>Прогресс хранится только на этом устройстве</p></div><span>{learnedWords.length}/{words.length}</span></div>
+          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>Гостевой режим</b><p>Прогресс хранится только на этом устройстве</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
           <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
           <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
           {!cloudCapability.configured && <div className="cloud-unavailable"><div><Icon name="cloud" /></div><span><b>Облачная синхронизация не настроена</b><p>{cloudCapability.message}</p></span></div>}

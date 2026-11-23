@@ -1,4 +1,4 @@
-import type { Progress, StoredProgress, Word } from '../types'
+import type { Progress, StoredProgress, Word, WordId } from '../types'
 
 export function advanceProgress(progress: Progress, known: boolean): Progress {
   if (!known) return 1
@@ -7,7 +7,7 @@ export function advanceProgress(progress: Progress, known: boolean): Progress {
   return progress
 }
 
-export function requeueAfterAnswer(queue: number[], id: number, learned: boolean, random = Math.random): number[] {
+export function requeueAfterAnswer(queue: WordId[], id: WordId, learned: boolean, random = Math.random): WordId[] {
   const rest = queue.filter((item) => item !== id)
   if (learned) return rest
   if (!rest.length) return [id]
@@ -19,11 +19,11 @@ export function setWordProgress(word: Word, progress: Progress): Word {
   return { ...word, progress }
 }
 
-export function completesActiveSession(progress: Progress, known: boolean, queue: number[], wordId: number): boolean {
+export function completesActiveSession(progress: Progress, known: boolean, queue: WordId[], wordId: WordId): boolean {
   return known && progress === 2 && queue.length > 0 && queue.every((id) => id === wordId)
 }
 
-export function applyAnswer(session: StoredProgress, wordId: number, known: boolean): StoredProgress {
+export function applyAnswer(session: StoredProgress, wordId: WordId, known: boolean): StoredProgress {
   if (session.queue[0] !== wordId) return session
 
   const word = session.words.find(({ id }) => id === wordId)
