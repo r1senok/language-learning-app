@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { sortByEstonian } from './domain/wordOrder'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { AuthDialog } from './AuthDialog'
 import { authErrorMessage, isAuthReturn, signOutHere } from './services/auth'
@@ -174,8 +175,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }, [feedback, cloud?.progress, guest, catalog.words])
   const { words, queue } = individualProgress
 
-  const dictionary = useMemo(() => sharedCatalogWithProgress(catalog.words ?? [], words), [catalog.words, words])
-  const personalWords = words.filter(isPersonalWord)
+  const dictionary = useMemo(() => sortByEstonian(sharedCatalogWithProgress(catalog.words ?? [], words)), [catalog.words, words])
+  const personalWords = sortByEstonian(words.filter(isPersonalWord))
   const filterCategories = useMemo(() => {
     const names = new Set(categories.map(({ label }) => label))
     const additional = dictionary.flatMap((word) => word.categories?.length ? word.categories : [word.category])
@@ -187,7 +188,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const filteredWords = dictionary.filter((word) =>
     (category === 'Все' || word.category === category || word.categories?.includes(category)) && matchesSearch(word))
   const filteredPersonal = personalWords.filter(matchesSearch)
-  const learnedWords = words.filter((word) => word.progress === 3)
+  const learnedWords = sortByEstonian(words.filter((word) => word.progress === 3))
   const filteredLearned = learnedWords.filter((word) => `${word.estonian} ${word.russian}`.toLowerCase().includes(learnedSearch.toLowerCase()))
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
   const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
