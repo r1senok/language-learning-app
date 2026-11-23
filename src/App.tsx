@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { bindCardGesture } from './domain/cardGesture'
+import { useStudyPronunciation } from './useStudyPronunciation'
 import { sortByEstonian } from './domain/wordOrder'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { AuthDialog } from './AuthDialog'
@@ -110,9 +112,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const [hintShown, setHintShown] = useState(false)
   const [feedback, setFeedback] = useState<{ kind: 'known' | 'unknown'; before: StoredProgress } | null>(null)
   const [dragX, setDragX] = useState(0)
-  const dragGesture = useRef<{ pointerId: number; x: number; y: number; dx: number; axis: 'pending' | 'horizontal' | 'vertical' } | null>(null)
-  const suppressCardClick = useRef(false)
-  const dragXRef = useRef(0)
+  const [gestureSurface, setGestureSurface] = useState<HTMLDivElement | null>(null)
+  const { pronounce, speechMessage, setSpeechMessage } = useStudyPronunciation()
   const [showAdd, setShowAdd] = useState(false)
   const [newEstonian, setNewEstonian] = useState('')
   const [newRussian, setNewRussian] = useState('')
@@ -224,7 +225,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     const completesSession = completesActiveSession(active.progress, known, before.queue, active.id)
     answerTimer.current = window.setTimeout(() => {
       answerTimer.current = null
-      setAnswerShown(false); setHintShown(false); setFeedback(null); setDragX(0)
+      setAnswerShown(false); setHintShown(false); setFeedback(null); setDragX(0); setSpeechMessage('')
       setSessionCompleted(completesSession && currentProgress().queue.length === 0)
     }, 430)
     setFeedback({ kind: known ? 'known' : 'unknown', before })
@@ -234,50 +235,17 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     }] : [])
   }
 
-  const beginCardDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (feedback || answerTimer.current !== null || (event.pointerType === 'mouse' && event.button !== 0)) return
-    if ((event.target as HTMLElement).closest('button')) return
-    dragGesture.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, axis: 'pending' }
-    dragXRef.current = 0
-  }
-
-  const moveCardDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    const gesture = dragGesture.current
-    if (!gesture || gesture.pointerId !== event.pointerId || feedback) return
-    const dx = event.clientX - gesture.x
-    const dy = event.clientY - gesture.y
-    if (gesture.axis === 'pending' && Math.hypot(dx, dy) > 8) {
-      gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.15 ? 'horizontal' : 'vertical'
-      if (gesture.axis === 'horizontal') {
-        suppressCardClick.current = true
-        event.currentTarget.setPointerCapture(event.pointerId)
-      }
-    }
-    if (gesture.axis !== 'horizontal') return
-    gesture.dx = dx
-    dragXRef.current = Math.max(-140, Math.min(140, dx))
-    setDragX(dragXRef.current)
-  }
-
-  const endCardDrag = (event: React.PointerEvent<HTMLDivElement>, cancelled = false) => {
-    const gesture = dragGesture.current
-    if (!gesture || gesture.pointerId !== event.pointerId) return
-    dragGesture.current = null
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
-    if (!cancelled && gesture.axis === 'horizontal' && Math.abs(gesture.dx) >= 85) answer(gesture.dx > 0)
-    dragXRef.current = 0
-    setDragX(0)
-  }
-
-  const playPronunciation = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation()
-    if (!currentWord || !('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(currentWord.estonian)
-    utterance.lang = 'et-EE'
-    utterance.rate = 0.88
-    window.speechSynthesis.speak(utterance)
-  }
+  const answerRef = useRef(answer)
+  answerRef.current = answer
+  useEffect(() => {
+    if (!gestureSurface) return
+    return bindCardGesture(gestureSurface, {
+      isLocked: () => answerTimer.current !== null,
+      drag: setDragX,
+      flip: () => { setAnswerShown((shown) => !shown); setSpeechMessage('') },
+      answer: (known) => answerRef.current(known),
+    })
+  }, [gestureSurface, setSpeechMessage])
 
   const returnToStudy = (id: WordId) => {
     const { words, queue } = currentProgress()
@@ -384,28 +352,23 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             <div className="study-heading"><h1>{currentWord.progress === 1 ? 'Вспомни перевод' : 'Назови по-эстонски'}</h1></div>
             <div className="lesson-track"><span style={{ width: `${Math.max(12, progress)}%` }} /></div>
             <p className="study-prompt">{currentWord.progress === 1 ? 'Эстонский → Русский' : 'Русский → Эстонский'}</p>
-            <div className="swipe-stage">
+            <div className="swipe-stage" ref={setGestureSurface}>
               <div className={`swipe-label swipe-label--no ${dragX < -25 ? 'visible' : ''}`}>НЕ ЗНАЮ</div><div className={`swipe-label swipe-label--yes ${dragX > 25 ? 'visible' : ''}`}>ЗНАЮ!</div>
-              <div className={`flashcard ${answerShown ? 'flashcard--flipped' : ''} ${feedback ? `flashcard--${feedback.kind}` : ''}`} style={feedback ? undefined : { transform: `translateX(${dragX}px) rotate(${dragX / 18}deg)` }}
-                onPointerDown={beginCardDrag}
-                onPointerMove={moveCardDrag}
-                onPointerUp={(e) => endCardDrag(e)}
-                onPointerCancel={(e) => endCardDrag(e, true)}
-                onLostPointerCapture={(e) => endCardDrag(e, true)}
-                onClick={(e) => {
-                  if (suppressCardClick.current) { suppressCardClick.current = false; return }
-                  if ((e.target as HTMLElement).closest('button') || feedback || answerTimer.current !== null) return
-                  setAnswerShown((shown) => !shown)
-                }}>
+              <div className={`flashcard ${answerShown ? 'flashcard--flipped' : ''} ${feedback ? `flashcard--${feedback.kind}` : ''} ${dragX ? 'flashcard--dragging' : ''}`}
+                style={feedback ? undefined : { transform: `translateX(${dragX}px) rotate(${dragX / 18}deg)` }}>
                 <div className="flashcard__inner">
                   <div className="flashcard__face flashcard__face--front">
                     <div className="flashcard__rings"><i /><i /><i /></div>
                     <div className="flashcard__top">
                       <span className="language-tag">{currentWord.progress === 1 ? 'ET' : 'RU'}</span>
-                      <button className="sound-button" aria-label={`Прослушать произношение ${currentWord.estonian}`} onPointerDown={(e) => e.stopPropagation()} onPointerMove={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()} onPointerCancel={(e) => e.stopPropagation()} onClick={playPronunciation}><Icon name="volume" /></button>
+                      <button className="sound-button" aria-label="Прослушать слово на карточке" onClick={() => {
+                        if (currentWord.progress === 1) pronounce(currentWord.estonian, 'et-EE')
+                        else pronounce(currentWord.russian, 'ru-RU')
+                      }}><Icon name="volume" /></button>
                     </div>
                     <div className="flashcard__content">
-                      <button className={`hint-orb ${hintShown ? 'hint-orb--shown' : ''}`} aria-label={hintShown ? 'Скрыть эмодзи-подсказку' : 'Показать эмодзи-подсказку'} onPointerDown={(e) => e.stopPropagation()} onPointerMove={(e) => e.stopPropagation()} onPointerUp={(e) => e.stopPropagation()} onPointerCancel={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setHintShown((shown) => !shown) }}>
+                      <button className={`hint-orb ${hintShown ? 'hint-orb--shown' : ''}`} aria-label={hintShown ? 'Скрыть эмодзи-подсказку' : 'Показать эмодзи-подсказку'}
+                        onClick={() => setHintShown((shown) => !shown)}>
                         {hintShown ? <span className="hint-orb__emojis">{currentWord.emojis.join(' ')}</span> : <span className="hint-orb__question">?</span>}
                       </button>
                       <div className="flashcard__main">
@@ -420,7 +383,10 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
                     <div className="flashcard__rings"><i /><i /><i /></div>
                     <div className="flashcard__top">
                       <span className="language-tag">{currentWord.progress === 1 ? 'RU' : 'ET'}</span>
-                      <span className="flashcard__top-spacer" aria-hidden="true" />
+                      <button className="sound-button" aria-label="Прослушать правильный ответ" onClick={() => {
+                        if (currentWord.progress === 1) pronounce(currentWord.russian, 'ru-RU')
+                        else pronounce(currentWord.estonian, 'et-EE')
+                      }}><Icon name="volume" /></button>
                     </div>
                     <div className="flashcard__content flashcard__content--answer">
                       <div className="flashcard__main flashcard__main--answer">
@@ -435,6 +401,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
                 </div>
               </div>
             </div>
+            {speechMessage && <p className="study-tip" role="status">{speechMessage}</p>}
             <div className="answer-actions answer-actions--visible"><button className="tactile-button tactile-button--red" onClick={() => answer(false)}>НЕ ЗНАЮ</button><button className="tactile-button tactile-button--green" onClick={() => answer(true)}>ЗНАЮ!</button></div>
           </> : sessionCompleted ? <div className="complete-state">
             <div className="confetti" aria-hidden="true">{Array.from({ length: 12 }).map((_, i) => <i key={i} />)}</div>

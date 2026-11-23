@@ -287,13 +287,14 @@
 .lesson-track { height: 12px; margin: 7px 0 9px; }
 .study-prompt { text-align: center; color: #888; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 .swipe-stage { position: relative; }
-.screen--study .swipe-stage { flex: 1; min-height: 300px; display: flex; align-items: center; }
+.screen--study .swipe-stage { flex: 1; min-height: 300px; display: flex; align-items: center; touch-action: pan-y pinch-zoom; }
 .swipe-label { position: absolute; z-index: 8; top: 82px; padding: 8px 12px; border: 4px solid currentColor; border-radius: 11px; font-size: 18px; font-weight: 900; letter-spacing: 1px; opacity: 0; transition: opacity .12s, transform .12s; pointer-events: none; }
 .swipe-label--no { left: 24px; color: var(--error); transform: rotate(-12deg) scale(.8); }
 .swipe-label--yes { right: 24px; color: var(--success); transform: rotate(12deg) scale(.8); }
 .swipe-label.visible { opacity: 1; transform: rotate(0) scale(1); }
 .flashcard { height: 370px; border: 3px solid #e1e1e1; border-bottom-width: 9px; border-radius: 30px; background: #fff; position: relative; overflow: hidden; cursor: pointer; transition: transform .25s, border-color .25s, background .25s; display: grid; place-items: center; }
-.swipe-stage .flashcard { touch-action: pan-y; user-select: none; cursor: grab; }
+.swipe-stage .flashcard { user-select: none; cursor: grab; }
+.screen--study .flashcard--dragging { transition: none; }
 .swipe-stage .flashcard:active { cursor: grabbing; }
 .flashcard:hover { transform: translateY(-2px) rotate(.25deg); }
 .flashcard--revealed { border-color: #84d8ff; background: #fafdff; }
@@ -352,6 +353,7 @@
 .screen--study .flashcard__inner {
   position: absolute;
   inset: 0;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
   transition: transform .58s cubic-bezier(.2,.78,.28,1);
 }
@@ -390,7 +392,6 @@
   position: static;
   flex: 0 0 auto;
 }
-.screen--study .flashcard__top-spacer { width: 42px; height: 40px; flex: 0 0 auto; }
 .screen--study .flashcard__content {
   position: relative;
   z-index: 3;
@@ -451,8 +452,8 @@
   transition: width .25s cubic-bezier(.2,.8,.2,1), transform .14s, border-width .14s, background .2s;
   cursor: pointer;
 }
-.screen--study .hint-orb:hover { transform: translateY(-2px) rotate(1deg); }
-.screen--study .hint-orb:active { transform: translateY(4px); border-bottom-width: 3px; }
+.screen--study .hint-orb:not(.hint-orb--shown):hover { transform: translateY(-2px) rotate(1deg); }
+.screen--study .hint-orb:not(.hint-orb--shown):active { transform: translateY(4px); border-bottom-width: 3px; }
 .screen--study .hint-orb--shown {
   width: min(190px, 72%);
   color: #3c3c3c;
@@ -469,15 +470,16 @@
   font-size: 35px;
   line-height: 1;
   white-space: nowrap;
-  animation: hint-pop .42s cubic-bezier(.2,1.4,.35,1);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji;
+  font-weight: normal;
+  animation: hint-fade .18s ease-out;
 }
 @keyframes question-bob {
   50% { transform: translateY(-3px) rotate(4deg); }
 }
-@keyframes hint-pop {
-  0% { opacity: 0; transform: scale(.45) rotate(-10deg); }
-  65% { transform: scale(1.14) rotate(4deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
+@keyframes hint-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .screen--study .flashcard__bottom {
   position: relative;
@@ -669,27 +671,11 @@
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-/* Safari: isolate the two card faces in the same compositing context. */
-.screen--study .flashcard { -webkit-perspective: 1200px; perspective: 1200px; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-.screen--study .flashcard__inner { -webkit-transform-style: preserve-3d; transform-style: preserve-3d; will-change: transform; }
-.screen--study .flashcard__face {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-transform-style: flat;
-  transform-style: flat;
-  -webkit-transform: translateZ(1px) rotateY(0deg);
-  transform: translateZ(1px) rotateY(0deg);
-}
-.screen--study .flashcard__face--back {
-  -webkit-transform: rotateY(180deg) translateZ(1px);
-  transform: rotateY(180deg) translateZ(1px);
-}
-.screen--study .flashcard__inner { -webkit-transform: rotateY(0deg); transform: rotateY(0deg); }
-.screen--study .flashcard--flipped .flashcard__inner { -webkit-transform: rotateY(180deg); transform: rotateY(180deg); }
-.screen--study .flashcard__face--front { visibility: visible; transition: visibility 0s linear .29s; }
+/* Switch face visibility at the midpoint of the existing 3D flip. */
+.screen--study .flashcard { -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.screen--study .flashcard__face { transition: visibility 0s linear .29s; }
+.screen--study .flashcard__face--front { visibility: visible; }
 .screen--study .flashcard--flipped .flashcard__face--front { visibility: hidden; }
 .screen--study .flashcard__face--back { visibility: hidden; }
 .screen--study .flashcard--flipped .flashcard__face--back { visibility: visible; }
-.screen--study .flashcard, .screen--study .flashcard * { -webkit-user-select: none; user-select: none; }
-.screen--study .flashcard { touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
 .screen--study .flashcard__main h2, .screen--study .answer-original { overflow-wrap: anywhere; word-break: normal; }
