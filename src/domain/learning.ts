@@ -7,7 +7,7 @@ export function advanceProgress(progress: Progress, known: boolean): Progress {
   return progress
 }
 
-export function requeueAfterAnswer(queue: WordId[], id: WordId, learned: boolean, random = Math.random): WordId[] {
+export function requeueAfterAnswer<T extends WordId>(queue: T[], id: T, learned: boolean, random = Math.random): T[] {
   const rest = queue.filter((item) => item !== id)
   if (learned) return rest
   if (!rest.length) return [id]
@@ -23,7 +23,7 @@ export function completesActiveSession(progress: Progress, known: boolean, queue
   return known && progress === 2 && queue.length > 0 && queue.every((id) => id === wordId)
 }
 
-export function applyAnswer(session: StoredProgress, wordId: WordId, known: boolean): StoredProgress {
+export function applyAnswer(session: StoredProgress, wordId: WordId, known: boolean, random = Math.random): StoredProgress {
   if (session.queue[0] !== wordId) return session
 
   const word = session.words.find(({ id }) => id === wordId)
@@ -32,6 +32,6 @@ export function applyAnswer(session: StoredProgress, wordId: WordId, known: bool
   const progress = advanceProgress(word.progress, known)
   return {
     words: session.words.map((entry) => entry.id === wordId ? setWordProgress(entry, progress) : entry),
-    queue: requeueAfterAnswer(session.queue, wordId, progress === 3),
+    queue: requeueAfterAnswer(session.queue, wordId, progress === 3, random),
   }
 }

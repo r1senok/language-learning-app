@@ -102,6 +102,7 @@ export function wordsInDictionary(
 ): Word[] {
   return words.filter((word) => {
     if (word.progress !== 0) return true
+    if (word.personalId) return true
     if (publishedIds?.has(word.id)) return true
     if (!publishedIds && bundledIds.has(word.id)) return true
     return typeof word.id === 'number' && !bundledIds.has(word.id)

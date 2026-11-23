@@ -87,7 +87,7 @@ function recoverProgress(raw: string | null, starters: ReadonlyMap<WordId, Word>
   return { words: recoveredWords, queue: recoverQueue(recoveredWords, value.queue) }
 }
 
-export function loadGuestProgress(starterWords: Word[]): StoredProgress {
+export function readSavedGuestProgress(starterWords: Word[]): StoredProgress | undefined {
   const starters = new Map(starterWords.map((word) => [word.id, word]))
   try {
     const current = recoverProgress(localStorage.getItem(GUEST_STORAGE_KEY), starters)
@@ -102,6 +102,11 @@ export function loadGuestProgress(starterWords: Word[]): StoredProgress {
     // Some browser modes prevent access to localStorage.
   }
 
+}
+
+export function loadGuestProgress(starterWords: Word[]): StoredProgress {
+  const saved = readSavedGuestProgress(starterWords)
+  if (saved) return saved
   return { words: starterWords, queue: recoverQueue(starterWords, undefined) }
 }
 
