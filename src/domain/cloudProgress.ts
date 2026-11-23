@@ -1,3 +1,4 @@
+import { legacyCatalogIds } from './wordId.ts'
 import { requeueAfterAnswer } from './learning.ts'
 import type { Progress, StoredProgress, Word, WordId } from '../types'
 
@@ -135,7 +136,9 @@ export function planAction(
       const visible = new Set([
         ...catalog.flatMap((word) => word.catalogId && !aliases.has(word.id)
           ? [keyOf({ kind: 'catalog', id: word.catalogId })] : []),
-        ...personal.map((word) => keyOf({ kind: 'personal', id: word.id })),
+        ...personal.filter((word) => word.legacy_id === null || !legacyCatalogIds.has(word.legacy_id) ||
+          catalog.some((entry) => entry.id === word.legacy_id))
+          .map((word) => keyOf({ kind: 'personal', id: word.id })),
         key,
       ])
       const nextQueue = requeueAfterAnswer(queue.filter((id) => visible.has(id)), key, false, () => random)
@@ -161,7 +164,9 @@ export function planAction(
     const byId = new Map(guest.words.map((word) => [word.id, word]))
     for (const word of [...guest.queue.flatMap((id) => byId.get(id) ?? []),
       ...guest.words.filter((word) => !isQueued(word.progress))]) {
-      if (!word.progress && (word.catalogId || catalog.some(({ id }) => id === word.id))) continue
+      const published = catalog.some((entry) => entry.id === word.id || entry.catalogId === word.catalogId && word.catalogId)
+      if (word.catalogId && !published) continue
+      if (!word.progress && (word.catalogId || published || legacyCatalogIds.has(word.id))) continue
       const ref = resolve(word, action.keys[word.id])
       const current = rows.get(keyOf(ref))?.stage ?? 0
       if (word.progress > current) stage(ref, word.progress, 'append')

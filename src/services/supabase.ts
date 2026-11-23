@@ -20,4 +20,16 @@ export async function createSupabaseClient(url?: string, publishableKey?: string
   }
 }
 
+export async function createPublicCatalogClient(url?: string, publishableKey?: string) {
+  if (!url?.trim() || !publishableKey || !isPublishableKey(publishableKey)) return null
+
+  try {
+    const { createClient } = await import('@supabase/supabase-js')
+    // A null access token forces the public key even while the user is signed in.
+    return createClient(url.trim(), publishableKey.trim(), { accessToken: async () => null })
+  } catch {
+    return null
+  }
+}
+
 export type TakkuClient = NonNullable<Awaited<ReturnType<typeof createSupabaseClient>>>

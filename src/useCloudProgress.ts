@@ -2,7 +2,6 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { CloudSync, cloudTransport } from './services/cloudSync'
 import { readSavedGuestProgress } from './services/localProgress'
 import type { TakkuClient } from './services/supabase'
-import type { Word } from './types'
 
 const noSubscription = () => () => {}
 const emptyView = () => null
@@ -11,10 +10,10 @@ function browserStorage() {
   try { return window.localStorage } catch { return undefined }
 }
 
-export function useCloudProgress(client: TakkuClient | null, userId: string | undefined, bundled: Word[]) {
+export function useCloudProgress(client: TakkuClient | null, userId: string | undefined) {
   // The parent keys this subtree by user ID. Each instance holds one account only.
   const [sync] = useState(() => client && userId
-    ? new CloudSync(userId, cloudTransport(client, userId), browserStorage(), readSavedGuestProgress(bundled), bundled)
+    ? new CloudSync(userId, cloudTransport(client, userId), browserStorage(), readSavedGuestProgress([]), [])
     : null)
   const view = useSyncExternalStore(sync?.subscribe ?? noSubscription, sync?.getView ?? emptyView)
 
