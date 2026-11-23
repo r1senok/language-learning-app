@@ -1,0 +1,716 @@
+[
+  {
+    "estonian": "aadress",
+    "russian": "адрес",
+    "emoji": "🏠",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aasta",
+    "russian": "год",
+    "emoji": "📅",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aastaaeg",
+    "russian": "время года",
+    "emoji": "🍂",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "abielus",
+    "russian": "женат, замужем",
+    "emoji": "💍",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "abikaasa",
+    "russian": "супруг, супруга",
+    "emoji": "💑",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aeg",
+    "russian": "время",
+    "emoji": "⏰",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aga",
+    "russian": "но",
+    "emoji": "↔️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ainult",
+    "russian": "только",
+    "emoji": "☝️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aku",
+    "russian": "аккумулятор",
+    "emoji": "🔋",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ala",
+    "russian": "участок, территория",
+    "emoji": "🗺️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "alati",
+    "russian": "всегда",
+    "emoji": "♾️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "algama",
+    "russian": "начинаться",
+    "emoji": "▶️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "allkiri",
+    "russian": "подпись",
+    "emoji": "✍️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "allahindlus",
+    "russian": "уценка, скидка",
+    "emoji": "🏷️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "alles",
+    "russian": "только",
+    "emoji": "⌛",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "amet",
+    "russian": "должность",
+    "emoji": "💼",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "andma",
+    "russian": "давать",
+    "emoji": "🤲",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "apelsin",
+    "russian": "апельсин",
+    "emoji": "🍊",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aprill",
+    "russian": "апрель",
+    "emoji": "🗓️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "apteek",
+    "russian": "аптека",
+    "emoji": "💊",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "arbuus",
+    "russian": "арбуз",
+    "emoji": "🍉",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "argipäev",
+    "russian": "будни",
+    "emoji": "📆",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "armas",
+    "russian": "милый",
+    "emoji": "🥰",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "armastama",
+    "russian": "любить",
+    "emoji": "❤️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "arst",
+    "russian": "врач",
+    "emoji": "🩺",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "aru saama",
+    "russian": "понимать",
+    "emoji": "💡",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "arvama",
+    "russian": "считать, думать",
+    "emoji": "🤔",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "arve",
+    "russian": "счёт",
+    "emoji": "🧾",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "arvuti",
+    "russian": "компьютер",
+    "emoji": "💻",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "asuma",
+    "russian": "находиться",
+    "emoji": "📍",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "august",
+    "russian": "август",
+    "emoji": "🗓️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "auto",
+    "russian": "машина",
+    "emoji": "🚗",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "autojuht",
+    "russian": "водитель",
+    "emoji": "🚘",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "automaatpesula",
+    "russian": "автоматическая мойка",
+    "emoji": "🚿",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "banaan",
+    "russian": "банан",
+    "emoji": "🍌",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "beebi",
+    "russian": "младенец",
+    "emoji": "👶",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "bussijaam",
+    "russian": "автобусный вокзал",
+    "emoji": "🚌",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "detsember",
+    "russian": "декабрь",
+    "emoji": "❄️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "direktor",
+    "russian": "директор",
+    "emoji": "👔",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "doktor",
+    "russian": "доктор",
+    "emoji": "🩺",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "dokument",
+    "russian": "документ",
+    "emoji": "📄",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "edasi ütlema",
+    "russian": "передавать (на словах)",
+    "emoji": "🗣️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "eelkooliealine",
+    "russian": "дошкольник",
+    "emoji": "🧒",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "(ees)nimi",
+    "russian": "имя",
+    "emoji": "🏷️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ega",
+    "russian": "отрицательная частица: ни, не",
+    "emoji": "🚫",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "eile",
+    "russian": "вчера",
+    "emoji": "⬅️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "eksabikaasa",
+    "russian": "бывший супруг, бывшая супруга",
+    "emoji": "💔",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "eksima",
+    "russian": "ошибаться",
+    "emoji": "❌",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "elanik",
+    "russian": "житель",
+    "emoji": "🏘️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "elukoht",
+    "russian": "местожительство",
+    "emoji": "🏡",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ema",
+    "russian": "мама",
+    "emoji": "👩",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "enam-vähem",
+    "russian": "более или менее",
+    "emoji": "⚖️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "enne",
+    "russian": "раньше, до",
+    "emoji": "⏮️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "e-post",
+    "russian": "электронная почта",
+    "emoji": "📧",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "eraldi",
+    "russian": "отдельно",
+    "emoji": "↔️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "esmaspäev",
+    "russian": "понедельник",
+    "emoji": "📅",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "et",
+    "russian": "что",
+    "emoji": "💬",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ettekandja",
+    "russian": "официант, официантка",
+    "emoji": "🍽️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ettevaatust",
+    "russian": "осторожно",
+    "emoji": "⚠️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "finantsdirektor",
+    "russian": "финансовый директор",
+    "emoji": "💼",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "firma",
+    "russian": "фирма",
+    "emoji": "🏢",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "forell",
+    "russian": "форель",
+    "emoji": "🐟",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "gaas",
+    "russian": "газ",
+    "emoji": "🔥",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "gümnaasium",
+    "russian": "гимназия",
+    "emoji": "🏫",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "haige",
+    "russian": "больной",
+    "emoji": "🤒",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "haigla",
+    "russian": "больница",
+    "emoji": "🏥",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hakkliha",
+    "russian": "фарш",
+    "emoji": "🥩",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hakkama",
+    "russian": "начинать",
+    "emoji": "▶️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hall",
+    "russian": "серый",
+    "emoji": "🩶",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "halvasti",
+    "russian": "плохо",
+    "emoji": "👎",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hapukoor",
+    "russian": "сметана",
+    "emoji": "🥛",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "haridus",
+    "russian": "образование",
+    "emoji": "🎓",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "harjutus",
+    "russian": "упражнение",
+    "emoji": "📝",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "harva",
+    "russian": "редко",
+    "emoji": "🕰️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hea meelega",
+    "russian": "с удовольствием",
+    "emoji": "😊",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hea",
+    "russian": "хороший",
+    "emoji": "👍",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "heeringas",
+    "russian": "селёдка",
+    "emoji": "🐟",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "helistama",
+    "russian": "звонить",
+    "emoji": "📞",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hetk",
+    "russian": "момент, мгновение",
+    "emoji": "⏱️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hetkel",
+    "russian": "в данный момент",
+    "emoji": "⌚",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hiline",
+    "russian": "поздний",
+    "emoji": "🌙",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hiljem",
+    "russian": "позже",
+    "emoji": "⏳",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hind",
+    "russian": "цена",
+    "emoji": "💶",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hoidma",
+    "russian": "хранить",
+    "emoji": "📦",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "homme",
+    "russian": "завтра",
+    "emoji": "➡️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hommik",
+    "russian": "утро",
+    "emoji": "🌅",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hotell",
+    "russian": "отель",
+    "emoji": "🏨",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "hästi",
+    "russian": "хорошо",
+    "emoji": "👌",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ID-kaart",
+    "russian": "идентификационная карта",
+    "emoji": "🪪",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "iga päev",
+    "russian": "каждый день",
+    "emoji": "📆",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "inimene",
+    "russian": "человек",
+    "emoji": "🧍",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "isa",
+    "russian": "папа",
+    "emoji": "👨",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ise",
+    "russian": "сам(а)",
+    "emoji": "🙋",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "isiklik",
+    "russian": "личный",
+    "emoji": "🔐",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "isikukood",
+    "russian": "личный код",
+    "emoji": "🔢",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "isikutunnistus",
+    "russian": "удостоверение личности",
+    "emoji": "🪪",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "istuma",
+    "russian": "сидеть",
+    "emoji": "🪑",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "isu",
+    "russian": "аппетит",
+    "emoji": "🍽️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "ja",
+    "russian": "и, да",
+    "emoji": "➕",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "jaam",
+    "russian": "вокзал",
+    "emoji": "🚉",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "jaanuar",
+    "russian": "январь",
+    "emoji": "❄️",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  },
+  {
+    "estonian": "jah",
+    "russian": "да",
+    "emoji": "✅",
+    "source": "TERE! sõnastik, page 20",
+    "status": "draft"
+  }
+]
