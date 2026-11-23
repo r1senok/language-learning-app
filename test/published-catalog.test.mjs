@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { applyAnswer } from '../src/domain/learning.ts'
 import { loadGuestProgress, saveGuestProgress } from '../src/services/localProgress.ts'
 import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from '../src/services/publishedCatalog.ts'
-import { createCatalogClient } from '../src/services/supabase.ts'
+import { createSupabaseClient } from '../src/services/supabase.ts'
 
 const bundledIds = new Set([1, 2])
 const uuid = (n) => `01010101-0101-4101-8101-${String(n).padStart(12, '0')}`
@@ -63,8 +63,8 @@ test('paginates in ID order', async () => {
 })
 
 test('keeps the guest dictionary available for missing config, empty catalog and failed requests', async () => {
-  assert.equal(await createCatalogClient(), null)
-  assert.equal(await createCatalogClient('invalid-url', 'sb_publishable_example'), null)
+  assert.equal(await createSupabaseClient(), null)
+  assert.equal(await createSupabaseClient('invalid-url', 'sb_publishable_example'), null)
   const clients = [
     null,
     makeClient(async () => response([])),

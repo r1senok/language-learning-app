@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
-import { cloudCapability, supabaseSetup } from './services/cloudSync'
+import { AuthDialog } from './AuthDialog'
+import { authErrorMessage, isAuthReturn, signOutHere } from './services/auth'
+import type { AuthIntent } from './services/auth'
+import { useAuth } from './useAuth'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
 import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from './services/publishedCatalog'
-import { createCatalogClient } from './services/supabase'
+import { createSupabaseClient } from './services/supabase'
 import type { Progress, StoredProgress, Word, WordId } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
@@ -55,7 +58,8 @@ const starterWords: Word[] = [
 ]
 
 const bundledIds = new Set(starterWords.map(({ id }) => id))
-const catalogClient = createCatalogClient(
+const returningFromAuth = isAuthReturn(window.location.href)
+const supabaseClient = createSupabaseClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
 )
@@ -121,7 +125,7 @@ export default function App() {
   const latestGuest = useRef(guest)
   const [publishedIds, setPublishedIds] = useState<ReadonlySet<WordId> | null>(null)
   const answerTimer = useRef<number | null>(null)
-  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>('vocabulary')
+  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'vocabulary')
   const [vocabularyTab, setVocabularyTab] = useState<VocabularyTab>('study')
   const [category, setCategory] = useState('Все')
   const [search, setSearch] = useState('')
@@ -138,7 +142,10 @@ export default function App() {
   const [newPart, setNewPart] = useState('')
   const [newEmoji, setNewEmoji] = useState('')
   const [statusWordId, setStatusWordId] = useState<WordId | null>(null)
-  const [authIntent, setAuthIntent] = useState<'signup' | 'signin' | null>(null)
+  const [authIntent, setAuthIntent] = useState<AuthIntent | null>(null)
+  const { client, session, ready: authReady, returnError } = useAuth(supabaseClient, returningFromAuth)
+  const [signingOut, setSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState('')
   const [sessionCompleted, setSessionCompleted] = useState(false)
 
   useEffect(() => () => {
@@ -147,7 +154,7 @@ export default function App() {
 
   useEffect(() => {
     const request = new AbortController()
-    void catalogClient.then((client) => {
+    void supabaseClient.then((client) => {
       if (request.signal.aborted) return []
       return loadPublishedCatalog(client, bundledIds, request.signal)
     }).then((catalog) => {
@@ -160,6 +167,24 @@ export default function App() {
     })
     return () => request.abort()
   }, [])
+
+  useEffect(() => {
+    if (session) setAuthIntent(null)
+  }, [session])
+
+  async function logout() {
+    if (!client || signingOut) return
+    setSigningOut(true)
+    setSignOutError('')
+    try {
+      const { error } = await signOutHere(client.auth)
+      if (error) setSignOutError(authErrorMessage(error, 'logout'))
+    } catch {
+      setSignOutError(authErrorMessage({}, 'logout'))
+    } finally {
+      setSigningOut(false)
+    }
+  }
 
   function commitGuest(next: StoredProgress) {
     latestGuest.current = next
@@ -397,13 +422,20 @@ export default function App() {
           <div className="profile-hero">
             <div className="profile-illustration"><div className="profile-cloud"><Icon name="cloud" /><span>✓</span></div><Mascot /></div>
             <span className="eyebrow">ТВОЙ ПРОГРЕСС</span>
-            <h1>Сохрани свой прогресс</h1>
-            <p>Создай аккаунт, чтобы продолжать обучение на любом устройстве</p>
+            <h1>{session ? 'Твой аккаунт' : 'Сохрани свой прогресс'}</h1>
+            <p>{session ? session.user.email ?? 'Вы вошли в Takku' : 'Войдите по электронной почте или через Google'}</p>
           </div>
-          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>Гостевой режим</b><p>Прогресс хранится только на этом устройстве</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
-          <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
-          <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
-          {!cloudCapability.configured && <div className="cloud-unavailable"><div><Icon name="cloud" /></div><span><b>Облачная синхронизация не настроена</b><p>{cloudCapability.message}</p></span></div>}
+          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>{session ? 'Локальный прогресс' : 'Гостевой режим'}</b><p>Прогресс хранится только на этом устройстве</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
+          {session ? (
+            <button className="profile-secondary" disabled={signingOut} onClick={() => void logout()}>
+              {signingOut ? 'Выходим…' : 'Выйти'}
+            </button>
+          ) : authReady ? <>
+            <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
+            <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
+          </> : <p role="status">Проверяем вход…</p>}
+          {signOutError && <p role="alert">{signOutError}</p>}
+          {returnError && !session && <p role="alert">{returnError}</p>}
           <div className="profile-stats">
             <div><strong>{learnedWords.length}</strong><span>выучено</span></div>
             <div><strong>{studyingCount}</strong><span>изучается</span></div>
@@ -444,17 +476,9 @@ export default function App() {
       </div>
     </div>}
 
-    {authIntent && <div className="modal-backdrop" onPointerDown={() => setAuthIntent(null)}>
-      <div className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" onPointerDown={(event) => event.stopPropagation()}>
-        <button className="modal-close" onClick={() => setAuthIntent(null)} aria-label="Закрыть"><Icon name="close" /></button>
-        <div className="auth-modal__icon"><Icon name="cloud" /></div>
-        <span className="eyebrow">{authIntent === 'signup' ? 'НОВЫЙ АККАУНТ' : 'С ВОЗВРАЩЕНИЕМ'}</span>
-        <h2 id="auth-modal-title">{authIntent === 'signup' ? 'Создать аккаунт' : 'Войти в Takku'}</h2>
-        <p>Supabase пока не подключён, поэтому отправка ссылки для входа недоступна. Гостевой режим продолжает работать.</p>
-        <label className="auth-email"><span>EMAIL</span><input type="email" disabled placeholder="name@example.com" /></label>
-        <button className="tactile-button tactile-button--primary tactile-button--wide" disabled>Отправить ссылку</button>
-        <div className="auth-setup"><b>Чтобы включить аккаунты:</b><ol>{supabaseSetup.map((step) => <li key={step}>{step}</li>)}</ol></div>
-      </div>
-    </div>}
+    {authIntent && !session && <AuthDialog key={authIntent} intent={authIntent} client={client}
+      ready={authReady} onClose={() => setAuthIntent(null)} closeIcon={<Icon name="close" />}>
+      <Icon name="cloud" />
+    </AuthDialog>}
   </div>
 }
