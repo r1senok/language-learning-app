@@ -76,13 +76,14 @@ SQL-проверки в `test/cloud-progress-sql.sql` рассчитаны на 
 
 1. В Supabase откройте **SQL Editor → New query** и выполните [миграцию для импорта](supabase/migrations/20261123020000_import_vocabulary.sql). Она добавляет закрытую SQL-функцию поверх существующих таблиц.
 2. Создайте случайный токен длиной не менее 32 символов через менеджер паролей. В **Edge Functions → Secrets** сохраните его под именем `TAKKU_IMPORT_TOKEN`. URL проекта и серверный ключ Edge Function получает от Supabase.
-3. Из корня репозитория разверните функцию через Supabase CLI. Понадобится вход в ваш аккаунт Supabase и идентификатор проекта.
+3. Разверните функцию вручную через GitHub Actions. Workflow становится доступен после слияния PR в ветку `main`.
 
-   ```sh
-   supabase functions deploy import-vocabulary --project-ref YOUR_PROJECT_REF --no-verify-jwt
-   ```
+   1. В Supabase откройте [Access Tokens](https://supabase.com/dashboard/account/tokens), нажмите **Generate new token** и скопируйте токен. Используйте аккаунт с правом развёртывать функции проекта Takku.
+   2. В GitHub откройте **Settings → Secrets and variables → Actions → New repository secret**. Введите имя `SUPABASE_ACCESS_TOKEN`, вставьте токен и нажмите **Add secret**. Токен из этого шага используется GitHub для развёртывания. `TAKKU_IMPORT_TOKEN` остаётся секретом Edge Function для запросов импорта.
+   3. В GitHub откройте **Actions → Deploy import-vocabulary → Run workflow**. Выберите `main` и нажмите зелёную кнопку **Run workflow**.
+   4. Откройте запущенную задачу. После зелёной галочки проверьте, что `import-vocabulary` появилась в **Supabase → Edge Functions**.
 
-   Флаг отключает проверку пользовательского JWT на шлюзе для этой функции. Она сама проверяет заголовок `x-takku-import-token` до чтения JSON и обращения к базе.
+   Workflow развёртывает только функцию. SQL-миграция из первого шага нужна отдельно перед первым предпросмотром. Шлюз пропускает запросы к этой функции без пользовательского JWT, а сама функция проверяет `x-takku-import-token` на сервере.
 4. В настройках среды Codex добавьте URL проекта в переменную `TAKKU_SUPABASE_URL`. Сохраните тот же токен как защищённый секрет `TAKKU_IMPORT_TOKEN` для HTTPS-домена проекта. Если у среды ограничена сеть, разрешите именно этот домен. Используйте настройки секретов, чтобы токен не попадал в чат, GitHub или клиентскую сборку.
 
 ### Как работает импорт
