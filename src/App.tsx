@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { advanceProgress, completesActiveSession, requeueAfterAnswer, setWordProgress } from './domain/learning'
+import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { cloudCapability, supabaseSetup } from './services/cloudSync'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
-import type { Category, Progress, Word } from './types'
+import type { Category, Progress, StoredProgress, Word } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
 type VocabularyTab = 'dictionary' | 'study' | 'learned'
@@ -109,17 +109,17 @@ function VocabularyNavigation({ active, studyingCount, onChange }: { active: Voc
 }
 
 export default function App() {
-  const initial = useRef(loadGuestProgress(starterWords))
+  const [guest, setGuest] = useState(() => loadGuestProgress(starterWords))
+  const latestGuest = useRef(guest)
+  const answerTimer = useRef<number | null>(null)
   const [primaryTab, setPrimaryTab] = useState<PrimaryTab>('vocabulary')
   const [vocabularyTab, setVocabularyTab] = useState<VocabularyTab>('study')
-  const [words, setWords] = useState<Word[]>(initial.current.words)
-  const [queue, setQueue] = useState<number[]>(initial.current.queue)
   const [category, setCategory] = useState('Все')
   const [search, setSearch] = useState('')
   const [learnedSearch, setLearnedSearch] = useState('')
   const [answerShown, setAnswerShown] = useState(false)
   const [hintShown, setHintShown] = useState(false)
-  const [feedback, setFeedback] = useState<'known' | 'unknown' | null>(null)
+  const [feedback, setFeedback] = useState<{ kind: 'known' | 'unknown'; before: StoredProgress } | null>(null)
   const [dragX, setDragX] = useState(0)
   const dragStart = useRef<number | null>(null)
   const [showAdd, setShowAdd] = useState(false)
@@ -132,18 +132,17 @@ export default function App() {
   const [authIntent, setAuthIntent] = useState<'signup' | 'signin' | null>(null)
   const [sessionCompleted, setSessionCompleted] = useState(false)
 
-  useEffect(() => {
-    saveGuestProgress({ words, queue })
-  }, [words, queue])
+  useEffect(() => () => {
+    if (answerTimer.current !== null) window.clearTimeout(answerTimer.current)
+  }, [])
 
-  useEffect(() => {
-    const valid = new Set(words.filter((word) => word.progress === 1 || word.progress === 2).map((word) => word.id))
-    setQueue((items) => {
-      const cleaned = items.filter((id, index) => valid.has(id) && items.indexOf(id) === index)
-      const missing = [...valid].filter((id) => !cleaned.includes(id))
-      return missing.length ? [...cleaned, ...shuffled(missing)] : cleaned
-    })
-  }, [words])
+  function commitGuest(next: StoredProgress) {
+    latestGuest.current = next
+    saveGuestProgress(next)
+    setGuest(next)
+  }
+
+  const { words, queue } = feedback?.before ?? guest
 
   const filteredWords = useMemo(() => words.filter((word) =>
     (category === 'Все' || word.category === category) &&
@@ -157,27 +156,30 @@ export default function App() {
   const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
 
   const addToStudy = (ids: number[]) => {
+    const { words, queue } = latestGuest.current
     const fresh = ids.filter((id) => words.some((word) => word.id === id && word.progress === 0))
     if (!fresh.length) return
-    setWords((items) => items.map((word) => fresh.includes(word.id) ? setWordProgress(word, 1) : word))
-    setQueue((items) => [...items, ...shuffled(fresh.filter((id) => !items.includes(id)))])
+    commitGuest({
+      words: words.map((word) => fresh.includes(word.id) ? setWordProgress(word, 1) : word),
+      queue: [...queue, ...shuffled(fresh.filter((id) => !queue.includes(id)))],
+    })
     setSessionCompleted(false)
   }
 
   const answer = (known: boolean) => {
-    if (!currentWord || feedback) return
-    setFeedback(known ? 'known' : 'unknown')
-    const id = currentWord.id
-    const completesSession = completesActiveSession(currentWord.progress, known, queue, id)
-    window.setTimeout(() => {
-      setWords((items) => items.map((word) => word.id !== id ? word : {
-        ...word,
-        progress: advanceProgress(word.progress, known),
-      }))
-      setQueue((items) => requeueAfterAnswer(items, id, known && currentWord.progress === 2))
+    if (!currentWord || answerTimer.current !== null) return
+    const before = latestGuest.current
+    const next = applyAnswer(before, currentWord.id, known)
+    if (next === before) return
+
+    const completesSession = completesActiveSession(currentWord.progress, known, before.queue, currentWord.id)
+    answerTimer.current = window.setTimeout(() => {
+      answerTimer.current = null
       setAnswerShown(false); setHintShown(false); setFeedback(null); setDragX(0)
-      setSessionCompleted(completesSession)
+      setSessionCompleted(completesSession && latestGuest.current.queue.length === 0)
     }, 430)
+    setFeedback({ kind: known ? 'known' : 'unknown', before })
+    commitGuest(next)
   }
 
   const finishDrag = () => {
@@ -197,14 +199,20 @@ export default function App() {
   }
 
   const returnToStudy = (id: number) => {
-    setWords((items) => items.map((word) => word.id === id ? setWordProgress(word, 1) : word))
-    setQueue((items) => items.includes(id) ? items : [...items, id])
+    const { words, queue } = latestGuest.current
+    commitGuest({
+      words: words.map((word) => word.id === id ? setWordProgress(word, 1) : word),
+      queue: queue.includes(id) ? queue : [...queue, id],
+    })
     setSessionCompleted(false)
   }
 
   const removeFromStudy = (id: number) => {
-    setWords((items) => items.map((word) => word.id === id ? setWordProgress(word, 0) : word))
-    setQueue((items) => items.filter((item) => item !== id))
+    const { words, queue } = latestGuest.current
+    commitGuest({
+      words: words.map((word) => word.id === id ? setWordProgress(word, 0) : word),
+      queue: queue.filter((item) => item !== id),
+    })
     setStatusWordId(null)
     setSessionCompleted(false)
   }
@@ -213,7 +221,11 @@ export default function App() {
     event.preventDefault()
     if (!newEstonian.trim() || !newRussian.trim()) return
     const id = Date.now()
-    setWords((items) => [...items, { id, estonian: newEstonian.trim().toLowerCase(), russian: newRussian.trim().toLowerCase(), emojis: newEmoji.trim() ? newEmoji.trim().split(/\s+/).slice(0, 3) : ['💬'], category: 'Общение', partOfSpeech: newPart.trim() || undefined, forms: newForms.trim() || undefined, progress: 0 }])
+    const { words, queue } = latestGuest.current
+    commitGuest({
+      words: [...words, { id, estonian: newEstonian.trim().toLowerCase(), russian: newRussian.trim().toLowerCase(), emojis: newEmoji.trim() ? newEmoji.trim().split(/\s+/).slice(0, 3) : ['💬'], category: 'Общение', partOfSpeech: newPart.trim() || undefined, forms: newForms.trim() || undefined, progress: 0 }],
+      queue,
+    })
     setNewEstonian(''); setNewRussian(''); setNewEmoji(''); setNewPart(''); setNewForms(''); setShowAdd(false)
   }
 
@@ -268,7 +280,7 @@ export default function App() {
             <p className="study-prompt">{currentWord.progress === 1 ? 'Эстонский → Русский' : 'Русский → Эстонский'}</p>
             <div className="swipe-stage">
               <div className={`swipe-label swipe-label--no ${dragX < -25 ? 'visible' : ''}`}>НЕ ЗНАЮ</div><div className={`swipe-label swipe-label--yes ${dragX > 25 ? 'visible' : ''}`}>ЗНАЮ!</div>
-              <div className={`flashcard ${answerShown ? 'flashcard--flipped' : ''} ${feedback ? `flashcard--${feedback}` : ''}`} style={feedback ? undefined : { transform: `translateX(${dragX}px) rotate(${dragX / 18}deg)` }}
+              <div className={`flashcard ${answerShown ? 'flashcard--flipped' : ''} ${feedback ? `flashcard--${feedback.kind}` : ''}`} style={feedback ? undefined : { transform: `translateX(${dragX}px) rotate(${dragX / 18}deg)` }}
                 onPointerDown={(e) => { dragStart.current = e.clientX; e.currentTarget.setPointerCapture(e.pointerId) }}
                 onPointerMove={(e) => { if (dragStart.current !== null && !feedback) setDragX(Math.max(-140, Math.min(140, e.clientX - dragStart.current))) }}
                 onPointerUp={() => {
