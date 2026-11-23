@@ -4,6 +4,8 @@ import { AuthDialog } from './AuthDialog'
 import { authErrorMessage, isAuthReturn, signOutHere } from './services/auth'
 import type { AuthIntent } from './services/auth'
 import { useAuth } from './useAuth'
+import { useCloudProgress } from './useCloudProgress'
+import type { CloudAction } from './domain/cloudProgress'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
 import { loadPublishedCatalog, mergePublishedCatalog, wordsInDictionary } from './services/publishedCatalog'
 import { createSupabaseClient } from './services/supabase'
@@ -121,11 +123,25 @@ function VocabularyNavigation({ active, studyingCount, onChange }: { active: Voc
 }
 
 export default function App() {
-  const [guest, setGuest] = useState(() => loadGuestProgress(starterWords))
+  const auth = useAuth(supabaseClient, returningFromAuth)
+  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'vocabulary')
+  return <Takku key={auth.session?.user.id ?? 'guest'} auth={auth}
+    primaryTab={primaryTab} setPrimaryTab={setPrimaryTab} />
+}
+
+function Takku({ auth, primaryTab, setPrimaryTab }: {
+  auth: ReturnType<typeof useAuth>
+  primaryTab: PrimaryTab
+  setPrimaryTab: (tab: PrimaryTab) => void
+}) {
+  const { client, session, ready: authReady, returnError } = auth
+  const { sync, view: cloud } = useCloudProgress(client, session?.user.id, starterWords)
+  const [guest, setGuest] = useState(() => session
+    ? { words: [], queue: [] } satisfies StoredProgress
+    : loadGuestProgress(starterWords))
   const latestGuest = useRef(guest)
   const [publishedIds, setPublishedIds] = useState<ReadonlySet<WordId> | null>(null)
   const answerTimer = useRef<number | null>(null)
-  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'vocabulary')
   const [vocabularyTab, setVocabularyTab] = useState<VocabularyTab>('study')
   const [category, setCategory] = useState('Все')
   const [search, setSearch] = useState('')
@@ -143,7 +159,6 @@ export default function App() {
   const [newEmoji, setNewEmoji] = useState('')
   const [statusWordId, setStatusWordId] = useState<WordId | null>(null)
   const [authIntent, setAuthIntent] = useState<AuthIntent | null>(null)
-  const { client, session, ready: authReady, returnError } = useAuth(supabaseClient, returningFromAuth)
   const [signingOut, setSigningOut] = useState(false)
   const [signOutError, setSignOutError] = useState('')
   const [sessionCompleted, setSessionCompleted] = useState(false)
@@ -158,15 +173,19 @@ export default function App() {
       if (request.signal.aborted) return []
       return loadPublishedCatalog(client, bundledIds, request.signal)
     }).then((catalog) => {
-      if (request.signal.aborted || !catalog.length) return
+      if (request.signal.aborted) return
 
-      const next = mergePublishedCatalog(latestGuest.current, catalog)
-      latestGuest.current = next
-      setGuest(next)
+      if (sync) sync.setCatalog(catalog)
+      if (!catalog.length) return
+      if (!sync) {
+        const next = mergePublishedCatalog(latestGuest.current, catalog)
+        latestGuest.current = next
+        setGuest(next)
+      }
       setPublishedIds(new Set(catalog.map(({ id }) => id)))
     })
     return () => request.abort()
-  }, [])
+  }, [sync])
 
   useEffect(() => {
     if (session) setAuthIntent(null)
@@ -186,13 +205,21 @@ export default function App() {
     }
   }
 
-  function commitGuest(next: StoredProgress) {
+  function currentProgress() {
+    return sync?.getView().progress ?? latestGuest.current
+  }
+
+  function commitProgress(next: StoredProgress, actions: CloudAction[]) {
+    if (sync) {
+      for (const action of actions) void sync.enqueue(action)
+      return
+    }
     latestGuest.current = next
     saveGuestProgress(next)
     setGuest(next)
   }
 
-  const { words, queue } = feedback?.before ?? guest
+  const { words, queue } = feedback?.before ?? cloud?.progress ?? guest
 
   const dictionary = useMemo(() => wordsInDictionary(words, bundledIds, publishedIds), [words, publishedIds])
   const filterCategories = useMemo(() => {
@@ -213,30 +240,40 @@ export default function App() {
   const progress = dictionary.length ? Math.round(learnedWords.length / dictionary.length * 100) : 0
 
   const addToStudy = (ids: WordId[]) => {
-    const { words, queue } = latestGuest.current
+    const { words, queue } = currentProgress()
     const fresh = ids.filter((id) => words.some((word) => word.id === id && word.progress === 0))
     if (!fresh.length) return
-    commitGuest({
+    const additions = shuffled(fresh.filter((id) => !queue.includes(id)))
+    commitProgress({
       words: words.map((word) => fresh.includes(word.id) ? setWordProgress(word, 1) : word),
-      queue: [...queue, ...shuffled(fresh.filter((id) => !queue.includes(id)))],
-    })
+      queue: [...queue, ...additions],
+    }, sync ? additions.map((id) => ({
+      type: 'study', id: crypto.randomUUID(), word: words.find((word) => word.id === id)!,
+      expected: 0, stage: 1, placement: 'append', random: 0,
+    })) : [])
     setSessionCompleted(false)
   }
 
   const answer = (known: boolean) => {
     if (!currentWord || answerTimer.current !== null) return
-    const before = latestGuest.current
-    const next = applyAnswer(before, currentWord.id, known)
+    const before = currentProgress()
+    const random = Math.random()
+    const next = applyAnswer(before, currentWord.id, known, () => random)
     if (next === before) return
 
-    const completesSession = completesActiveSession(currentWord.progress, known, before.queue, currentWord.id)
+    const active = before.words.find(({ id }) => id === currentWord.id)!
+    const stage = next.words.find(({ id }) => id === active.id)!.progress
+    const completesSession = completesActiveSession(active.progress, known, before.queue, active.id)
     answerTimer.current = window.setTimeout(() => {
       answerTimer.current = null
       setAnswerShown(false); setHintShown(false); setFeedback(null); setDragX(0)
-      setSessionCompleted(completesSession && latestGuest.current.queue.length === 0)
+      setSessionCompleted(completesSession && currentProgress().queue.length === 0)
     }, 430)
     setFeedback({ kind: known ? 'known' : 'unknown', before })
-    commitGuest(next)
+    commitProgress(next, sync ? [{
+      type: 'study', id: crypto.randomUUID(), word: active, expected: active.progress,
+      stage, placement: 'answer', random,
+    }] : [])
   }
 
   const finishDrag = () => {
@@ -256,20 +293,26 @@ export default function App() {
   }
 
   const returnToStudy = (id: WordId) => {
-    const { words, queue } = latestGuest.current
-    commitGuest({
-      words: words.map((word) => word.id === id ? setWordProgress(word, 1) : word),
+    const { words, queue } = currentProgress()
+    const word = words.find((entry) => entry.id === id)
+    if (!word || word.progress !== 3) return
+    commitProgress({
+      words: words.map((entry) => entry.id === id ? setWordProgress(entry, 1) : entry),
       queue: queue.includes(id) ? queue : [...queue, id],
-    })
+    }, sync ? [{ type: 'study', id: crypto.randomUUID(), word, expected: 3, stage: 1,
+      placement: 'append', random: 0 }] : [])
     setSessionCompleted(false)
   }
 
   const removeFromStudy = (id: WordId) => {
-    const { words, queue } = latestGuest.current
-    commitGuest({
-      words: words.map((word) => word.id === id ? setWordProgress(word, 0) : word),
+    const { words, queue } = currentProgress()
+    const word = words.find((entry) => entry.id === id)
+    if (!word || !word.progress) return
+    commitProgress({
+      words: words.map((entry) => entry.id === id ? setWordProgress(entry, 0) : entry),
       queue: queue.filter((item) => item !== id),
-    })
+    }, sync ? [{ type: 'study', id: crypto.randomUUID(), word, expected: word.progress, stage: 0,
+      placement: 'append', random: 0 }] : [])
     setStatusWordId(null)
     setSessionCompleted(false)
   }
@@ -277,12 +320,14 @@ export default function App() {
   const addWord = (event: React.FormEvent) => {
     event.preventDefault()
     if (!newEstonian.trim() || !newRussian.trim()) return
-    const id = Date.now()
-    const { words, queue } = latestGuest.current
-    commitGuest({
-      words: [...words, { id, estonian: newEstonian.trim().toLowerCase(), russian: newRussian.trim().toLowerCase(), emojis: newEmoji.trim() ? newEmoji.trim().split(/\s+/).slice(0, 3) : ['💬'], category: 'Общение', partOfSpeech: newPart.trim() || undefined, forms: newForms.trim() || undefined, progress: 0 }],
-      queue,
-    })
+    const id = sync ? crypto.randomUUID() : Date.now()
+    const { words, queue } = currentProgress()
+    const word: Word = {
+      id, estonian: newEstonian.trim().toLowerCase(), russian: newRussian.trim().toLowerCase(),
+      emojis: newEmoji.trim() ? newEmoji.trim().split(/\s+/).slice(0, 3) : ['💬'],
+      category: 'Общение', partOfSpeech: newPart.trim() || undefined, forms: newForms.trim() || undefined, progress: 0,
+    }
+    commitProgress({ words: [...words, word], queue }, sync ? [{ type: 'personal', id: crypto.randomUUID(), word }] : [])
     setNewEstonian(''); setNewRussian(''); setNewEmoji(''); setNewPart(''); setNewForms(''); setShowAdd(false)
   }
 
@@ -313,7 +358,9 @@ export default function App() {
         </section>}
 
         {primaryTab === 'vocabulary' && vocabularyTab === 'dictionary' && <section className="screen screen--dictionary">
-          <div className="section-row"><h2>Слова</h2></div>
+          <div className="section-row"><h2>Слова</h2>
+            <button type="button" className="add-study" onClick={() => setShowAdd(true)}><Icon name="plus" /><span>Добавить слово</span></button>
+          </div>
           <label className="search-box"><Icon name="search" /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Искать на эстонском или русском" /></label>
           <div className="category-scroll" aria-label="Категории">{filterCategories.map((item) => <button key={item.label} className={category === item.label ? 'category active' : 'category'} onClick={() => setCategory(item.label)}><span>{item.icon}</span>{item.label}</button>)}</div>
           <div className="word-list">
@@ -425,7 +472,9 @@ export default function App() {
             <h1>{session ? 'Твой аккаунт' : 'Сохрани свой прогресс'}</h1>
             <p>{session ? session.user.email ?? 'Вы вошли в Takku' : 'Войдите по электронной почте или через Google'}</p>
           </div>
-          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>{session ? 'Локальный прогресс' : 'Гостевой режим'}</b><p>Прогресс хранится только на этом устройстве</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
+          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>{session ? 'Облачный прогресс' : 'Прогресс на этом устройстве'}</b><p role="status">{session
+            ? cloud?.status === 'synced' ? 'Синхронизировано' : cloud?.status === 'offline' ? 'Нет подключения' : 'Синхронизация…'
+            : 'Доступен в этом браузере'}</p></div><span>{learnedWords.length}/{dictionary.length}</span></div>
           {session ? (
             <button className="profile-secondary" disabled={signingOut} onClick={() => void logout()}>
               {signingOut ? 'Выходим…' : 'Выйти'}
@@ -434,6 +483,12 @@ export default function App() {
             <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
             <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
           </> : <p role="status">Проверяем вход…</p>}
+          {cloud?.storageFailed && <p role="alert">Локальное сохранение ограничено. Оставьте Takku открытым до синхронизации.</p>}
+          {cloud?.conflict && <div className="cloud-unavailable" role="alert"><div><Icon name="cloud" /></div>
+            <span><b>Ожидающее действие нельзя применить</b>
+              <p>Прогресс изменился на другом устройстве или слово недоступно. Можно сохранить состояние из облака и повторить действие в текущей очереди.</p>
+              <button className="profile-secondary" onClick={() => void sync?.discardConflict()}>Использовать состояние из облака</button>
+            </span></div>}
           {signOutError && <p role="alert">{signOutError}</p>}
           {returnError && !session && <p role="alert">{returnError}</p>}
           <div className="profile-stats">
@@ -476,6 +531,20 @@ export default function App() {
       </div>
     </div>}
 
+    {cloud?.choice && <div className="modal-backdrop">
+      <div className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="progress-choice-title">
+        <div className="auth-modal__icon"><Icon name="cloud" /></div>
+        <h2 id="progress-choice-title">Прогресс обучения</h2>
+        <p>{cloud.choice === 'empty' ? 'Перенести гостевой прогресс в аккаунт?'
+          : 'Прогресс есть на этом устройстве и в аккаунте. Можно объединить данные или продолжить с облачным прогрессом.'}</p>
+        <button className="tactile-button tactile-button--primary tactile-button--wide" onClick={() => void sync?.decide(true)}>
+          {cloud.choice === 'empty' ? 'Перенести прогресс' : 'Объединить прогресс'}
+        </button>
+        <button className="profile-secondary" onClick={() => void sync?.decide(false)}>
+          {cloud.choice === 'empty' ? 'Начать с облачного прогресса' : 'Использовать облачный прогресс'}
+        </button>
+      </div>
+    </div>}
     {authIntent && !session && <AuthDialog key={authIntent} intent={authIntent} client={client}
       ready={authReady} onClose={() => setAuthIntent(null)} closeIcon={<Icon name="close" />}>
       <Icon name="cloud" />

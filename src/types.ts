@@ -5,6 +5,7 @@ export type WordId = number | string
 export type Word = {
   id: WordId
   catalogId?: string
+  personalId?: string
   estonian: string
   russian: string
   emojis: string[]
