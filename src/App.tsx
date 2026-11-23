@@ -110,7 +110,9 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const [hintShown, setHintShown] = useState(false)
   const [feedback, setFeedback] = useState<{ kind: 'known' | 'unknown'; before: StoredProgress } | null>(null)
   const [dragX, setDragX] = useState(0)
-  const dragStart = useRef<number | null>(null)
+  const dragGesture = useRef<{ pointerId: number; x: number; y: number; dx: number; axis: 'pending' | 'horizontal' | 'vertical' } | null>(null)
+  const suppressCardClick = useRef(false)
+  const dragXRef = useRef(0)
   const [showAdd, setShowAdd] = useState(false)
   const [newEstonian, setNewEstonian] = useState('')
   const [newRussian, setNewRussian] = useState('')
@@ -211,7 +213,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }
 
   const answer = (known: boolean) => {
-    if (!currentWord || answerTimer.current !== null) return
+    if (!currentWord || answerTimer.current !== null || feedback) return
     const before = currentProgress()
     const random = Math.random()
     const next = applyAnswer(before, currentWord.id, known, () => random)
@@ -232,10 +234,39 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     }] : [])
   }
 
-  const finishDrag = () => {
-    if (Math.abs(dragX) >= 85) answer(dragX > 0)
-    else setDragX(0)
-    dragStart.current = null
+  const beginCardDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (feedback || answerTimer.current !== null || (event.pointerType === 'mouse' && event.button !== 0)) return
+    if ((event.target as HTMLElement).closest('button')) return
+    dragGesture.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, axis: 'pending' }
+    dragXRef.current = 0
+  }
+
+  const moveCardDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const gesture = dragGesture.current
+    if (!gesture || gesture.pointerId !== event.pointerId || feedback) return
+    const dx = event.clientX - gesture.x
+    const dy = event.clientY - gesture.y
+    if (gesture.axis === 'pending' && Math.hypot(dx, dy) > 8) {
+      gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.15 ? 'horizontal' : 'vertical'
+      if (gesture.axis === 'horizontal') {
+        suppressCardClick.current = true
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }
+    }
+    if (gesture.axis !== 'horizontal') return
+    gesture.dx = dx
+    dragXRef.current = Math.max(-140, Math.min(140, dx))
+    setDragX(dragXRef.current)
+  }
+
+  const endCardDrag = (event: React.PointerEvent<HTMLDivElement>, cancelled = false) => {
+    const gesture = dragGesture.current
+    if (!gesture || gesture.pointerId !== event.pointerId) return
+    dragGesture.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+    if (!cancelled && gesture.axis === 'horizontal' && Math.abs(gesture.dx) >= 85) answer(gesture.dx > 0)
+    dragXRef.current = 0
+    setDragX(0)
   }
 
   const playPronunciation = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -356,17 +387,16 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             <div className="swipe-stage">
               <div className={`swipe-label swipe-label--no ${dragX < -25 ? 'visible' : ''}`}>НЕ ЗНАЮ</div><div className={`swipe-label swipe-label--yes ${dragX > 25 ? 'visible' : ''}`}>ЗНАЮ!</div>
               <div className={`flashcard ${answerShown ? 'flashcard--flipped' : ''} ${feedback ? `flashcard--${feedback.kind}` : ''}`} style={feedback ? undefined : { transform: `translateX(${dragX}px) rotate(${dragX / 18}deg)` }}
-                onPointerDown={(e) => { dragStart.current = e.clientX; e.currentTarget.setPointerCapture(e.pointerId) }}
-                onPointerMove={(e) => { if (dragStart.current !== null && !feedback) setDragX(Math.max(-140, Math.min(140, e.clientX - dragStart.current))) }}
-                onPointerUp={() => {
-                  if (Math.abs(dragX) >= 85) finishDrag()
-                  else {
-                    if (Math.abs(dragX) < 8) setAnswerShown((shown) => !shown)
-                    dragStart.current = null
-                    setDragX(0)
-                  }
-                }}
-                onPointerCancel={() => { dragStart.current = null; setDragX(0) }}>
+                onPointerDown={beginCardDrag}
+                onPointerMove={moveCardDrag}
+                onPointerUp={(e) => endCardDrag(e)}
+                onPointerCancel={(e) => endCardDrag(e, true)}
+                onLostPointerCapture={(e) => endCardDrag(e, true)}
+                onClick={(e) => {
+                  if (suppressCardClick.current) { suppressCardClick.current = false; return }
+                  if ((e.target as HTMLElement).closest('button') || feedback || answerTimer.current !== null) return
+                  setAnswerShown((shown) => !shown)
+                }}>
                 <div className="flashcard__inner">
                   <div className="flashcard__face flashcard__face--front">
                     <div className="flashcard__rings"><i /><i /><i /></div>
