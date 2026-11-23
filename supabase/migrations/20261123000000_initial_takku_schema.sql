@@ -232,6 +232,22 @@ begin
 end;
 $$;
 
+-- Editors archive entries rather than probing private progress through
+-- referential-integrity errors on DELETE or changes to referenced keys.
+revoke update, delete on public.languages from authenticated;
+grant update (name) on public.languages to authenticated;
+revoke update, delete on public.vocabulary_entries, public.vocabulary_translations from authenticated;
+grant update (legacy_id, lemma, part_of_speech, grammatical_forms, hint_emojis, is_published)
+  on public.vocabulary_entries to authenticated;
+grant update (glosses) on public.vocabulary_translations to authenticated;
+
+-- The creator and creation timestamp come from database defaults. A client
+-- cannot impersonate another creator or test arbitrary auth.users IDs.
+revoke insert, update on public.vocabulary_import_jobs from authenticated;
+grant insert (source_id, input_kind, object_key, status),
+  update (source_id, input_kind, object_key, status)
+  on public.vocabulary_import_jobs to authenticated;
+
 grant select on public.languages, public.vocabulary_entries, public.vocabulary_translations,
   public.categories, public.vocabulary_categories, public.books, public.lessons,
   public.sources, public.vocabulary_sources to anon;
@@ -292,8 +308,19 @@ create policy own_personal_words on public.personal_words for all to authenticat
 using ((select auth.uid()) = user_id)
 with check ((select auth.uid()) = user_id);
 
-create policy own_progress on public.vocabulary_progress for all to authenticated
+create policy read_own_progress on public.vocabulary_progress for select to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy delete_own_progress on public.vocabulary_progress for delete to authenticated
+using ((select auth.uid()) = user_id);
+
+-- The update grant excludes owner and word identity. Keep existing progress
+-- writable after unpublishing so the owner can still reorder or reset a queue.
+create policy update_own_progress on public.vocabulary_progress for update to authenticated
 using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy insert_own_progress on public.vocabulary_progress for insert to authenticated
 with check (
   (select auth.uid()) = user_id and (
     (vocabulary_id is not null and exists (
