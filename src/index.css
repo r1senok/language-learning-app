@@ -300,9 +300,6 @@
 .flashcard--known { border-color: var(--success); transform: translateX(35px) rotate(4deg); opacity: .65; }
 .flashcard--unknown { border-color: var(--error); transform: translateX(-35px) rotate(-4deg); opacity: .65; }
 .language-tag { position: static; background: #fff3c3; color: #c69200; border: 2px solid #ffe06a; border-radius: 11px; padding: 5px 9px; font-size: 11px; font-weight: 900; }
-.sound-button { position: static; width: 42px; height: 40px; display: grid; place-items: center; border-radius: 14px; color: var(--info-dark); background: var(--info-light); border-bottom: 4px solid #bce8fb; }
-.sound-button:active { transform: translateY(2px); border-bottom-width: 2px; }
-.sound-button svg { width: 21px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 .flashcard__main { text-align: center; position: relative; z-index: 2; padding: 20px; }
 .flashcard__emoji { display: block; font-size: 57px; margin-bottom: 15px; animation: float 2.2s ease-in-out infinite; }
 .flashcard__emoji--hidden { color: #ffc800; filter: none; }
@@ -337,7 +334,6 @@
 .tactile-button:not(:disabled):active { transform: translateY(4px); border-bottom-width: 2px; }
 .tactile-button:disabled { cursor: default; }
 .tactile-button--wide { width: 100%; }
-.study-tip { text-align: center; color: #aaa; font-size: 11px; font-weight: 700; margin-top: 15px; }
 
 .screen--study .answer-actions { flex: 0 0 auto; margin-top: 14px; }
 .screen--study .answer-actions .tactile-button {
@@ -558,12 +554,10 @@
   min-width: 0;
   height: auto;
   display: grid;
-  grid-template-rows: 40px minmax(0, 1fr) 26px;
+  grid-template-rows: minmax(0, 1fr) 26px;
   place-items: stretch;
   padding: 10px 12px 6px;
 }
-.study-card__top { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
-.study-card__top .sound-button { flex: 0 0 auto; }
 .study-card__scroll { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; touch-action: pan-y pinch-zoom; }
 .study-card__content {
   display: flex; flex-direction: column; align-items: center;
@@ -598,7 +592,6 @@
   align-self: center; text-align: center; color: #52604e;
   font-size: 10px; font-weight: 900; letter-spacing: .45px; text-transform: uppercase;
 }
-.study-session .study-tip { margin: 0 auto 0 0; color: #52604e; text-align: start; }
 .study-session__controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .study-session__controls button {
   min-height: 44px;
@@ -686,7 +679,6 @@
 .reader-phrase > div { flex: 1; min-width: 0; }
 .reader-phrase h3, .reader-example p:first-child, .lesson-exercise h3 { font-weight: 850; }
 .reader-phrase p, .reader-example p:last-child { font-size: 14px; }
-.reader-phrase .sound-button { flex: 0 0 44px; min-height: 44px; }
 .reader-table {
   width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; overflow: hidden;
   border: 1px solid #dce8d9; border-radius: 12px; background: #fff; text-align: start;
@@ -702,7 +694,3 @@
 .reader-actions button:disabled { opacity: .55; }
 .lesson-option[data-result="correct"], .lesson-feedback--correct { background: #e6f2df; }
 .lesson-option[data-result="incorrect"], .lesson-feedback--incorrect { background: #fbe9e5; }
-
-.my-words__word .sound-button { flex: 0 0 44px; min-height: 44px; }
-.dictionary-audio-status { color: #52604e; margin-top: 6px; font-size: 13px; }
-.reader-example .sound-button { margin-top: 6px; min-height: 44px; }

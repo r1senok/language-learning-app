@@ -17,7 +17,7 @@ function practice(...ids: string[]) {
 
 export const lessonSteps: ReaderStep[] = [
   { id: 'greetings-theory', kind: 'theory', title: 'Приветствия и прощания', page: '13', panels: [
-    { kind: 'tip', text: 'Выбирай фразу по ситуации: приветствие в начале разговора, прощание в конце. Прослушай фразы и повтори их вслух.' },
+    { kind: 'tip', text: 'Выбирай фразу по ситуации: приветствие в начале разговора, прощание в конце. Посмотри, какие фразы подходят для утра, дня, вечера и прощания.' },
     { kind: 'phrases', items: [
       { et: 'Tere!', ru: 'Привет!', icon: '👋' },
       { et: 'Tervist!', ru: 'Здравствуйте!' },

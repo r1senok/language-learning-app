@@ -3,7 +3,6 @@ import { studyGrammarRows } from './domain/grammar'
 import { bindCardGesture } from './domain/cardGesture'
 import { Icon } from './Icon'
 import type { Word } from './types'
-import { useStudyPronunciation } from './useStudyPronunciation'
 
 type AnswerFeedback = 'known' | 'unknown' | undefined
 
@@ -19,11 +18,9 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
   const flipTimer = useRef<number | undefined>(undefined)
   const [hintShown, setHintShown] = useState(false)
   const [offset, setOffset] = useState(0)
-  const { pronounce, speechMessage, stop } = useStudyPronunciation()
 
   function flip() {
     if (isLocked() || flipTimer.current !== undefined) return
-    stop()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setRevealed((value) => !value)
       return
@@ -67,10 +64,6 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
       <div className={`swipe-label swipe-label--yes ${offset > 25 ? 'visible' : ''}`} aria-hidden="true">Знаю</div>
       <div className={`flashcard ${revealed ? 'flashcard--revealed' : ''} ${feedback ? `flashcard--${feedback}` : ''} ${offset ? 'flashcard--dragging' : ''}`}
         style={feedback || !offset ? undefined : { transform: `translateX(${offset}px) rotate(${offset / 18}deg)` }}>
-        <div className="study-card__top">
-          {speechMessage && <p className="study-tip" role="status">{speechMessage}</p>}
-          <button type="button" className="sound-button" onClick={() => pronounce(word.estonian)} aria-label="Прослушать эстонское слово"><Icon name="volume" /></button>
-        </div>
         <div className={`study-card__scroll study-card__scroll--${phase}`} key={revealed ? 'answer' : 'prompt'}>
           <div className="study-card__content">
             <div className="study-card__text">

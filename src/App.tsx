@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
 import { StudyScreen } from './StudyScreen'
-import { useStudyPronunciation } from './useStudyPronunciation'
 import { Lessons } from './lessons/Lessons'
 import { filterDictionary } from './domain/myWords'
 import { sortByEstonian } from './domain/wordOrder'
@@ -64,8 +63,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const latestGuest = useRef(guest)
   const answerTimer = useRef<number | null>(null)
   const [lessonReader, setLessonReader] = useState(false)
-  const { pronounce: pronounceDictionary, speechMessage: dictionaryAudioMessage, stop: stopDictionaryAudio } = useStudyPronunciation()
-  const [dictionaryAudioWord, setDictionaryAudioWord] = useState<WordId>()
   const [study, setStudy] = useState<{ round: number } | null>(null)
   const catalogSection = useRef<HTMLDivElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
@@ -248,10 +245,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     setNewEstonian(''); setNewRussian(''); setNewEmoji(''); setNewPart(''); setNewForms(''); setShowAdd(false)
   }
 
-  useEffect(() => {
-    if (primaryTab !== 'vocabulary' || study) stopDictionaryAudio()
-  }, [primaryTab, study, stopDictionaryAudio])
-
   function renderDictionaryWord(word: Word) {
     const status = statusOf(word)
     return <article className={`word-card word-card--${status} my-words__word`} key={word.id}>
@@ -259,10 +252,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         <span className="my-words__word-name" lang="et">{word.estonian}</span>
         <span className="my-words__translation">{word.russian}</span>
         {status !== 'new' && <span className="status-label">{status === 'learned' ? 'Выучено' : 'Изучаю'}</span>}
-        {dictionaryAudioWord === word.id && dictionaryAudioMessage && <span className="dictionary-audio-status" role="status">{dictionaryAudioMessage}</span>}
       </button>
-      <button type="button" className="sound-button" aria-label={`Прослушать: ${word.estonian}`}
-        onClick={() => { setDictionaryAudioWord(word.id); pronounceDictionary(word.estonian) }}><Icon name="volume" /></button>
       {status === 'new' && <button type="button" className="add-study" aria-label={`Учить ${word.estonian}`}
         onClick={() => addToStudy([word.id])}><Icon name="plus" /></button>}
     </article>

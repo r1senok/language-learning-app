@@ -1,14 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Icon } from '../Icon'
-import { useStudyPronunciation } from '../useStudyPronunciation'
 import { completion, hasScore, markAnswer } from './engine'
 import type { Exercise, LessonProgress } from './engine'
 import { firstIncompleteStep } from './readerContent'
 import type { ReaderStep, TheoryPanel } from './readerContent'
 import { ExerciseCard } from './ExerciseCard'
 
-function TheoryCard({ panel, speak }: { panel: TheoryPanel; speak: (text: string) => void }) {
+function TheoryCard({ panel }: { panel: TheoryPanel }) {
   if (panel.kind === 'tip') return <aside className="reader-tip">{panel.text}</aside>
   if (panel.kind === 'table') return <table className="reader-table">
     <caption>{panel.title}</caption>
@@ -23,14 +21,10 @@ function TheoryCard({ panel, speak }: { panel: TheoryPanel; speak: (text: string
     <div className="reader-example" key={before + accent + after}>
       <p lang="et">{before}<strong className="reader-accent">{accent}</strong>{after}</p>
       <p>{ru}</p>
-      <button className="sound-button" type="button" aria-label={`Прослушать: ${before + accent + after}`}
-        onClick={() => speak(before + accent + after)}><Icon name="volume" /></button>
     </div>)}</div>
   return <div className="reader-phrases">{panel.items.map(({ et, ru, icon }) => <article className="reader-phrase" key={et}>
     {icon && <span className="reader-phrase__scene" aria-hidden="true">{icon}</span>}
     <div><h3 lang="et">{et}</h3><p>{ru}</p></div>
-    <button className="sound-button" type="button" aria-label={`Прослушать: ${et}`}
-      onClick={() => speak(et.split(' / ').join(' '))}><Icon name="volume" /></button>
   </article>)}</div>
 }
 
@@ -41,7 +35,6 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
   const [answered, setAnswered] = useState<Exercise>()
   const reader = useRef<HTMLElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
-  const { pronounce, speechMessage, stop } = useStudyPronunciation()
   const exercises = steps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])
   const last = steps.length
   const result = progress.stepId === '@result'
@@ -57,7 +50,6 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
 
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
-    stop()
     const previous = current()
     save({ ...previous, stepId, attempt: replay ? {} : previous.attempt })
   }
@@ -73,7 +65,6 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
   }
 
   function close() {
-    stop()
     if (result) save({ ...current(), stepId: undefined })
     onClose()
   }
@@ -102,8 +93,7 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
           <span className="reader-source">TERE! A1 · с. {step.page}</span>
           <h2 id="reader-step-heading">{step.title}</h2>
           {step.kind === 'theory' ? <>
-            {speechMessage && <p className="reader-tip" role="status">{speechMessage}</p>}
-            {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} speak={pronounce} />)}
+            {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : active ? <ExerciseCard key={active.id} exercise={active} onAnswer={(answer) => {
             setAnswered(active)
             save(markAnswer(current(), active, answer, exercises, cloud))

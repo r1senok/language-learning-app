@@ -12,16 +12,6 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
-    ...(process.env.CF_PAGES_BRANCH === 'feat/takku-interactive-lessons' && {
-      build: {
-        rollupOptions: {
-          input: {
-            app: fileURLToPath(new URL('./index.html', import.meta.url)),
-            speechTest: fileURLToPath(new URL('./speech-test.html', import.meta.url)),
-          },
-        },
-      },
-    }),
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

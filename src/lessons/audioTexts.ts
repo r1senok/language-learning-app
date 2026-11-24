@@ -3,7 +3,6 @@ import { lessonSteps } from './readerContent.ts'
 export function lessonAudioTexts() {
   return lessonSteps.flatMap((step) => step.kind === 'practice'
     ? step.exercises.flatMap((exercise) => [
-      ...(exercise.kind === 'listening_choice' && exercise.audio ? [exercise.audio] : []),
       ...(exercise.exampleAudio ? [exercise.exampleAudio] : []),
     ])
     : step.panels.flatMap((panel) => {

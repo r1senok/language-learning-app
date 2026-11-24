@@ -6,11 +6,11 @@ import { answerIsCorrect, completion, emptyProgress, loadLesson, markAnswer, nex
 const correct = (exercise) => exercise.kind === 'matching_pairs' ? exercise.pairs.map(({ id }) => id)
   : exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
 
-test('lesson covers four blocks and grades all five types by identity', () => {
+test('lesson covers four blocks and grades all four text types by identity', () => {
   assert.equal(lessons.length, 20)
   assert.equal(blocks.length, 4)
   assert.equal(new Set(exercises.map(({ id }) => id)).size, exercises.length)
-  assert.equal(new Set(exercises.map(({ kind }) => kind)).size, 5)
+  assert.equal(new Set(exercises.map(({ kind }) => kind)).size, 4)
   for (const exercise of exercises) {
     const reversed = exercise.options ? { ...exercise, options: [...exercise.options].reverse() } : exercise
     assert.equal(answerIsCorrect(reversed, correct(exercise)), true, exercise.id)
@@ -53,4 +53,14 @@ test('reader steps reuse all exercise IDs and preserve a theory checkpoint on re
   const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
   assert.equal(answered.stepId, 'olema-theory')
   assert.equal(firstIncompleteStep(answered.attempt).id, 'greetings-practice')
+})
+
+test('the text greeting exercise retains the original ID and saved answers', () => {
+  const replaced = exercises.find(({ id }) => id === 'greeting-listen')
+  assert.equal(replaced.kind, 'multiple_choice')
+  assert.equal(replaced.options.find(({ id }) => id === replaced.correct).text, 'Tere õhtust!')
+  const saved = { ...emptyProgress(), attempt: { 'greeting-listen': 1 } }
+  const restored = loadLesson('test', exercises.map(({ id }) => id), { getItem: () => JSON.stringify(saved) })
+  assert.equal(restored.attempt['greeting-listen'], 1)
+  assert.equal(markAnswer(restored, replaced, [], exercises, false), restored)
 })
