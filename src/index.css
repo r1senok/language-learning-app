@@ -578,14 +578,16 @@
 .study-card__grammar dt { font-weight: 800; }
 .study-card__grammar dd { min-width: 0; }
 .study-card__hint {
-  width: 44px; height: 44px; display: grid; place-items: center;
+  width: 44px; height: 44px; flex: none; display: grid; place-items: center; overflow: hidden;
   border-radius: 12px; background: #fff3c3; color: #765500;
 }
 .study-card__hint svg { width: 19px; stroke: currentColor; stroke-width: 2; fill: none; }
 .study-card__emojis {
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji;
-  font-size: 30px; line-height: 1.2;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1; white-space: nowrap;
 }
+.study-card__emojis > :only-child { font-size: 24px; }
 .study-card__scroll--out { animation: study-fade-out 110ms ease-in both; }
 .study-card__scroll--in { animation: study-fade-out 110ms ease-in reverse both; }
 .study-card__scroll--out .study-card__text { animation: study-shrink 110ms ease-in both; }

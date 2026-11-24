@@ -59,6 +59,7 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
 
   const forward = word.progress === 1
   const grammar = revealed ? studyGrammarRows(word.partOfSpeech, word.grammaticalForms) : []
+  const hintEmojis = word.emojis.slice(0, 3)
 
   return <>
     <div className="swipe-stage" ref={surface}>
@@ -80,11 +81,14 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
                 <dl>{grammar.map(({ label, value }) => <div key={label} lang="et"><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
               </div>}
             </div>
-            {!revealed && word.emojis.length > 0 && <>
-              <button type="button" className="study-card__hint" aria-label={hintShown ? 'Скрыть подсказку' : 'Показать подсказку'}
-                aria-expanded={hintShown} onClick={() => setHintShown((value) => !value)}><Icon name="bulb" /></button>
-              {hintShown && <span className="study-card__emojis">{word.emojis.join(' ')}</span>}
-            </>}
+            {!revealed && hintEmojis.length > 0 &&
+              <button type="button" className="study-card__hint"
+                aria-label={hintShown ? `Скрыть подсказку: ${hintEmojis.join(' ')}` : 'Показать подсказку'}
+                onClick={() => setHintShown((value) => !value)}>
+                {hintShown ? <span className="study-card__emojis" aria-hidden="true">
+                  {hintEmojis.map((emoji, index) => <span key={index}>{emoji}</span>)}
+                </span> : <Icon name="bulb" />}
+              </button>}
           </div>
         </div>
         <div className="flip-indicator">{revealed ? 'Нажми, чтобы вернуться' : 'Нажми, чтобы увидеть перевод'}</div>
