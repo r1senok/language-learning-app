@@ -42,3 +42,15 @@ test('recovers storage exceptions and restores a cloud checkpoint', () => {
   const progress = resumeFromCloud(emptyProgress(), remote)
   assert.equal(nextExercise(exercises, progress.attempt)?.id, exercises[1].id)
 })
+
+test('reader steps reuse all exercise IDs and preserve a theory checkpoint on reload', async () => {
+  const { lessonSteps, firstIncompleteStep } = await import('../src/lessons/readerContent.ts')
+  assert.equal(new Set(lessonSteps.map(({ id }) => id)).size, lessonSteps.length)
+  const practice = lessonSteps.filter(({ kind }) => kind === 'practice').flatMap((step) => step.exercises)
+  assert.deepEqual(practice.map(({ id }) => id).sort(), exercises.map(({ id }) => id).sort())
+  const state = { ...emptyProgress(), stepId: 'olema-theory' }
+  assert.deepEqual(loadLesson('test', [], { getItem: () => JSON.stringify(state) }), state)
+  const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
+  assert.equal(answered.stepId, 'olema-theory')
+  assert.equal(firstIncompleteStep(answered.attempt).id, 'greetings-practice')
+})

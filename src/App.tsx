@@ -62,6 +62,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     : loadGuestProgress([]))
   const latestGuest = useRef(guest)
   const answerTimer = useRef<number | null>(null)
+  const [lessonReader, setLessonReader] = useState(false)
   const [study, setStudy] = useState<{ round: number } | null>(null)
   const catalogSection = useRef<HTMLDivElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
@@ -264,12 +265,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       completed={sessionCompleted} onClose={closeStudy} onAnswer={answer}
       isLocked={() => answerTimer.current !== null}
     /> : <main className="phone-frame">
-      <header className="topbar">
+      {!lessonReader && <header className="topbar">
         <button className="brand" onClick={() => { setPrimaryTab('vocabulary'); setSessionCompleted(false) }} aria-label="На главную"><span>Takku</span></button>
-      </header>
+      </header>}
 
       <div className="content">
-        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} />}
+        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} />}
 
         {primaryTab === 'vocabulary' && <section className="screen screen--dictionary my-words" aria-labelledby="my-words-heading">
           <div className="section-row my-words__heading"><h1 id="my-words-heading">Словарь</h1></div>
@@ -348,11 +349,11 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         </section>}
       </div>
 
-      <nav className="bottom-nav" aria-label="Основная навигация">
+      {!lessonReader && <nav className="bottom-nav" aria-label="Основная навигация">
         <button className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><Icon name="library" /></span><b>Уроки</b></button>
         <button className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><Icon name="cards" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
         <button className={primaryTab === 'profile' ? 'active' : ''} onClick={() => { setPrimaryTab('profile'); setSessionCompleted(false) }}><span><Icon name="profile" /></span><b>Профиль</b></button>
-      </nav>
+      </nav>}
     </main>}
 
     {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}><form className="add-modal" onSubmit={addWord} onMouseDown={(e) => e.stopPropagation()}><button type="button" className="modal-close" onClick={() => setShowAdd(false)} aria-label="Закрыть"><Icon name="close" /></button><span className="modal-emoji">🇪🇪</span><h2>Новое слово</h2><p>Добавь эстонское слово в свою коллекцию</p>

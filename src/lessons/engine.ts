@@ -1,5 +1,5 @@
 export type Option = { id: string; text: string }
-type Question = { id: string; prompt: string; explanation: string }
+type Question = { id: string; prompt: string; explanation: string; scene?: { icon: string; label: string } }
 export type Exercise = Question & (
   | { kind: 'multiple_choice' | 'fill_blank' | 'listening_choice'; options: Option[]; correct: string; audio?: string }
   | { kind: 'matching_pairs'; pairs: { id: string; left: string; right: string }[] }
@@ -20,7 +20,7 @@ export function answerIsCorrect(exercise: Exercise, selected: string[]) {
 export const completion = '@completed'
 export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -37,7 +37,7 @@ export function markAnswer(progress: LessonProgress, exercise: Exercise, answer:
   }
   const best = mergeScores(progress.best, entries)
   const pending = cloud ? mergeScores(progress.pending, entries) : progress.pending
-  return { best, attempt, pending }
+  return { ...progress, best, attempt, pending }
 }
 
 export function mergeScores(existing: Scores, incoming: Scores): Scores {
@@ -65,7 +65,8 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
         const score = (value as Scores | undefined)?.[id]
         return typeof score === 'number' && Number.isInteger(score) && score >= 0 && score <= (id === completion ? 100 : 1) ? [[id, score]] : []
       }))
-    return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true) }
+    return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
+      ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }) }
   } catch {
     return emptyProgress()
   }
