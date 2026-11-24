@@ -10,7 +10,7 @@ export function ExerciseCard({ exercise, onAnswer, onContinue }: {
   const [left, setLeft] = useState(-1)
   const [matches, setMatches] = useState<Record<number, string>>({})
   const [result, setResult] = useState<boolean>()
-  const { pronounce, speechMessage } = useStudyPronunciation()
+  const { pronounce, speechMessage, audioStatus } = useStudyPronunciation()
   const [requestedAudio, setRequestedAudio] = useState(false)
   const [revealedTranscript, setRevealedTranscript] = useState(false)
   const locked = result !== undefined
@@ -31,7 +31,7 @@ export function ExerciseCard({ exercise, onAnswer, onContinue }: {
     {exercise.kind === 'listening_choice' && exercise.audio && <>
       <button className="lesson-option" onClick={() => { setRequestedAudio(true); pronounce(exercise.audio!) }}>Прослушать</button>
       {speechMessage && <p role="status">{speechMessage}</p>}
-      {requestedAudio && speechMessage && <button className="lesson-option" onClick={() => setRevealedTranscript(true)}>Показать текст фразы</button>}
+      {requestedAudio && (audioStatus === 'missing' || audioStatus === 'error') && <button className="lesson-option" onClick={() => setRevealedTranscript(true)}>Показать текст фразы</button>}
       {revealedTranscript && <p lang="et">{exercise.audio}</p>}
     </>}
     {exercise.kind === 'matching_pairs' ? <div className="lesson-pairs">

@@ -702,3 +702,7 @@
 .reader-actions button:disabled { opacity: .55; }
 .lesson-option[data-result="correct"], .lesson-feedback--correct { background: #e6f2df; }
 .lesson-option[data-result="incorrect"], .lesson-feedback--incorrect { background: #fbe9e5; }
+
+.my-words__word .sound-button { flex: 0 0 44px; min-height: 44px; }
+.dictionary-audio-status { color: #52604e; margin-top: 6px; font-size: 13px; }
+.reader-example .sound-button { margin-top: 6px; min-height: 44px; }

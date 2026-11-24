@@ -19,11 +19,13 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'greetings-theory', kind: 'theory', title: 'Приветствия и прощания', page: '13', panels: [
     { kind: 'tip', text: 'Выбирай фразу по ситуации: приветствие в начале разговора, прощание в конце. Прослушай фразы и повтори их вслух.' },
     { kind: 'phrases', items: [
-      { et: 'Tere! / Tervist!', ru: 'Привет! / Здравствуйте!', icon: '👋' },
+      { et: 'Tere!', ru: 'Привет!', icon: '👋' },
+      { et: 'Tervist!', ru: 'Здравствуйте!' },
       { et: 'Tere hommikust!', ru: 'Доброе утро!', icon: '🌅' },
       { et: 'Tere päevast!', ru: 'Добрый день!', icon: '☀️' },
       { et: 'Tere õhtust!', ru: 'Добрый вечер!', icon: '🌆' },
-      { et: 'Head aega! / Nägemist!', ru: 'До свидания! / Пока!', icon: '🚪' },
+      { et: 'Head aega!', ru: 'До свидания!', icon: '🚪' },
+      { et: 'Nägemist!', ru: 'Пока!' },
       { et: 'Kohtumiseni!', ru: 'До встречи!' },
       { et: 'Kõike head!', ru: 'Всего доброго!' },
       { et: 'Head ööd!', ru: 'Спокойной ночи!', icon: '🌙' },

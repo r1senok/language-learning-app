@@ -19,11 +19,11 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
   const flipTimer = useRef<number | undefined>(undefined)
   const [hintShown, setHintShown] = useState(false)
   const [offset, setOffset] = useState(0)
-  const { pronounce, speechMessage, setSpeechMessage } = useStudyPronunciation()
+  const { pronounce, speechMessage, stop } = useStudyPronunciation()
 
   function flip() {
     if (isLocked() || flipTimer.current !== undefined) return
-    setSpeechMessage('')
+    stop()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setRevealed((value) => !value)
       return
