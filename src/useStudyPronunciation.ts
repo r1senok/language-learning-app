@@ -23,8 +23,7 @@ export function useStudyPronunciation() {
 
   function pronounce(text: string) {
     stop()
-    cancel.current = player.play(pronunciationUrl(text, import.meta.env.VITE_SUPABASE_URL,
-      import.meta.env.VITE_TAKKU_TTS_VOICE || undefined), setStatus)
+    cancel.current = player.play(pronunciationUrl(text, import.meta.env.VITE_SUPABASE_URL), setStatus)
   }
 
   return { pronounce, speechMessage: messages[audioStatus], audioStatus, stop }

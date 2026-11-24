@@ -1,12 +1,12 @@
-import { audioBucket, audioPath, defaultVoice, isVoice, phrases } from '../../supabase/functions/generate-tts/catalog.ts'
+import { audioBucket, preparedAudioPath, phrases } from '../../supabase/functions/_shared/audio-catalog.ts'
 
 const normalize = (text: string) => text.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[!.]$/, '')
 const ids = new Map(Object.entries(phrases).map(([id, text]) => [normalize(text), id]))
 
-export function pronunciationUrl(text: string, base?: string, voice = defaultVoice as string) {
+export function pronunciationUrl(text: string, base?: string) {
   const id = ids.get(normalize(text))
-  if (!base?.trim() || !id || !isVoice(voice)) return undefined
-  return `${base.trim().replace(/\/+$/, '')}/storage/v1/object/public/${audioBucket}/${audioPath(voice, id)}`
+  if (!base?.trim() || !id) return undefined
+  return `${base.trim().replace(/\/+$/, '')}/storage/v1/object/public/${audioBucket}/${preparedAudioPath(id)}`
 }
 
 export type PlaybackState = 'idle' | 'loading' | 'playing' | 'missing' | 'error'

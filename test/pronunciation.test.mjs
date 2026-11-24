@@ -3,13 +3,12 @@ import test from 'node:test'
 import { createPronunciationPlayer, pronunciationUrl } from '../src/domain/pronunciation.ts'
 import { createTtsHandler } from '../supabase/functions/generate-tts/handler.mjs'
 
-test('pilot URL is deterministic, supports an explicit Chirp profile and rejects unknown text/voices', () => {
+test('prepared audio keys are shared by equivalent text and independent from a TTS provider', () => {
   assert.equal(pronunciationUrl('  Ma olen o\u0303petaja. ', 'https://project.test/'),
-    'https://project.test/storage/v1/object/public/takku-tts/v1/et-EE-Standard-A/ma-olen-opetaja.mp3')
-  assert.equal(pronunciationUrl('tere', 'https://project.test', 'et-EE-Chirp3-HD-Aoede'),
-    'https://project.test/storage/v1/object/public/takku-tts/v1/et-EE-Chirp3-HD-Aoede/tere.mp3')
+    'https://project.test/storage/v1/object/public/takku-tts/prepared/v1/ma-olen-opetaja.mp3')
+  assert.equal(pronunciationUrl('tere', 'https://project.test'), pronunciationUrl('Tere!', 'https://project.test'))
   assert.equal(pronunciationUrl('Tere?', 'https://project.test'), undefined)
-  assert.equal(pronunciationUrl('Tere!', 'https://project.test', 'en-US-Standard-A'), undefined)
+  assert.equal(pronunciationUrl('Tere!'), undefined)
 })
 
 test('play is synchronous with the click and tracking stops on another phrase or media failure', () => {
