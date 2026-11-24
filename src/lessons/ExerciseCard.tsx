@@ -60,6 +60,10 @@ export function ExerciseCard({ exercise, onAnswer, onContinue }: {
     </>}
     {locked ? <>
       <div className={`lesson-feedback lesson-feedback--${result ? 'correct' : 'incorrect'}`} role="status"><strong>{result ? 'Верно!' : 'Неверно'}</strong><p>{exercise.explanation}</p></div>
+      {exercise.exampleAudio && <>
+        <button className="lesson-option" onClick={() => pronounce(exercise.exampleAudio!)}>Прослушать пример</button>
+        {speechMessage && <p role="status">{speechMessage}</p>}
+      </>}
       <button className="tactile-button tactile-button--primary tactile-button--wide" onClick={onContinue}>Продолжить</button>
     </> : <button className="tactile-button tactile-button--primary tactile-button--wide" disabled={!ready} onClick={submit}>Проверить</button>}
   </div>

@@ -1,10 +1,7 @@
-import { audioBucket, preparedAudioPath, phrases } from '../../supabase/functions/_shared/audio-catalog.ts'
-
-const normalize = (text: string) => text.normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[!.]$/, '')
-const ids = new Map(Object.entries(phrases).map(([id, text]) => [normalize(text), id]))
+import { audioBucket, preparedAudioId, preparedAudioPath } from '../../supabase/functions/_shared/audio-catalog.ts'
 
 export function pronunciationUrl(text: string, base?: string) {
-  const id = ids.get(normalize(text))
+  const id = preparedAudioId(text)
   if (!base?.trim() || !id) return undefined
   return `${base.trim().replace(/\/+$/, '')}/storage/v1/object/public/${audioBucket}/${preparedAudioPath(id)}`
 }

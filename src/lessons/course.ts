@@ -1,4 +1,4 @@
-import type { Exercise } from './engine'
+import type { Exercise } from './engine.ts'
 
 export const lessonId = 'tere-a1-01'
 export const lessons: (readonly [string, string] | undefined)[] = [
@@ -10,12 +10,12 @@ export const lessons: (readonly [string, string] | undefined)[] = [
 ]
 
 function choice(id: string, prompt: string, options: string[], correct: number, explanation: string,
-  kind: 'multiple_choice' | 'fill_blank' | 'listening_choice' = 'multiple_choice', audio?: string): Exercise {
-  return { id, prompt, options: options.map((text, i) => ({ id: String(i), text })), correct: String(correct), explanation, kind, audio }
+  kind: 'multiple_choice' | 'fill_blank' | 'listening_choice' = 'multiple_choice', audio?: string, exampleAudio?: string): Exercise {
+  return { id, prompt, options: options.map((text, i) => ({ id: String(i), text })), correct: String(correct), explanation, kind, audio, exampleAudio }
 }
 
 function order(id: string, prompt: string, words: string[], order: string[], explanation: string): Exercise {
-  return { id, prompt, options: words.map((text) => ({ id: text, text })), order, explanation, kind: 'word_order' }
+  return { id, prompt, options: words.map((text) => ({ id: text, text })), order, explanation, kind: 'word_order', exampleAudio: order.join(' ') + '.' }
 }
 
 export const blocks: { title: string; exercises: Exercise[] }[] = [
@@ -41,19 +41,19 @@ export const blocks: { title: string; exercises: Exercise[] }[] = [
   {
     title: 'Глагол olema',
     exercises: [
-      choice('olema-blank', 'Подставь форму: „Me … kodus.“', ['olete', 'oleme', 'on'], 1, 'С me («мы») употребляется oleme.', 'fill_blank'),
-      choice('olema-agreement', 'Выбери грамматически правильное предложение.', ['Sa oled siin.', 'Sa olen siin.', 'Sa on siin.'], 0, 'Местоимение sa требует oled.'),
+      choice('olema-blank', 'Подставь форму: „Me … kodus.“', ['olete', 'oleme', 'on'], 1, 'С me («мы») употребляется oleme.', 'fill_blank', undefined, 'Me oleme kodus.'),
+      choice('olema-agreement', 'Выбери грамматически правильное предложение.', ['Sa oled siin.', 'Sa olen siin.', 'Sa on siin.'], 0, 'Местоимение sa требует oled.', 'multiple_choice', undefined, 'Sa oled siin.'),
       order('olema-build', 'Собери «Вы в школе».', ['koolis', 'olete', 'Te'], ['Te', 'olete', 'koolis'], 'Te olete koolis: te — вы, olete — форма olema, koolis — в школе.'),
-      choice('olema-translate', 'Как сказать «Они дома»?', ['Me oleme kodus.', 'Ta on kodus.', 'Nad on kodus.'], 2, 'Nad означает «они». С ним употребляется on.'),
+      choice('olema-translate', 'Как сказать «Они дома»?', ['Me oleme kodus.', 'Ta on kodus.', 'Nad on kodus.'], 2, 'Nad означает «они». С ним употребляется on.', 'multiple_choice', undefined, 'Nad on kodus.'),
     ],
   },
   {
     title: 'Отрицание с ei ole и pole',
     exercises: [
       order('negative-build', 'Сделай „Sa oled siin“ отрицательным с ei ole.', ['siin', 'ole', 'Sa', 'ei'], ['Sa', 'ei', 'ole', 'siin'], 'Sa ei ole siin — «Ты не здесь».'),
-      choice('negative-choice', 'Как записать «Мы не дома» с pole?', ['Me pole kodus.', 'Me ei oleme kodus.', 'Me poleme kodus.'], 0, 'Pole не меняется с me.'),
-      choice('negative-blank', 'Заполни пропуск: „Ta ei … koolis.“', ['oled', 'ole', 'on'], 1, 'В отрицании используется ei ole.', 'fill_blank'),
-      choice('negative-review', 'Как сказать «Они не в школе»?', ['Nad on koolis.', 'Ta ei ole koolis.', 'Nad pole koolis.'], 2, 'Nad — «они», pole — отрицание глагола olema.'),
+      choice('negative-choice', 'Как записать «Мы не дома» с pole?', ['Me pole kodus.', 'Me ei oleme kodus.', 'Me poleme kodus.'], 0, 'Pole не меняется с me.', 'multiple_choice', undefined, 'Me pole kodus.'),
+      choice('negative-blank', 'Заполни пропуск: „Ta ei … koolis.“', ['oled', 'ole', 'on'], 1, 'В отрицании используется ei ole.', 'fill_blank', undefined, 'Ta ei ole koolis.'),
+      choice('negative-review', 'Как сказать «Они не в школе»?', ['Nad on koolis.', 'Ta ei ole koolis.', 'Nad pole koolis.'], 2, 'Nad — «они», pole — отрицание глагола olema.', 'multiple_choice', undefined, 'Nad pole koolis.'),
     ],
   },
 ]

@@ -1,5 +1,5 @@
 export type Option = { id: string; text: string }
-type Question = { id: string; prompt: string; explanation: string; scene?: { icon: string; label: string } }
+type Question = { id: string; prompt: string; explanation: string; exampleAudio?: string; scene?: { icon: string; label: string } }
 export type Exercise = Question & (
   | { kind: 'multiple_choice' | 'fill_blank' | 'listening_choice'; options: Option[]; correct: string; audio?: string }
   | { kind: 'matching_pairs'; pairs: { id: string; left: string; right: string }[] }

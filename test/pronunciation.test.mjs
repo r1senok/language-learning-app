@@ -7,7 +7,9 @@ test('prepared audio keys are shared by equivalent text and independent from a T
   assert.equal(pronunciationUrl('  Ma olen o\u0303petaja. ', 'https://project.test/'),
     'https://project.test/storage/v1/object/public/takku-tts/prepared/v1/ma-olen-opetaja.mp3')
   assert.equal(pronunciationUrl('tere', 'https://project.test'), pronunciationUrl('Tere!', 'https://project.test'))
-  assert.equal(pronunciationUrl('Tere?', 'https://project.test'), undefined)
+  assert.notEqual(pronunciationUrl('Tere?', 'https://project.test'), pronunciationUrl('Tere!', 'https://project.test'))
+  assert.match(pronunciationUrl('õpetaja', 'https://project.test'), /prepared\/v1\/et-[A-Za-z0-9_-]+\.mp3$/)
+  assert.equal(pronunciationUrl('õ'.repeat(100), 'https://project.test'), undefined)
   assert.equal(pronunciationUrl('Tere!'), undefined)
 })
 

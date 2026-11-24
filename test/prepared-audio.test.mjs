@@ -37,3 +37,13 @@ test('dry run reports missing files, does not write, and upload skips existing p
   await writeFile(join(directory, 'tere.mp3'), Buffer.from('this is not audio'))
   assert.deepEqual(await importPreparedAudio(config), { errors: 1, uploaded: 0 })
 })
+
+test('generation plan deduplicates across lesson and dictionary, and includes every audible lesson text', async () => {
+  const { estonianAudioPlan } = await import('../scripts/prepare-estonian-audio.mjs')
+  const { lessonAudioTexts } = await import('../src/lessons/audioTexts.ts')
+  const plan = estonianAudioPlan([{ lemma: 'tere' }, { lemma: 'või' }, { lemma: 'või' }])
+  assert.deepEqual(plan.find(({ id }) => id === 'tere').sources, ['pilot', 'dictionary', 'lesson'])
+  assert.equal(plan.filter(({ text }) => text === 'või').length, 1)
+  assert.ok(lessonAudioTexts().every((text) => plan.some((item) => item.text === text)))
+  assert.ok(plan.some(({ text }) => text === 'Sa ei ole siin.'))
+})
