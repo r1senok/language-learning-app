@@ -8,18 +8,32 @@
   <body>
     <main>
       <h1>Тест эстонской озвучки</h1>
-      <p id="voice-status" role="status">Проверяем голоса…</p>
+      <section class="diagnostic-panel" aria-labelledby="diagnostic-heading">
+        <h2 id="diagnostic-heading">Диагностика Safari</h2>
+        <dl>
+          <dt>Страница и скрипт</dt><dd id="page-status">Speech Test v2 · скрипт ещё не запущен</dd>
+          <dt>Service Worker</dt><dd id="worker-status">—</dd>
+          <dt>Web Speech API</dt><dd id="api-status">—</dd>
+          <dt>Количество голосов</dt><dd id="voice-count">—</dd>
+          <dt>Эстонский голос</dt><dd id="voice-status" role="status">Проверяем голоса…</dd>
+          <dt>Воспроизведение</dt><dd id="playback-status" role="status">Ожидает нажатия</dd>
+          <dt>Последняя ошибка</dt><dd id="error-status">—</dd>
+          <dt>Последнее нажатие</dt><dd id="gesture-status">—</dd>
+        </dl>
+        <button id="sound-check" type="button">Проверить звук</button>
+      </section>
       <div id="samples" aria-label="Эстонские примеры">
         <button type="button" data-sample="Tere" lang="et">Tere</button>
         <button type="button" data-sample="Aitäh" lang="et">Aitäh</button>
         <button type="button" data-sample="Õpetaja" lang="et">Õpetaja</button>
         <button type="button" data-sample="Ma ei ole õpetaja" lang="et">Ma ei ole õpetaja</button>
       </div>
-      <p id="playback-status" role="status"></p>
       <h2>Голоса браузера</h2>
       <button id="refresh" type="button">Обновить список</button>
-      <p id="voice-count"></p>
       <ul id="voices"></ul>
+      <h2>События</h2>
+      <ul id="events"></ul>
+      <noscript>Для запуска диагностики нужен JavaScript.</noscript>
     </main>
     <script type="module" src="/src/speech-diagnostics.ts"></script>
   </body>

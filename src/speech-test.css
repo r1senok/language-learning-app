@@ -13,3 +13,8 @@ button {
 #voice-status { font-weight: 700; }
 #playback-status { min-height: 1.5em; }
 li { overflow-wrap: anywhere; margin-block: 4px; }
+.diagnostic-panel { background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.diagnostic-panel h2 { margin-top: 0; font-size: 19px; }
+.diagnostic-panel dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 6px 10px; }
+.diagnostic-panel dt { font-weight: 700; }
+.diagnostic-panel dd { margin: 0; }
