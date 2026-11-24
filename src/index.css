@@ -572,11 +572,22 @@
 .study-card__text { max-width: 100%; overflow-wrap: anywhere; }
 .study-card__text h2 { margin: 0; font-size: clamp(28px, 9vw, 62px); text-wrap: balance; }
 .study-card__original { color: #52604e; font-weight: 800; font-size: clamp(17px, 5vw, 24px); margin-top: 7px; }
+.study-card__text--with-grammar { width: min(100%, 430px); }
 .study-card__grammar { margin-top: 12px; color: #354b2f; font-size: 13px; }
-.study-card__grammar h3 { font-weight: 900; margin-bottom: 4px; }
-.study-card__grammar dl > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 8px; }
-.study-card__grammar dt { font-weight: 800; }
-.study-card__grammar dd { min-width: 0; }
+.study-card__grammar h3 { font-weight: 900; margin-bottom: 6px; }
+.study-card__forms { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 5px; }
+.study-card__forms--verb { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.study-card__forms > div {
+  background: #edf2ea;
+  border-radius: 10px;
+  padding: 7px 4px;
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+}
+.study-card__forms dt { color: #52604e; font-size: 11px; font-weight: 600; line-height: 1.15; }
+.study-card__forms dd { color: #263625; font-size: clamp(15px, 4.5vw, 20px); font-weight: 700; line-height: 1.15; }
 .study-card__hint {
   width: 44px; height: 44px; flex: none; display: grid; place-items: center; overflow: hidden;
   border-radius: 12px; background: #fff3c3; color: #765500;
