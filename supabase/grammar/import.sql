@@ -60,7 +60,7 @@ review as (
             when p.before_forms ? f.key then p.before_forms->f.key is distinct from f.value
             else not (case
               when p.after_pos in ('noun', 'adjective') then f.key in ('nimetav', 'omastav', 'osastav')
-              when p.after_pos = 'verb' then f.key in ('ma_infinitive', 'da_infinitive', 'present_1sg', 'past_1sg')
+              when p.after_pos = 'verb' then f.key in ('ma_infinitive', 'da_infinitive', 'present_1sg', 'imperative_2sg')
               else false end)
               or jsonb_typeof(f.value) <> 'string' or nullif(btrim(f.value #>> '{}'), '') is null
             end

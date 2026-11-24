@@ -2,7 +2,7 @@ export type GrammaticalForms = Record<string, string | string[]>
 
 type FormDefinition = { label: string; aliases: readonly string[] }
 
-const nounForms: readonly FormDefinition[] = [
+const nominalForms: readonly FormDefinition[] = [
   { label: 'Nimetav', aliases: ['nimetav', 'nominative'] },
   { label: 'Omastav', aliases: ['omastav', 'genitive'] },
   { label: 'Osastav', aliases: ['osastav', 'partitive'] },
@@ -12,7 +12,7 @@ const verbForms: readonly FormDefinition[] = [
   { label: 'Ma-tegevusnimi', aliases: ['ma_infinitive', 'ma_tegevusnimi'] },
   { label: 'Da-tegevusnimi', aliases: ['da_infinitive', 'da_tegevusnimi'] },
   { label: 'Olevik · mina', aliases: ['present_1sg', 'olevik_1sg'] },
-  { label: 'Lihtminevik · mina', aliases: ['past_1sg', 'lihtminevik_1sg'] },
+  { label: 'Käskiv kõneviis · sina', aliases: ['imperative_2sg'] },
 ]
 
 export function normalizeGrammaticalForms(value: unknown): GrammaticalForms | undefined {
@@ -36,7 +36,7 @@ export function studyGrammarRows(partOfSpeech?: string, forms?: GrammaticalForms
   const part = partOfSpeech.trim().toLowerCase()
   const definitions = ['noun', 'nimisõna', 'subst', 'subst.', 'сущ', 'сущ.', 'существительное',
     'adjective', 'adj', 'adj.', 'omadussõna', 'прил', 'прил.', 'прилагательное'].includes(part)
-    ? nounForms
+    ? nominalForms
     : ['verb', 'tegusõna', 'гл', 'гл.', 'глагол'].includes(part) ? verbForms : []
   const values = new Map(Object.entries(forms).map(([key, value]) => [key.trim().toLowerCase(), value]))
 
