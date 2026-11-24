@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
 import { StudyScreen } from './StudyScreen'
-import { filterDictionary, sessionProgress } from './domain/myWords'
+import { filterDictionary } from './domain/myWords'
 import { sortByEstonian } from './domain/wordOrder'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { AuthDialog } from './AuthDialog'
@@ -72,7 +72,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     : loadGuestProgress([]))
   const latestGuest = useRef(guest)
   const answerTimer = useRef<number | null>(null)
-  const [study, setStudy] = useState<{ initial: Set<WordId>; answered: Set<WordId>; round: number } | null>(null)
+  const [study, setStudy] = useState<{ round: number } | null>(null)
   const catalogSection = useRef<HTMLDivElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
   const restoreStudyFocus = useRef(false)
@@ -148,13 +148,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
   const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
   const statusWord = words.find((word) => word.id === statusWordId)
-  const studyProgress = study && sessionProgress(study.initial, study.answered)
 
   function startStudy() {
     const active = currentProgress().queue
     if (!active.length || answerTimer.current !== null) return
     setSessionCompleted(false)
-    setStudy({ initial: new Set(active), answered: new Set(), round: 0 })
+    setStudy({ round: 0 })
   }
 
   function closeStudy() {
@@ -206,8 +205,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     answerTimer.current = window.setTimeout(() => {
       answerTimer.current = null
       setFeedback(null)
-      setStudy((session) => session && { ...session,
-        answered: new Set([...session.answered, active.id]), round: session.round + 1 })
+      setStudy((session) => session && { round: session.round + 1 })
       setSessionCompleted(completesSession && currentProgress().queue.length === 0)
     }, 430)
     setFeedback({ kind: known ? 'known' : 'unknown', before })
@@ -271,8 +269,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
 
   return <div className="app-shell">
     <div className="ambient ambient--one" /><div className="ambient ambient--two" />
-    {study && studyProgress ? <StudyScreen
-      word={currentWord} feedback={feedback?.kind} round={study.round} {...studyProgress}
+    {study ? <StudyScreen
+      word={currentWord} feedback={feedback?.kind} round={study.round}
       completed={sessionCompleted} onClose={closeStudy} onAnswer={answer}
       isLocked={() => answerTimer.current !== null}
     /> : <main className="phone-frame">

@@ -105,3 +105,15 @@ test('recovers from storage exceptions and preserves readable legacy data if mig
   globalThis.localStorage.getItem = (name) => name === legacyKey ? JSON.stringify(legacy) : null
   assert.deepEqual(loadGuestProgress(starters), legacy)
 })
+
+test('preserves named grammar and the legacy display string with guest progress', () => {
+  const custom = {
+    ...word(90, 2),
+    partOfSpeech: 'noun',
+    forms: 'kass, kassi',
+    grammaticalForms: { nimetav: 'kass', genitive: ['kassi'] },
+  }
+  const progress = { words: [custom], queue: [90] }
+  saveGuestProgress(progress)
+  assert.deepEqual(loadGuestProgress([]), progress)
+})

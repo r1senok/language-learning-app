@@ -1,4 +1,4 @@
-import type { Word, WordId } from '../types'
+import type { Word } from '../types'
 
 export function filterDictionary(words: readonly Word[], search: string): readonly Word[] {
   const normalize = (value: string) => value.normalize('NFC').toLowerCase()
@@ -7,9 +7,4 @@ export function filterDictionary(words: readonly Word[], search: string): readon
 
   return words.filter(({ estonian, russian }) =>
     normalize(estonian).includes(query) || normalize(russian).includes(query))
-}
-
-export function sessionProgress(initial: ReadonlySet<WordId>, answered: ReadonlySet<WordId>) {
-  const count = [...initial].filter((id) => answered.has(id)).length
-  return { count, total: initial.size, percentage: initial.size ? count / initial.size * 100 : 0 }
 }
