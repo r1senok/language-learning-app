@@ -1,0 +1,4806 @@
+[
+  {
+    "id": "b98ea0c1-9b0d-48c9-bf7f-71436fa4880c",
+    "lemma": "(ees)nimi",
+    "russian_glosses": [
+      "имя"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, (ees)nimi",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Скобки обозначают варианты nimi и eesnimi; нужно уточнить, какой вариант соответствует UUID.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "374171d8-f7b2-48ef-9063-e7d28f242e42",
+    "lemma": "abielus",
+    "russian_glosses": [
+      "женат, замужем"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, abielus",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить классификацию предикативного выражения.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "8837511a-869b-4467-9ba9-d9e7ac4e1340",
+    "lemma": "algama",
+    "russian_glosses": [
+      "начинаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "algama",
+        "da_infinitive": "alata",
+        "present_1sg": "algan",
+        "imperative_2sg": "alga"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, algama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, algama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "3f88560e-f7f1-4424-ab32-3127aa93b9c5",
+    "lemma": "andma",
+    "russian_glosses": [
+      "давать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "andma",
+        "da_infinitive": "anda",
+        "present_1sg": "annan",
+        "imperative_2sg": "anna"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, andma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, andma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "83974bc4-cf72-45ba-b6b8-4599dfdfd7b8",
+    "lemma": "äri pind",
+    "russian_glosses": [
+      "коммерческая площадь"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, äri pind",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "На фото слитное äripind. Исходное написание сохранено.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "9938bfb5-3cda-44f3-abf8-cfcf3d60e5f5",
+    "lemma": "armastama",
+    "russian_glosses": [
+      "любить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "armastama",
+        "da_infinitive": "armastada",
+        "present_1sg": "armastan",
+        "imperative_2sg": "armasta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, armastama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, armastama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "3e77cc49-c906-48ea-a5b9-466d84fff5a8",
+    "lemma": "aru saama",
+    "russian_glosses": [
+      "понимать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "aru saama",
+        "da_infinitive": "aru saada",
+        "present_1sg": "saan aru"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, aru saama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "ca5e4f42-fc43-4a4e-971f-2cc4470a3d8c",
+    "lemma": "arvama",
+    "russian_glosses": [
+      "считать, думать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "arvama",
+        "da_infinitive": "arvata",
+        "present_1sg": "arvan",
+        "imperative_2sg": "arva"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, arvama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, arvama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "9cd88b9e-113d-48fe-a196-86f678a5050b",
+    "lemma": "asuma",
+    "russian_glosses": [
+      "находиться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "asuma",
+        "da_infinitive": "asuda",
+        "present_1sg": "asun",
+        "imperative_2sg": "asu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, asuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, asuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "3ae0cac5-5b87-4aca-9edb-67ffd5a3822e",
+    "lemma": "edasi ütlema",
+    "russian_glosses": [
+      "передавать (на словах)"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "edasi ütlema",
+        "da_infinitive": "edasi ütelda",
+        "present_1sg": "ütlen edasi"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, edasi ütlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Вариант на фото: edasi öelda. Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "f7cc19d4-e7d8-41a5-b0b0-2b00ab26456c",
+    "lemma": "eelkooliealine",
+    "russian_glosses": [
+      "дошкольник"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, eelkooliealine",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Фото даёт eelkooliealine, eelkooliealise, eelkooliealist и перевод «дошкольник». Уточнить субстантивированное употребление.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "7fb5a5b7-4e06-489a-bb21-43f1bdb914ca",
+    "lemma": "ega",
+    "russian_glosses": [
+      "отрицательная частица: ни, не"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, ega",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Сверить употребление отрицательной частицы и союза.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "223ebc93-f7dc-4ad7-9ddc-cbbd5ec8d554",
+    "lemma": "eksima",
+    "russian_glosses": [
+      "ошибаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "eksima",
+        "da_infinitive": "eksida",
+        "present_1sg": "eksin",
+        "imperative_2sg": "eksi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, eksima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, eksima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "c11b1c04-d83c-4666-addc-2af421369b10",
+    "lemma": "enne",
+    "russian_glosses": [
+      "раньше, до"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, enne",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Глосса объединяет наречие «раньше» и адпозицию «до».",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "84bff8c0-32a2-4243-9422-e382fb33c446",
+    "lemma": "haige",
+    "russian_glosses": [
+      "больной"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, haige",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«Больной» допускает существительное и прилагательное. Фото подтверждает haige, haige, haiget.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "63519393-fcc3-4ba1-a1bc-dba865263041",
+    "lemma": "hakkama",
+    "russian_glosses": [
+      "начинать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "hakkama",
+        "da_infinitive": "hakata",
+        "present_1sg": "hakkan",
+        "imperative_2sg": "hakka"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, hakkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, hakkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "fe950dd6-3d86-413a-bfc3-a097401e5a6a",
+    "lemma": "helistama",
+    "russian_glosses": [
+      "звонить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "helistama",
+        "da_infinitive": "helistada",
+        "present_1sg": "helistan",
+        "imperative_2sg": "helista"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, helistama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, helistama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "5b22295b-1f6f-4ca8-a367-38156407e27a",
+    "lemma": "hetkel",
+    "russian_glosses": [
+      "в данный момент"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, hetkel",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить, считать ли отдельным наречным выражением или падежной формой hetk.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "3967dfd6-2fe9-4b12-a289-9a3268b6de8a",
+    "lemma": "hiline",
+    "russian_glosses": [
+      "поздний"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "adjective",
+      "grammatical_forms": {
+        "nimetav": "hiline",
+        "omastav": "hilise",
+        "osastav": "hilist"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, hiline",
+        "fields": []
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, hiline",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav",
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "На фото hilinema «опаздывать». Формы прилагательного hiline «поздний» найдены в словаре Vabamorf отдельно."
+  },
+  {
+    "id": "ada984a4-3b4d-44b3-9dd0-dac631f2809f",
+    "lemma": "hoidma",
+    "russian_glosses": [
+      "хранить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "hoidma",
+        "da_infinitive": "hoida",
+        "present_1sg": "hoian",
+        "imperative_2sg": "hoia"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, hoidma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, hoidma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "6a3a7315-713b-4706-8aee-c20039b71189",
+    "lemma": "istuma",
+    "russian_glosses": [
+      "сидеть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "istuma",
+        "da_infinitive": "istuda",
+        "present_1sg": "istun",
+        "imperative_2sg": "istu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, istuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, istuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "9b1b1ee1-d181-4796-aa2c-4544f6ada4f8",
+    "lemma": "ja",
+    "russian_glosses": [
+      "и, да"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 205, ja",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Фото даёт «да, и». Уточнить употребление частицы и союза.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "8b0e22f2-af00-4209-91ca-dff3e9a9a382",
+    "lemma": "jääma",
+    "russian_glosses": [
+      "оставаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "jääma",
+        "da_infinitive": "jääda",
+        "present_1sg": "jään",
+        "imperative_2sg": "jää"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, jääma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, jääma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "b0a301a9-919d-47aa-b462-b5220c67a48e",
+    "lemma": "jalg",
+    "russian_glosses": [
+      "нога"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "noun",
+      "grammatical_forms": {
+        "nimetav": "jalg",
+        "omastav": "jala",
+        "osastav": "jalga"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, jalg",
+        "fields": []
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, jalg",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav",
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Статья jala/jalgsi в TERE! относится к «пешком». Формы отдельной леммы «нога» сверены в Vabamorf."
+  },
+  {
+    "id": "74ae8f8f-cf51-4e41-92b0-4b377664bccd",
+    "lemma": "jätma",
+    "russian_glosses": [
+      "оставлять"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "jätma",
+        "da_infinitive": "jätta",
+        "present_1sg": "jätan",
+        "imperative_2sg": "jäta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, jätma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, jätma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "f006e587-778f-46b2-bcc0-24e251258f55",
+    "lemma": "jooma",
+    "russian_glosses": [
+      "пить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "jooma",
+        "da_infinitive": "juua",
+        "present_1sg": "joon",
+        "imperative_2sg": "joo"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, jooma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, jooma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "e2b1935b-bcd7-45ad-80fe-2742b52d5b35",
+    "lemma": "jõudma",
+    "russian_glosses": [
+      "успевать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "jõudma",
+        "da_infinitive": "jõuda",
+        "present_1sg": "jõuan",
+        "imperative_2sg": "jõua"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, jõudma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, jõudma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "10964dcd-792a-40c9-bb4a-68497a15fcd5",
+    "lemma": "juhtuma",
+    "russian_glosses": [
+      "случаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "juhtuma",
+        "da_infinitive": "juhtuda",
+        "present_1sg": "juhtun",
+        "imperative_2sg": "juhtu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, juhtuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, juhtuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "814eb7eb-b1ce-459f-b58c-5effee3d5146",
+    "lemma": "ka, samuti",
+    "russian_glosses": [
+      "также"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, ka, samuti",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Строка каталога объединяет две леммы. Самостоятельное samuti проверено отдельно.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "90deac52-2b2a-412b-bbd8-51feb9c93213",
+    "lemma": "kaaluma",
+    "russian_glosses": [
+      "взвешивать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kaaluma",
+        "da_infinitive": "kaaluda",
+        "present_1sg": "kaalun",
+        "imperative_2sg": "kaalu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kaaluma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kaaluma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "69c600f9-0dbe-455d-be08-abbe128aad27",
+    "lemma": "kahju",
+    "russian_glosses": [
+      "жаль"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kahju",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить часть речи в предикативном употреблении «жаль».",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "f90de347-e8b1-4163-8380-cf993dc355ad",
+    "lemma": "käima",
+    "russian_glosses": [
+      "ходить, ездить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "käima",
+        "da_infinitive": "käia",
+        "present_1sg": "käin",
+        "imperative_2sg": "käi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, käima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, käima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "ba512b7a-b969-4992-87da-bbe1f389ce72",
+    "lemma": "kasutama",
+    "russian_glosses": [
+      "использовать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kasutama",
+        "da_infinitive": "kasutada",
+        "present_1sg": "kasutan",
+        "imperative_2sg": "kasuta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kasutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kasutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "824ae52e-11e7-42bf-bc93-070254602afa",
+    "lemma": "keelama",
+    "russian_glosses": [
+      "запрещать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "keelama",
+        "da_infinitive": "keelata",
+        "present_1sg": "keelan",
+        "imperative_2sg": "keela"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, keelama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, keelama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "eb5e8325-117a-43ab-ba60-abb727302d8a",
+    "lemma": "kehtiv kuni",
+    "russian_glosses": [
+      "действителен до"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kehtiv kuni",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Устойчивое выражение с причастием, форму одного компонента не переносили.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "93e2611c-60fa-4c61-8aa8-7f5761bde17f",
+    "lemma": "kirjutama",
+    "russian_glosses": [
+      "писать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kirjutama",
+        "da_infinitive": "kirjutada",
+        "present_1sg": "kirjutan",
+        "imperative_2sg": "kirjuta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kirjutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kirjutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "539d74a7-3151-457b-94c9-3198d95155e5",
+    "lemma": "kirs",
+    "russian_glosses": [
+      "вишня"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kirs",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "На фото kirs/s, то есть kirss. Исходное написание kirs сохранено.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "d54b7d48-ee6f-4e3b-8f1a-a62cd2c574ef",
+    "lemma": "kodune",
+    "russian_glosses": [
+      "домашняя (хозяйка)"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kodune",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«Домашняя (хозяйка)» допускает прилагательное и субстантивацию. Фото даёт kodune, koduse, kodust.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "6ab059f7-fa21-47db-881e-8a7e6535ba31",
+    "lemma": "koer",
+    "russian_glosses": [
+      "собака"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "noun",
+      "grammatical_forms": {
+        "nimetav": "koer",
+        "omastav": "koera",
+        "osastav": "koera"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, koer",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav",
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "На фото статьи нет. Значение «собака» соответствует существительному, формы найдены в Vabamorf."
+  },
+  {
+    "id": "07be5636-996f-4387-bb17-b2108c9ce261",
+    "lemma": "kohtuma",
+    "russian_glosses": [
+      "встречаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kohtuma",
+        "da_infinitive": "kohtuda",
+        "present_1sg": "kohtun",
+        "imperative_2sg": "kohtu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kohtuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kohtuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "228c8761-ae5a-474e-beac-c5af12e89267",
+    "lemma": "kokku saama",
+    "russian_glosses": [
+      "встречаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kokku saama",
+        "da_infinitive": "kokku saada",
+        "present_1sg": "saan kokku"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kokku saama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "c597c09e-d92a-4b82-bdce-817a279cb2e1",
+    "lemma": "kolmveerand",
+    "russian_glosses": [
+      "три четверти, без четверти"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kolmveerand",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "На фото (kolm)veerand. Уточнить самостоятельную лемму и её парадигму.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "0e752736-f5c6-4044-a6cb-d6d0209d4325",
+    "lemma": "kui",
+    "russian_glosses": [
+      "если, как"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kui",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Глосса «если, как» требует уточнения употребления.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "75b6d12b-53d5-4a25-85e2-6adcc746ebf6",
+    "lemma": "kuni",
+    "russian_glosses": [
+      "до"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kuni",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«До» допускает союзное и адпозиционное употребление.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "8b6ec96b-29f9-4dba-9697-7e2261048176",
+    "lemma": "kurk (kurg)",
+    "russian_glosses": [
+      "горло"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kurk (kurg)",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Фото различает kurk «горло» и kurk «огурец». Запись с уточнением в скобках требует отдельной сверки.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "32b449f2-f088-404e-8c8c-0a2b990cd64f",
+    "lemma": "küsima",
+    "russian_glosses": [
+      "спрашивать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "küsima",
+        "da_infinitive": "küsida",
+        "present_1sg": "küsin",
+        "imperative_2sg": "küsi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, küsima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, küsima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "8cc5ea7a-4235-4757-bd8e-8bcb9560a03d",
+    "lemma": "kutsuma",
+    "russian_glosses": [
+      "звать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kutsuma",
+        "da_infinitive": "kutsuda",
+        "present_1sg": "kutsun",
+        "imperative_2sg": "kutsu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kutsuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kutsuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "088ee8bb-61cf-45bd-aeed-dc32ae7e5577",
+    "lemma": "kuulama",
+    "russian_glosses": [
+      "слушать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kuulama",
+        "da_infinitive": "kuulata",
+        "present_1sg": "kuulan",
+        "imperative_2sg": "kuula"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kuulama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kuulama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "e0864d87-36e1-472c-8dd7-4fae1ddaa145",
+    "lemma": "kuulma",
+    "russian_glosses": [
+      "слышать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "kuulma",
+        "da_infinitive": "kuulda",
+        "present_1sg": "kuulen",
+        "imperative_2sg": "kuule"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 206, kuulma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, kuulma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "fbd3cab1-8d14-48f5-9509-a613551e0140",
+    "lemma": "läbi käik",
+    "russian_glosses": [
+      "проход"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, läbi käik",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Фото даёт слитное läbikäik. Каталожное написание сохранено.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "53804d29-1447-4cad-85b2-8a9ccdb18613",
+    "lemma": "lahku minema",
+    "russian_glosses": [
+      "расходиться, разъезжаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "lahku minema",
+        "da_infinitive": "lahku minna",
+        "present_1sg": "lähen lahku"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lahku minema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "ff452681-6255-454a-82f5-0101313ce089",
+    "lemma": "lahutatud",
+    "russian_glosses": [
+      "разведённый"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lahutatud",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить причастное и адъективное употребление.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "6294826f-9ae8-48f0-9950-ead541bdc542",
+    "lemma": "lõhe",
+    "russian_glosses": [
+      "лосось"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "noun",
+      "grammatical_forms": {
+        "nimetav": "lõhe",
+        "omastav": "lõhe"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lõhe",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, lõhe, вариант lõhet",
+        "fields": [
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Партитив требует сверки: в расшифровке фото lõhe, Vabamorf предлагает lõhet.",
+    "pending_reason": "partitive_conflict"
+  },
+  {
+    "id": "25d21947-7e47-480c-b0ad-b0cda773144f",
+    "lemma": "lõppema",
+    "russian_glosses": [
+      "заканчиваться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "lõppema",
+        "da_infinitive": "lõppeda"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lõppema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. Форма 1-го лица не подтверждена по фото. Vabamorf без угадывания: present_1sg: lõpen, lõppen; imperative_2sg: lõpe, lõppe. Нужна сверка вариантов.",
+    "pending_reason": "verb_variants"
+  },
+  {
+    "id": "f4276d9f-7d70-4142-a602-fefdda1f5f26",
+    "lemma": "lubama",
+    "russian_glosses": [
+      "разрешать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "lubama",
+        "da_infinitive": "lubada",
+        "present_1sg": "luban",
+        "imperative_2sg": "luba"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lubama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, lubama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "4f74f6f7-b2ca-42d2-8457-7e80e414fe53",
+    "lemma": "lugema",
+    "russian_glosses": [
+      "читать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "lugema",
+        "da_infinitive": "lugeda",
+        "present_1sg": "loen",
+        "imperative_2sg": "loe"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lugema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, lugema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "5977d1de-ba55-4dfb-8045-a83895e79bf3",
+    "lemma": "lükkama",
+    "russian_glosses": [
+      "толкать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "lükkama",
+        "da_infinitive": "lükata",
+        "present_1sg": "lükkan",
+        "imperative_2sg": "lükka"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, lükkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, lükkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "0dea366b-2055-494c-91a7-d326bda4e10c",
+    "lemma": "maitsema",
+    "russian_glosses": [
+      "нравиться по вкусу"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "maitsema",
+        "da_infinitive": "maitseda",
+        "present_1sg": "maitsen",
+        "imperative_2sg": "maitse"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, maitsema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, maitsema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "31b03e56-085b-4db0-819c-8579378c1f6e",
+    "lemma": "maksma",
+    "russian_glosses": [
+      "платить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "maksma",
+        "da_infinitive": "maksta",
+        "present_1sg": "maksan",
+        "imperative_2sg": "maksa"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, maksma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, maksma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "35cc3e53-de36-4981-bb18-77f60344f7d4",
+    "lemma": "meeldima",
+    "russian_glosses": [
+      "нравиться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "meeldima",
+        "da_infinitive": "meeldida",
+        "present_1sg": "meeldin",
+        "imperative_2sg": "meeldi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, meeldima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, meeldima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "5cd635dc-6c67-4c91-b663-71851e22d86a",
+    "lemma": "minema",
+    "russian_glosses": [
+      "идти"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "minema",
+        "da_infinitive": "minna",
+        "present_1sg": "lähen",
+        "imperative_2sg": "mine"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, minema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, minema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "b505ea7b-80fc-4457-9bcc-305451aae29b",
+    "lemma": "mitu",
+    "russian_glosses": [
+      "сколько"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, mitu",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить категорию местоименного числительного.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "d7a9895a-1eac-4c51-9ed1-3ad74e7c2d3c",
+    "lemma": "möödas",
+    "russian_glosses": [
+      "здесь: истёк, прошёл"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "adverb",
+      "grammatical_forms": {}
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, möödas",
+        "fields": []
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, möödas",
+        "fields": [
+          "part_of_speech"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Контекстная глосса на с. 207; точная лемма möödas разобрана Vabamorf как наречие."
+  },
+  {
+    "id": "dd5a6577-1aa2-4688-9d3e-ad6276ef8bef",
+    "lemma": "mõtlema",
+    "russian_glosses": [
+      "думать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "mõtlema",
+        "da_infinitive": "mõtelda",
+        "present_1sg": "mõtlen",
+        "imperative_2sg": "mõtle"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, mõtlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, mõtlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания. Использована форма из фото, подтверждённая словарём. Допустимый вариант: mõelda."
+  },
+  {
+    "id": "1ed49995-0f63-4642-855f-fcbdcbcce91f",
+    "lemma": "nägema",
+    "russian_glosses": [
+      "видеть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "nägema",
+        "da_infinitive": "näha",
+        "present_1sg": "näen",
+        "imperative_2sg": "näe"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, nägema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, nägema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "bd46957a-229c-4a00-9a6f-f809bd5b66c6",
+    "lemma": "nagu",
+    "russian_glosses": [
+      "как"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, nagu",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Русское «как» без контекста неоднозначно.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "ed6aaadb-e049-4c6f-b6e3-f89659a71dbb",
+    "lemma": "nõus olema",
+    "russian_glosses": [
+      "быть согласным"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "nõus olema",
+        "da_infinitive": "nõus olla",
+        "present_1sg": "olen nõus"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, nõus olema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "eca9a725-ab69-4d1e-9e05-0b204d3f1054",
+    "lemma": "olema",
+    "russian_glosses": [
+      "быть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "olema",
+        "da_infinitive": "olla",
+        "present_1sg": "olen",
+        "imperative_2sg": "ole"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, olema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, olema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "14271753-8ce4-4d8e-abfe-6f1d9df4fb71",
+    "lemma": "olgu",
+    "russian_glosses": [
+      "ладно, хорошо, давай"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, olgu",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Различить устойчивое «ладно, хорошо, давай» и форму olema.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "4e12456e-a81c-4d50-9a01-c75d5a4aaa0c",
+    "lemma": "õnnitlema",
+    "russian_glosses": [
+      "поздравлять"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "õnnitlema",
+        "da_infinitive": "õnnitleda",
+        "present_1sg": "õnnitlen",
+        "imperative_2sg": "õnnitle"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, õnnitlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, õnnitlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "e8757bb1-5ea2-4016-8200-80cabd8ace42",
+    "lemma": "ootama",
+    "russian_glosses": [
+      "ждать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "ootama",
+        "da_infinitive": "oodata",
+        "present_1sg": "ootan",
+        "imperative_2sg": "oota"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, ootama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, ootama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "9156390d-3b75-4dd4-9a86-339cc4e688e1",
+    "lemma": "õpetama",
+    "russian_glosses": [
+      "преподавать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "õpetama",
+        "da_infinitive": "õpetada",
+        "present_1sg": "õpetan",
+        "imperative_2sg": "õpeta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, õpetama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, õpetama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "8c9d6e8e-723b-4f06-8da5-0b3de4d82753",
+    "lemma": "õppima",
+    "russian_glosses": [
+      "учиться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "õppima",
+        "da_infinitive": "õppida",
+        "present_1sg": "õpin",
+        "imperative_2sg": "õpi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, õppima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, õppima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "17011008-a4c6-4719-9207-6a9cbcbbec17",
+    "lemma": "oskama",
+    "russian_glosses": [
+      "уметь, знать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "oskama",
+        "da_infinitive": "osata",
+        "present_1sg": "oskan",
+        "imperative_2sg": "oska"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, oskama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, oskama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "eeacbdbb-b1c2-45df-aca0-395e9dce8584",
+    "lemma": "ostma",
+    "russian_glosses": [
+      "покупать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "ostma",
+        "da_infinitive": "osta",
+        "present_1sg": "ostan",
+        "imperative_2sg": "osta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, ostma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, ostma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "72618502-f559-4dee-8ec2-7bacfd74f26a",
+    "lemma": "paluma",
+    "russian_glosses": [
+      "просить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "paluma",
+        "da_infinitive": "paluda",
+        "present_1sg": "palun",
+        "imperative_2sg": "palu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, paluma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, paluma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "9a4b4035-9072-4d9a-b269-39a5f168b23c",
+    "lemma": "panema",
+    "russian_glosses": [
+      "класть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "panema",
+        "da_infinitive": "panna",
+        "present_1sg": "panen",
+        "imperative_2sg": "pane"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, panema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, panema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "35ee7597-4b1a-46ca-ae91-9ec1fb4f5951",
+    "lemma": "pärast",
+    "russian_glosses": [
+      "потом, через"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, pärast",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Глосса объединяет наречие «потом» и адпозицию «через».",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "ea0686fd-badc-4b96-842b-6b2662277c63",
+    "lemma": "parem",
+    "russian_glosses": [
+      "лучше"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 207, parem",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«Лучше» допускает наречное и адъективное употребление.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "d65f1687-0939-44b7-ac34-322da02bbe7f",
+    "lemma": "parkima",
+    "russian_glosses": [
+      "парковаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "parkima",
+        "da_infinitive": "parkida",
+        "present_1sg": "pargin",
+        "imperative_2sg": "pargi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, parkima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, parkima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "87fb0647-842b-4435-a33e-d8d6751698dc",
+    "lemma": "pee",
+    "russian_glosses": [
+      "свёкла"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, pee",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "На фото pee/t, то есть peet. Исходное написание pee сохранено.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "eeb06081-2332-4144-8e67-59aa168502a9",
+    "lemma": "pesema",
+    "russian_glosses": [
+      "стирать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "pesema",
+        "da_infinitive": "pesta",
+        "present_1sg": "pesen",
+        "imperative_2sg": "pese"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, pesema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, pesema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "e728aed2-1655-4c91-8634-3d13ba694b40",
+    "lemma": "pidama",
+    "russian_glosses": [
+      "быть должным"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "pidama",
+        "da_infinitive": "pidada",
+        "present_1sg": "pean",
+        "imperative_2sg": "pea"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, pidama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, pidama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "3b7ab7ca-098b-4f77-9990-0ef048d17659",
+    "lemma": "pöörduma",
+    "russian_glosses": [
+      "обращаться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "pöörduma",
+        "da_infinitive": "pöörduda",
+        "present_1sg": "pöördun",
+        "imperative_2sg": "pöördu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, pöörduma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, pöörduma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "22962d5b-6c25-4cee-a5ba-f5cdfbbd9baf",
+    "lemma": "postiindeks",
+    "russian_glosses": [
+      "почтовый индекс"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "noun",
+      "grammatical_forms": {
+        "nimetav": "postiindeks",
+        "omastav": "postiindeksi",
+        "osastav": "postiindeksit"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, postiindeks",
+        "fields": []
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, postiindeks",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav",
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "В TERE! напечатано (posti)indeks «почтовый индекс». Vabamorf подтвердил полную лемму из каталога."
+  },
+  {
+    "id": "c57ea95c-dc83-4502-86f2-298d56184e30",
+    "lemma": "proovima",
+    "russian_glosses": [
+      "пробовать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "proovima",
+        "da_infinitive": "proovida",
+        "present_1sg": "proovin",
+        "imperative_2sg": "proovi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, proovima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, proovima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "300d5c07-fb1b-43ba-9d43-09e0abec59bd",
+    "lemma": "puhkama",
+    "russian_glosses": [
+      "отдыхать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "puhkama",
+        "da_infinitive": "puhata",
+        "present_1sg": "puhkan",
+        "imperative_2sg": "puhka"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, puhkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, puhkama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "eac1c096-f80b-4042-9d67-e1315bdf82be",
+    "lemma": "rääkima",
+    "russian_glosses": [
+      "говорить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "rääkima",
+        "da_infinitive": "rääkida",
+        "present_1sg": "räägin",
+        "imperative_2sg": "räägi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, rääkima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, rääkima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "7389f455-733d-4c48-9d72-08dc8290c701",
+    "lemma": "saama",
+    "russian_glosses": [
+      "получать, мочь"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "saama",
+        "da_infinitive": "saada",
+        "present_1sg": "saan",
+        "imperative_2sg": "saa"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, saama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, saama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "d28b69e7-e2f6-46d7-bdd5-0c92b48b5e7c",
+    "lemma": "seisma",
+    "russian_glosses": [
+      "стоять"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "seisma",
+        "da_infinitive": "seista",
+        "present_1sg": "seisan",
+        "imperative_2sg": "seisa"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, seisma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, seisma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "561c1360-ace5-4ba8-acea-3065e65d74d9",
+    "lemma": "sobima",
+    "russian_glosses": [
+      "годиться, подходить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "sobima",
+        "da_infinitive": "sobida",
+        "present_1sg": "sobin",
+        "imperative_2sg": "sobi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, sobima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, sobima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "7d7d7366-9a06-44f2-8443-07705e2ecb84",
+    "lemma": "sõitma",
+    "russian_glosses": [
+      "ехать, ездить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "sõitma",
+        "da_infinitive": "sõita",
+        "present_1sg": "sõidan",
+        "imperative_2sg": "sõida"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, sõitma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, sõitma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "17e99674-9450-48be-b988-937db85e7996",
+    "lemma": "sööma",
+    "russian_glosses": [
+      "есть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "sööma",
+        "da_infinitive": "süüa",
+        "present_1sg": "söön",
+        "imperative_2sg": "söö"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, sööma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, sööma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "eca33ebc-37de-4ca2-a2bd-5564f1c10789",
+    "lemma": "soovima",
+    "russian_glosses": [
+      "желать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "soovima",
+        "da_infinitive": "soovida",
+        "present_1sg": "soovin",
+        "imperative_2sg": "soovi"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 208, soovima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, soovima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "2c915613-6e16-417d-ab87-1ac12f22781c",
+    "lemma": "tädi",
+    "russian_glosses": [
+      "тётя"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "noun",
+      "grammatical_forms": {
+        "nimetav": "tädi",
+        "omastav": "tädi"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tädi",
+        "fields": [
+          "part_of_speech",
+          "nimetav",
+          "omastav"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tädi, вариант tädi",
+        "fields": [
+          "osastav"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Партитив требует сверки: в расшифровке фото tädit, Vabamorf предлагает tädi.",
+    "pending_reason": "partitive_conflict"
+  },
+  {
+    "id": "8ef1c5a0-9f9e-47a9-9e63-bdeb64e9d2c2",
+    "lemma": "tagasi helistama",
+    "russian_glosses": [
+      "перезвонить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tagasi helistama",
+        "da_infinitive": "tagasi helistada",
+        "present_1sg": "helistan tagasi"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tagasi helistama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "676cb3a2-7bbd-4450-8128-f07fe0d11414",
+    "lemma": "täitma",
+    "russian_glosses": [
+      "заполнять"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "täitma",
+        "da_infinitive": "täita",
+        "present_1sg": "täidan",
+        "imperative_2sg": "täida"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, täitma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, täitma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "d58b7133-d6a1-4657-980d-13a192a95100",
+    "lemma": "tänama",
+    "russian_glosses": [
+      "благодарить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tänama",
+        "da_infinitive": "tänada",
+        "present_1sg": "tänan",
+        "imperative_2sg": "täna"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tänama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tänama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "55dccbe8-ff9a-4786-a2a1-25d9175b8c64",
+    "lemma": "teadma",
+    "russian_glosses": [
+      "знать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "teadma",
+        "da_infinitive": "teada",
+        "present_1sg": "tean",
+        "imperative_2sg": "tea"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, teadma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, teadma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "812de610-8d93-4c90-8f14-2be0f64fcf13",
+    "lemma": "teenima",
+    "russian_glosses": [
+      "зарабатывать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "teenima",
+        "da_infinitive": "teenida",
+        "present_1sg": "teenin",
+        "imperative_2sg": "teeni"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, teenima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, teenima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "816a94c0-ab1d-4be8-bffa-d9930fa56ff0",
+    "lemma": "tegema",
+    "russian_glosses": [
+      "делать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tegema",
+        "da_infinitive": "teha",
+        "present_1sg": "teen",
+        "imperative_2sg": "tee"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tegema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tegema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "e26d6334-9710-4ae5-9235-cfeb390dec2c",
+    "lemma": "tellima",
+    "russian_glosses": [
+      "заказывать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tellima",
+        "da_infinitive": "tellida",
+        "present_1sg": "tellin",
+        "imperative_2sg": "telli"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tellima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tellima",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "9a0ce96e-2141-4222-83e9-6725ece13a90",
+    "lemma": "toimuma",
+    "russian_glosses": [
+      "состояться, проходить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "toimuma",
+        "da_infinitive": "toimuda",
+        "present_1sg": "toimun",
+        "imperative_2sg": "toimu"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, toimuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, toimuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "6eaeddd4-3263-4122-8c7d-a54bae8f4dd6",
+    "lemma": "tõmbama",
+    "russian_glosses": [
+      "тянуть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tõmbama",
+        "da_infinitive": "tõmmata",
+        "present_1sg": "tõmban",
+        "imperative_2sg": "tõmba"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tõmbama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tõmbama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "02665cd1-2de6-42b0-91b8-20ea2d6e5090",
+    "lemma": "tooma",
+    "russian_glosses": [
+      "приносить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tooma",
+        "da_infinitive": "tuua",
+        "present_1sg": "toon",
+        "imperative_2sg": "too"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tooma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tooma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "969bf227-a4e8-4490-be34-7cb6f80ccf95",
+    "lemma": "töötu",
+    "russian_glosses": [
+      "безработный"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, töötu",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«Безработный» допускает существительное и прилагательное. Фото подтверждает töötu, töötu, töötut.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "83ccd60b-4955-4a71-8caf-89525dadfaa7",
+    "lemma": "tulema",
+    "russian_glosses": [
+      "приходить, прийти"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tulema",
+        "da_infinitive": "tulla",
+        "present_1sg": "tulen",
+        "imperative_2sg": "tule"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tulema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tulema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "46ee3281-2e0d-4e26-93d8-4ada8f2ec239",
+    "lemma": "tülitama",
+    "russian_glosses": [
+      "беспокоить"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tülitama",
+        "da_infinitive": "tülitada",
+        "present_1sg": "tülitan",
+        "imperative_2sg": "tülita"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tülitama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, tülitama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "6a5c4249-8865-4c5b-b5ea-055cbdcbd189",
+    "lemma": "tuttav",
+    "russian_glosses": [
+      "знакомый"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tuttav",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "«Знакомый» допускает существительное и прилагательное. Фото подтверждает tuttav, tuttava, tuttavat.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "197368cf-c0b2-427d-9888-b31eea78ca11",
+    "lemma": "tuttavaks saama",
+    "russian_glosses": [
+      "знакомиться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "tuttavaks saama",
+        "da_infinitive": "tuttavaks saada",
+        "present_1sg": "saan tuttavaks"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, tuttavaks saama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "3286435a-c01d-43f7-a319-ce573f8f6edc",
+    "lemma": "ütlema",
+    "russian_glosses": [
+      "сказать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "ütlema",
+        "da_infinitive": "ütelda",
+        "present_1sg": "ütlen",
+        "imperative_2sg": "ütle"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, ütlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, ütlema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания. Использована форма из фото, подтверждённая словарём. Допустимый вариант: öelda."
+  },
+  {
+    "id": "3da0d0fa-1b2f-47c2-97d3-55e33f64d923",
+    "lemma": "vaatama",
+    "russian_glosses": [
+      "смотреть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "vaatama",
+        "da_infinitive": "vaadata",
+        "present_1sg": "vaatan",
+        "imperative_2sg": "vaata"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, vaatama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, vaatama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "17ca1148-f69a-43d8-bd6f-008a95793220",
+    "lemma": "vabaabielus",
+    "russian_glosses": [
+      "в свободном браке"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": null,
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, vabaabielus",
+        "fields": []
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Уточнить классификацию предикативного выражения.",
+    "pending_reason": "identity_or_pos"
+  },
+  {
+    "id": "a2de79b9-e49b-40d0-9e74-95db5ef0f4e8",
+    "lemma": "vajutama",
+    "russian_glosses": [
+      "нажать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "vajutama",
+        "da_infinitive": "vajutada",
+        "present_1sg": "vajutan",
+        "imperative_2sg": "vajuta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, vajutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, vajutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "68108ad6-a04c-48f5-9f96-c1e80522b817",
+    "lemma": "välja tegema",
+    "russian_glosses": [
+      "платить за кого-то"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "välja tegema",
+        "da_infinitive": "välja teha",
+        "present_1sg": "teen välja"
+      }
+    },
+    "status": "needs_review",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, välja tegema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      }
+    ],
+    "reviewed_by": null,
+    "reviewed_on": null,
+    "notes": "Повелительное 2-го лица ед. числа на фото не дано. В словаре Vabamorf для выражения целиком нет подтверждённой парадигмы; формы отдельных компонентов не переносились.",
+    "pending_reason": "multiword"
+  },
+  {
+    "id": "4046fc7c-cb07-40a0-8b07-dfabfa726e54",
+    "lemma": "väljuma",
+    "russian_glosses": [
+      "отправляться"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "väljuma",
+        "da_infinitive": "väljuda",
+        "present_1sg": "väljun",
+        "imperative_2sg": "välju"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, väljuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, väljuma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "8a2fc3be-56f1-4a82-91f8-0e08c9c5cf38",
+    "lemma": "valutama",
+    "russian_glosses": [
+      "болеть"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "valutama",
+        "da_infinitive": "valutada",
+        "present_1sg": "valutan",
+        "imperative_2sg": "valuta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, valutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, valutama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "98a6461b-8f60-455d-82c5-fcc2c357bb99",
+    "lemma": "valvama",
+    "russian_glosses": [
+      "охранять"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "valvama",
+        "da_infinitive": "valvata",
+        "present_1sg": "valvan",
+        "imperative_2sg": "valva"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, valvama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, valvama",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "cb963876-25b5-47dd-a48f-7bd09fcb6565",
+    "lemma": "võlgnema",
+    "russian_glosses": [
+      "быть должным"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "võlgnema",
+        "da_infinitive": "võlgneda",
+        "present_1sg": "võlgnen",
+        "imperative_2sg": "võlgne"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, võlgnema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, võlgnema",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  },
+  {
+    "id": "72badb21-429d-4525-9e00-b11dbcca6001",
+    "lemma": "võtma",
+    "russian_glosses": [
+      "брать"
+    ],
+    "before": {
+      "part_of_speech": null,
+      "grammatical_forms": {}
+    },
+    "after": {
+      "part_of_speech": "verb",
+      "grammatical_forms": {
+        "ma_infinitive": "võtma",
+        "da_infinitive": "võtta",
+        "present_1sg": "võtan",
+        "imperative_2sg": "võta"
+      }
+    },
+    "status": "verified",
+    "sources": [
+      {
+        "kind": "tere",
+        "reference": "TERE! A1, Sõnastik, с. 209, võtma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, võtma",
+        "fields": [
+          "part_of_speech",
+          "ma_infinitive",
+          "da_infinitive",
+          "present_1sg",
+          "imperative_2sg"
+        ]
+      }
+    ],
+    "reviewed_by": "Codex, сверка TERE! A1 и/или словарных данных Vabamorf (без угадывания)",
+    "reviewed_on": "2026-11-24",
+    "notes": "Печатные формы сверены с Vabamorf. Формы, которых нет на фото, взяты из словарной парадигмы без угадывания."
+  }
+]

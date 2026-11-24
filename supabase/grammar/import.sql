@@ -42,7 +42,7 @@ review as (
         or not exists (
           select 1 from jsonb_array_elements(case when jsonb_typeof(p.item->'sources') = 'array'
             then p.item->'sources' else '[]'::jsonb end) source
-          where source->>'kind' in ('tere', 'sonaveeb', 'keeleoppija_sonaveeb', 'ekilex')
+          where source->>'kind' in ('tere', 'sonaveeb', 'keeleoppija_sonaveeb', 'ekilex', 'vabamorf')
             and nullif(btrim(source->>'reference'), '') is not null
         )
         or coalesce(jsonb_typeof(p.item->'before'->'part_of_speech'), '') not in ('null', 'string')
