@@ -1,6 +1,6 @@
 type Point = { clientX: number; clientY: number }
 type Input = 'pointer' | 'touch'
-type Gesture = { input: Input; id: number; start: Point; canFlip: boolean; axis: 'pending' | 'horizontal' | 'vertical' }
+type Gesture = { input: Input; id: number; start: Point; axis: 'pending' | 'horizontal' | 'vertical' }
 
 export function bindCardGesture(surface: HTMLElement, handlers: {
   isLocked: () => boolean
@@ -12,10 +12,10 @@ export function bindCardGesture(surface: HTMLElement, handlers: {
 
   function start(input: Input, id: number, point: Point, target: EventTarget | null) {
     const startedOnButton = Boolean((target as Element | null)?.closest?.('button'))
-    if (gesture || handlers.isLocked() || (input === 'pointer' && startedOnButton)) return false
+    if (gesture || handlers.isLocked() || startedOnButton) return false
     gesture = {
       input, id, start: { clientX: point.clientX, clientY: point.clientY },
-      axis: 'pending', canFlip: !startedOnButton,
+      axis: 'pending',
     }
     return true
   }
@@ -37,7 +37,7 @@ export function bindCardGesture(surface: HTMLElement, handlers: {
     if (!point || handlers.isLocked()) return
 
     const x = movement(active, point)
-    if (active.axis === 'pending' && active.canFlip) handlers.flip()
+    if (active.axis === 'pending') handlers.flip()
     else if (active.axis === 'horizontal' && Math.abs(x) >= 85) handlers.answer(x > 0)
   }
 
