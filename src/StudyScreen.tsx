@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { studyGrammarRows } from './domain/grammar'
+import { isStudyVerb, studyGrammarRows } from './domain/grammar'
 import { bindCardGesture } from './domain/cardGesture'
 import { Icon } from './Icon'
 import type { Word } from './types'
@@ -73,12 +73,17 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
         </div>
         <div className={`study-card__scroll study-card__scroll--${phase}`} key={revealed ? 'answer' : 'prompt'}>
           <div className="study-card__content">
-            <div className="study-card__text">
+            <div className={grammar.length > 0 ? "study-card__text study-card__text--with-grammar" : "study-card__text"}>
               <h2 lang={revealed || !forward ? 'ru' : 'et'}>{revealed || !forward ? word.russian : word.estonian}</h2>
               {revealed && <p className="study-card__original" lang="et">{word.estonian}</p>}
               {grammar.length > 0 && <div className="study-card__grammar">
                 <h3>Основные формы</h3>
-                <dl>{grammar.map(({ label, value }) => <div key={label} lang="et"><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+                <dl className={isStudyVerb(word.partOfSpeech) ? "study-card__forms study-card__forms--verb" : "study-card__forms"} lang="et">
+                  {grammar.map(({ label, value }) => <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>)}
+                </dl>
               </div>}
             </div>
             {!revealed && hintEmojis.length > 0 &&

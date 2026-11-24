@@ -9,10 +9,10 @@ const nominalForms: readonly FormDefinition[] = [
 ]
 
 const verbForms: readonly FormDefinition[] = [
-  { label: 'Ma-tegevusnimi', aliases: ['ma_infinitive', 'ma_tegevusnimi'] },
-  { label: 'Da-tegevusnimi', aliases: ['da_infinitive', 'da_tegevusnimi'] },
-  { label: 'Olevik · mina', aliases: ['present_1sg', 'olevik_1sg'] },
-  { label: 'Käskiv kõneviis · sina', aliases: ['imperative_2sg'] },
+  { label: 'ma-infinitiiv', aliases: ['ma_infinitive', 'ma_tegevusnimi'] },
+  { label: 'da-infinitiiv', aliases: ['da_infinitive', 'da_tegevusnimi'] },
+  { label: 'Olevik (mina)', aliases: ['present_1sg', 'olevik_1sg'] },
+  { label: 'Käskiv (sina)', aliases: ['imperative_2sg'] },
 ]
 
 export function normalizeGrammaticalForms(value: unknown): GrammaticalForms | undefined {
@@ -30,6 +30,10 @@ export function normalizeGrammaticalForms(value: unknown): GrammaticalForms | un
   return entries.length ? Object.fromEntries(entries) : undefined
 }
 
+export function isStudyVerb(partOfSpeech?: string) {
+  return ['verb', 'tegusõna', 'гл', 'гл.', 'глагол'].includes(partOfSpeech?.trim().toLowerCase() ?? '')
+}
+
 export function studyGrammarRows(partOfSpeech?: string, forms?: GrammaticalForms) {
   if (!forms || typeof partOfSpeech !== 'string') return []
 
@@ -37,7 +41,7 @@ export function studyGrammarRows(partOfSpeech?: string, forms?: GrammaticalForms
   const definitions = ['noun', 'nimisõna', 'subst', 'subst.', 'сущ', 'сущ.', 'существительное',
     'adjective', 'adj', 'adj.', 'omadussõna', 'прил', 'прил.', 'прилагательное'].includes(part)
     ? nominalForms
-    : ['verb', 'tegusõna', 'гл', 'гл.', 'глагол'].includes(part) ? verbForms : []
+    : isStudyVerb(part) ? verbForms : []
   const values = new Map(Object.entries(forms).map(([key, value]) => [key.trim().toLowerCase(), value]))
 
   return definitions.flatMap(({ label, aliases }) => {

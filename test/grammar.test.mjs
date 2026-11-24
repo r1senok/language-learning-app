@@ -16,8 +16,8 @@ test('named noun and adjective forms display in case order without invented valu
 test('verbs show only explicit verb forms and preserve documented alternatives', () => {
   const forms = normalizeGrammaticalForms({ ma_infinitive: 'lugema', present_1sg: ['loen', null, ''], genitive: 'lugemise' })
   assert.deepEqual(studyGrammarRows('verb', forms), [
-    { label: 'Ma-tegevusnimi', value: 'lugema' },
-    { label: 'Olevik · mina', value: 'loen' },
+    { label: 'ma-infinitiiv', value: 'lugema' },
+    { label: 'Olevik (mina)', value: 'loen' },
   ])
   assert.equal(normalizeGrammaticalForms('koer, koera, koera'), undefined)
   assert.equal(normalizeGrammaticalForms({ genitive: [''], partitive: null }), undefined)
@@ -43,10 +43,10 @@ test('andma has four separate rows, with the present distinct from the imperativ
     past_1sg: 'andsin',
   })
   assert.deepEqual(studyGrammarRows('verb', forms), [
-    { label: 'Ma-tegevusnimi', value: 'andma' },
-    { label: 'Da-tegevusnimi', value: 'anda' },
-    { label: 'Olevik · mina', value: 'annan' },
-    { label: 'Käskiv kõneviis · sina', value: 'anna' },
+    { label: 'ma-infinitiiv', value: 'andma' },
+    { label: 'da-infinitiiv', value: 'anda' },
+    { label: 'Olevik (mina)', value: 'annan' },
+    { label: 'Käskiv (sina)', value: 'anna' },
   ])
   assert.deepEqual(studyGrammarRows('verb', { past_1sg: 'andsin' }), [])
 })
