@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { bindCardGesture } from '../src/domain/cardGesture.ts'
-import { findEstonianVoice } from '../src/domain/pronunciation.ts'
 
 function fixture() {
   const surface = new EventTarget()
@@ -83,13 +82,6 @@ test('mouse capture handles a left swipe, and loss of capture cancels the drag',
   assert.deepEqual(calls.capture, [1, 1, 1])
   assert.deepEqual(calls.answers, [false])
   unbind()
-})
-
-test('speech prefers an Estonian regional voice and rejects English and Russian', () => {
-  const en = { lang: 'en-US' }, et = { lang: 'et_EE' }, ru = { lang: 'ru-RU' }, generic = { lang: 'et' }
-  assert.equal(findEstonianVoice([en, ru]), undefined)
-  assert.equal(findEstonianVoice([generic, en, et, ru]), et)
-  assert.equal(findEstonianVoice([generic, en]), generic)
 })
 
 test('card buttons do not start a tap-to-flip or swipe gesture', () => {

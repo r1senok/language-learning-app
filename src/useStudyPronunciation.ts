@@ -1,40 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
-import { findEstonianVoice } from './domain/pronunciation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPronunciationPlayer, pronunciationUrl } from './domain/pronunciation'
+import type { PlaybackState } from './domain/pronunciation'
+
+const player = createPronunciationPlayer((url) => new Audio(url))
+const messages: Record<PlaybackState, string> = {
+  idle: '',
+  loading: 'Загрузка аудио…',
+  playing: 'Воспроизводится…',
+  missing: 'Для этой фразы аудио пока недоступно.',
+  error: 'Не удалось воспроизвести аудио. Проверьте подключение и попробуйте снова.',
+}
 
 export function useStudyPronunciation() {
-  const voices = useRef<SpeechSynthesisVoice[]>([])
-  const [speechMessage, setSpeechMessage] = useState('')
-
-  useEffect(() => {
-    const speech = window.speechSynthesis
-    if (!speech) return
-    const update = () => { voices.current = speech.getVoices() }
-    update()
-    speech.addEventListener('voiceschanged', update)
-    return () => speech.removeEventListener('voiceschanged', update)
+  const [audioStatus, setStatus] = useState<PlaybackState>('idle')
+  const cancel = useRef<() => void>(() => {})
+  const stop = useCallback(() => {
+    cancel.current()
+    cancel.current = () => {}
+    setStatus('idle')
   }, [])
+  useEffect(() => () => cancel.current(), [])
 
   function pronounce(text: string) {
-    const speech = window.speechSynthesis
-    const updated = speech?.getVoices() ?? []
-    if (updated.length) voices.current = updated
-    const voice = findEstonianVoice(voices.current)
-    if (!speech || !voice || typeof window.SpeechSynthesisUtterance !== 'function') {
-      setSpeechMessage('На устройстве недоступен эстонский голос.')
-      return
-    }
-
-    setSpeechMessage('')
-    speech.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'et-EE'
-    utterance.voice = voice
-    utterance.rate = 0.88
-    utterance.onerror = ({ error }) => {
-      if (error !== 'canceled' && error !== 'interrupted') setSpeechMessage('Не удалось воспроизвести слово. Попробуйте снова.')
-    }
-    speech.speak(utterance)
+    stop()
+    cancel.current = player.play(pronunciationUrl(text, import.meta.env.VITE_SUPABASE_URL), setStatus)
   }
 
-  return { pronounce, speechMessage, setSpeechMessage }
+  return { pronounce, speechMessage: messages[audioStatus], audioStatus, stop }
 }

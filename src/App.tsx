@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
 import { StudyScreen } from './StudyScreen'
+import { Lessons } from './lessons/Lessons'
 import { filterDictionary } from './domain/myWords'
 import { sortByEstonian } from './domain/wordOrder'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
@@ -16,7 +17,7 @@ import { availableLearningProgress, mergePublishedCatalog, preserveDormantGuestP
 import { usePublishedCatalog } from './usePublishedCatalog'
 import type { CatalogState } from './usePublishedCatalog'
 import { createSupabaseClient } from './services/supabase'
-import type { Progress, StoredProgress, Word, WordId } from './types'
+import type { StoredProgress, Word, WordId } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
 
@@ -37,17 +38,6 @@ const statusOf = (word: Word) => word.progress === 0 ? 'new' : word.progress ===
 const shuffled = <T,>(items: T[]) => [...items].sort(() => Math.random() - .5)
 function Mascot({ small = false, className = '' }: { small?: boolean; className?: string }) {
   return <img className={`mascot ${small ? 'mascot--small' : ''} ${className}`.trim()} src="/takku-dachshund.png" alt="" aria-hidden="true" />
-}
-
-function FutureLessonCard({ number, title }: { number: string; title: string }) {
-  return <div className="future-lesson"><span>{number}</span><div><b>{title}</b><small>Скоро</small></div><Icon name="lock" /></div>
-}
-
-function FutureBookCard({ color, icon, title, subtitle }: { color: string; icon: string; title: string; subtitle: string }) {
-  return <article className="future-book" style={{ '--book-color': color } as React.CSSProperties}>
-    <div className="future-book__cover"><span>{icon}</span><i><Icon name="lock" /></i></div>
-    <div className="future-book__copy"><span className="coming-label">СКОРО</span><h3>{title}</h3><p>{subtitle}</p></div>
-  </article>
 }
 
 export default function App() {
@@ -72,6 +62,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     : loadGuestProgress([]))
   const latestGuest = useRef(guest)
   const answerTimer = useRef<number | null>(null)
+  const [lessonReader, setLessonReader] = useState(false)
   const [study, setStudy] = useState<{ round: number } | null>(null)
   const catalogSection = useRef<HTMLDivElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
@@ -274,26 +265,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       completed={sessionCompleted} onClose={closeStudy} onAnswer={answer}
       isLocked={() => answerTimer.current !== null}
     /> : <main className="phone-frame">
-      <header className="topbar">
+      {!lessonReader && <header className="topbar">
         <button className="brand" onClick={() => { setPrimaryTab('vocabulary'); setSessionCompleted(false) }} aria-label="На главную"><span>Takku</span></button>
-      </header>
+      </header>}
 
       <div className="content">
-        {primaryTab === 'library' && <section className="screen screen--library">
-          <div className="library-intro">
-            <div className="library-intro__copy"><span className="eyebrow">СКОРО В TAKKU</span><h1>Библиотека</h1><p>Интерактивные учебники эстонского, короткие уроки и упражнения уже растут вместе с нами.</p></div>
-            <div className="library-intro__mascot"><span>Varsti!</span><Mascot /></div>
-          </div>
-          <div className="library-path" aria-label="Будущая структура обучения"><span className="active">Книги</span><i>→</i><span>Уроки</span><i>→</i><span>Упражнения</span></div>
-          <div className="section-row library-section-row"><div><span className="eyebrow">БУДУЩИЕ КУРСЫ</span><h2>Учебники</h2></div><span className="soft-badge">Готовим</span></div>
-          <div className="future-books">
-            <FutureBookCard color="#1CB0F6" icon="🇪🇪" title="Эстонский с нуля" subtitle="Базовые фразы и первые диалоги" />
-            <FutureBookCard color="#CE82FF" icon="💬" title="Говорим уверенно" subtitle="Живые ситуации и разговорная речь" />
-          </div>
-          <div className="lesson-preview"><span className="eyebrow">ВНУТРИ УЧЕБНИКА</span><FutureLessonCard number="01" title="Tere! Первое знакомство" /><FutureLessonCard number="02" title="Minu nimi on… Представляемся" /></div>
-          <p className="library-note">Мы сообщим, когда первые уроки будут готовы. Пока можно пополнять словарный запас.</p>
-          <button className="tactile-button tactile-button--primary tactile-button--wide" onClick={() => { setPrimaryTab('vocabulary'); setSessionCompleted(false) }}>Перейти к словам</button>
-        </section>}
+        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} />}
 
         {primaryTab === 'vocabulary' && <section className="screen screen--dictionary my-words" aria-labelledby="my-words-heading">
           <div className="section-row my-words__heading"><h1 id="my-words-heading">Словарь</h1></div>
@@ -372,11 +349,11 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         </section>}
       </div>
 
-      <nav className="bottom-nav" aria-label="Основная навигация">
-        <button className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><Icon name="library" /></span><b>Библиотека</b></button>
+      {!lessonReader && <nav className="bottom-nav" aria-label="Основная навигация">
+        <button className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><Icon name="library" /></span><b>Уроки</b></button>
         <button className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><Icon name="cards" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
         <button className={primaryTab === 'profile' ? 'active' : ''} onClick={() => { setPrimaryTab('profile'); setSessionCompleted(false) }}><span><Icon name="profile" /></span><b>Профиль</b></button>
-      </nav>
+      </nav>}
     </main>}
 
     {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}><form className="add-modal" onSubmit={addWord} onMouseDown={(e) => e.stopPropagation()}><button type="button" className="modal-close" onClick={() => setShowAdd(false)} aria-label="Закрыть"><Icon name="close" /></button><span className="modal-emoji">🇪🇪</span><h2>Новое слово</h2><p>Добавь эстонское слово в свою коллекцию</p>
