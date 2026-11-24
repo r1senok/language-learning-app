@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { bindCardGesture } from '../src/domain/cardGesture.ts'
-import { findStudyVoice } from '../src/domain/pronunciation.ts'
+import { findEstonianVoice } from '../src/domain/pronunciation.ts'
 
 function fixture() {
   const surface = new EventTarget()
@@ -85,22 +85,21 @@ test('mouse capture handles a left swipe, and loss of capture cancels the drag',
   unbind()
 })
 
-test('speech prefers a matching regional voice and never falls back to English', () => {
-  const en = { lang: 'en-US' }, et = { lang: 'et-EE' }, ru = { lang: 'ru_RU' }, regional = { lang: 'ru-UA' }
-  assert.equal(findStudyVoice([en], 'et-EE'), undefined)
-  assert.equal(findStudyVoice([en, et, ru], 'et-EE'), et)
-  assert.equal(findStudyVoice([regional, en, ru], 'ru-RU'), ru)
-  assert.equal(findStudyVoice([regional, en], 'ru-RU'), regional)
+test('speech prefers an Estonian regional voice and rejects English and Russian', () => {
+  const en = { lang: 'en-US' }, et = { lang: 'et_EE' }, ru = { lang: 'ru-RU' }, generic = { lang: 'et' }
+  assert.equal(findEstonianVoice([en, ru]), undefined)
+  assert.equal(findEstonianVoice([generic, en, et, ru]), et)
+  assert.equal(findEstonianVoice([generic, en]), generic)
 })
 
-test('a tap on a card button leaves it alone, while a horizontal touch can still swipe', () => {
+test('card buttons do not start a tap-to-flip or swipe gesture', () => {
   const { surface, touch, calls } = fixture()
   surface.closest = () => surface
   touch('touchstart', 0, 0)
   touch('touchend', 0, 0)
   assert.equal(calls.flips, 0)
   touch('touchstart', 0, 0)
-  assert.equal(touch('touchmove', -90, 0).defaultPrevented, true)
+  assert.equal(touch('touchmove', -90, 0).defaultPrevented, false)
   touch('touchend', -100, 0)
-  assert.deepEqual(calls.answers, [false])
+  assert.deepEqual(calls.answers, [])
 })
