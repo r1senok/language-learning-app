@@ -1,3 +1,5 @@
+import type { GrammaticalForms } from './domain/grammar'
+
 export type Progress = 0 | 1 | 2 | 3
 
 export type WordId = number | string
@@ -13,6 +15,7 @@ export type Word = {
   categories?: string[]
   partOfSpeech?: string
   forms?: string
+  grammaticalForms?: GrammaticalForms
   progress: Progress
 }
 

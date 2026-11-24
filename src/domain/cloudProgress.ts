@@ -1,3 +1,4 @@
+import { normalizeGrammaticalForms } from './grammar.ts'
 import { legacyCatalogIds } from './wordId.ts'
 import { requeueAfterAnswer } from './learning.ts'
 import type { Progress, StoredProgress, Word, WordId } from '../types'
@@ -70,11 +71,13 @@ export function projectProgress(snapshot: CloudSnapshot, catalog: readonly Word[
   for (const row of snapshot.personal) {
     const id = row.legacy_id ?? row.client_key ?? row.id
     const bundled = words.get(id)
+    const grammaticalForms = normalizeGrammaticalForms(row.grammatical_forms)
     words.set(id, {
       id, personalId: row.id, estonian: row.lemma, russian: row.translation,
       category: bundled?.category ?? 'Общение', emojis: row.hint_emojis,
       ...(row.part_of_speech && { partOfSpeech: row.part_of_speech }),
       ...(typeof row.grammatical_forms.display === 'string' && { forms: row.grammatical_forms.display }),
+      ...(grammaticalForms && { grammaticalForms }),
       progress: 0,
     })
     ids.set(keyOf({ kind: 'personal', id: row.id }), id)

@@ -46,6 +46,7 @@ test('loads only the published ET–RU catalog and maps glossary data and word I
     id: 1, catalogId: uuid(1), estonian: 'päike', russian: 'солнце, солнышко',
     emojis: ['☀️'], category: 'Небо', categories: ['Небо', 'Природа'],
     partOfSpeech: 'сущ.', forms: 'päikese, päikest', progress: 0,
+    grammaticalForms: { genitive: 'päikese', variants: ['päikest'] },
   })
 })
 

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { normalizeGrammaticalForms } from '../domain/grammar.ts'
 import { CatalogLoadError } from '../domain/catalogError.ts'
 import { isCatalogId, legacyCatalogIds } from '../domain/wordId.ts'
 import type { StoredProgress, Word, WordId } from '../types'
@@ -61,8 +62,8 @@ export async function loadPublishedCatalog(
         const name = categories?.name.trim()
         return name ? [name] : []
       }))].sort()
-      const forms = Object.values(row.grammatical_forms).flat()
-        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      const grammaticalForms = normalizeGrammaticalForms(row.grammatical_forms)
+      const forms = Object.values(grammaticalForms ?? {}).flat()
       words.push({
         id: row.legacy_id !== null && bundledIds.has(row.legacy_id) ? row.legacy_id : row.id,
         catalogId: row.id,
@@ -73,6 +74,7 @@ export async function loadPublishedCatalog(
         categories,
         ...(row.part_of_speech && { partOfSpeech: row.part_of_speech }),
         ...(forms.length > 0 && { forms: forms.join(', ') }),
+        ...(grammaticalForms && { grammaticalForms }),
         progress: 0,
       })
     }

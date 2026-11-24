@@ -1,3 +1,4 @@
+import { normalizeGrammaticalForms } from '../domain/grammar.ts'
 import { isCatalogId, isWordId } from '../domain/wordId.ts'
 import type { Progress, StoredProgress, Word, WordId } from '../types'
 
@@ -23,6 +24,7 @@ function recoverWord(value: unknown, starters: ReadonlyMap<WordId, Word>): Word 
   const estonian = isText(value.estonian) ? value.estonian : starter?.estonian
   const russian = isText(value.russian) ? value.russian : starter?.russian
   if (!estonian || !russian) return
+  const grammaticalForms = normalizeGrammaticalForms(value.grammaticalForms)
 
   return {
     id: value.id,
@@ -34,6 +36,7 @@ function recoverWord(value: unknown, starters: ReadonlyMap<WordId, Word>): Word 
     ...(Array.isArray(value.categories) && { categories: value.categories.filter(isText) }),
     ...(typeof value.partOfSpeech === 'string' && { partOfSpeech: value.partOfSpeech }),
     ...(typeof value.forms === 'string' && { forms: value.forms }),
+    ...(grammaticalForms && { grammaticalForms }),
     progress: isProgress(value.progress) ? value.progress : starter?.progress ?? 0,
   }
 }
