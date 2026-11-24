@@ -7371,41 +7371,6 @@
     "notes": "Сверено с предоставленным фото TERE! A1."
   },
   {
-    "id": "6294826f-9ae8-48f0-9950-ead541bdc542",
-    "lemma": "lõhe",
-    "russian_glosses": [
-      "лосось"
-    ],
-    "before": {
-      "part_of_speech": null,
-      "grammatical_forms": {}
-    },
-    "after": {
-      "part_of_speech": "noun",
-      "grammatical_forms": {
-        "nimetav": "lõhe",
-        "omastav": "lõhe",
-        "osastav": "lõhe"
-      }
-    },
-    "status": "verified",
-    "sources": [
-      {
-        "kind": "tere",
-        "reference": "TERE! A1, Sõnastik, с. 207, lõhe",
-        "fields": [
-          "part_of_speech",
-          "nimetav",
-          "omastav",
-          "osastav"
-        ]
-      }
-    ],
-    "reviewed_by": "Codex, сверка с фото",
-    "reviewed_on": "2026-11-24",
-    "notes": "Сверено с предоставленным фото TERE! A1."
-  },
-  {
     "id": "95b065b4-038e-4e3c-b5dc-8e408527406e",
     "lemma": "loomaliha",
     "russian_glosses": [
@@ -13944,7 +13909,7 @@
       "grammatical_forms": {
         "nimetav": "sõber",
         "omastav": "sõbra",
-        "osastav": "sõbra"
+        "osastav": "sõpra"
       }
     },
     "status": "verified",
@@ -13955,14 +13920,20 @@
         "fields": [
           "part_of_speech",
           "nimetav",
-          "omastav",
+          "omastav"
+        ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, sõber",
+        "fields": [
           "osastav"
         ]
       }
     ],
-    "reviewed_by": "Codex, сверка с фото",
+    "reviewed_by": "Codex, сверка TERE! и Vabamorf",
     "reviewed_on": "2026-11-24",
-    "notes": "Сверено с предоставленным фото TERE! A1."
+    "notes": "Партитив исправлен на sõpra после независимой сверки с Vabamorf."
   },
   {
     "id": "5a7d5487-2609-4472-a984-e5a52c2df26a",
@@ -14722,41 +14693,6 @@
       {
         "kind": "tere",
         "reference": "TERE! A1, Sõnastik, с. 208, suvi",
-        "fields": [
-          "part_of_speech",
-          "nimetav",
-          "omastav",
-          "osastav"
-        ]
-      }
-    ],
-    "reviewed_by": "Codex, сверка с фото",
-    "reviewed_on": "2026-11-24",
-    "notes": "Сверено с предоставленным фото TERE! A1."
-  },
-  {
-    "id": "2c915613-6e16-417d-ab87-1ac12f22781c",
-    "lemma": "tädi",
-    "russian_glosses": [
-      "тётя"
-    ],
-    "before": {
-      "part_of_speech": null,
-      "grammatical_forms": {}
-    },
-    "after": {
-      "part_of_speech": "noun",
-      "grammatical_forms": {
-        "nimetav": "tädi",
-        "omastav": "tädi",
-        "osastav": "tädit"
-      }
-    },
-    "status": "verified",
-    "sources": [
-      {
-        "kind": "tere",
-        "reference": "TERE! A1, Sõnastik, с. 209, tädi",
         "fields": [
           "part_of_speech",
           "nimetav",
@@ -16141,7 +16077,7 @@
       "part_of_speech": "noun",
       "grammatical_forms": {
         "nimetav": "ühistransport",
-        "omastav": "ühistransporti",
+        "omastav": "ühistranspordi",
         "osastav": "ühistransporti"
       }
     },
@@ -16156,11 +16092,18 @@
           "omastav",
           "osastav"
         ]
+      },
+      {
+        "kind": "vabamorf",
+        "reference": "EstNLTK 1.7.5 / Vabamorf, https://github.com/estnltk/estnltk, ühistransport",
+        "fields": [
+          "omastav"
+        ]
       }
     ],
-    "reviewed_by": "Codex, сверка с фото",
+    "reviewed_by": "Codex, сверка TERE! и Vabamorf",
     "reviewed_on": "2026-11-24",
-    "notes": "Сверено с предоставленным фото TERE! A1."
+    "notes": "Родительный исправлен на ühistranspordi. Партитив ühistransporti подтверждён отдельно."
   },
   {
     "id": "16a4a054-d29b-488a-8be5-76cee4521532",
