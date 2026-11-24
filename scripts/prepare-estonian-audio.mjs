@@ -35,7 +35,7 @@ export function estonianAudioPlan(rows, lesson = lessonAudioTexts()) {
     }
   }
   for (const text of lesson) add(text, 'lesson')
-  return [...plan.values()].map(({ override, ...item }) => item)
+  return [...plan.values()].map(({ override: _override, ...item }) => item)
 }
 
 function speak(tool, text, output) {
@@ -65,7 +65,7 @@ async function prepare(plan, directory) {
   let cursor = 0
   let generated = 0
   const failures = []
-  const files = new Array(plan.length)
+  const files = Array.from({ length: plan.length })
   async function worker() {
     while (cursor < plan.length) {
       const index = cursor++

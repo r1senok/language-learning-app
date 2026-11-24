@@ -17,7 +17,7 @@ import { availableLearningProgress, mergePublishedCatalog, preserveDormantGuestP
 import { usePublishedCatalog } from './usePublishedCatalog'
 import type { CatalogState } from './usePublishedCatalog'
 import { createSupabaseClient } from './services/supabase'
-import type { Progress, StoredProgress, Word, WordId } from './types'
+import type { StoredProgress, Word, WordId } from './types'
 
 type PrimaryTab = 'library' | 'vocabulary' | 'profile'
 
