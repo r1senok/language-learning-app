@@ -148,3 +148,19 @@ test('dormant numeric and UUID progress stays stored after a visible answer and 
   assert.deepEqual(saved.words.map(({ progress }) => progress), [2, 1, 2])
   assert.deepEqual(availableLearningProgress(saved, [retired, shown]).queue, [retired.id, shown.id])
 })
+
+test('distinguishes missing configuration, key and permission errors, network failures and malformed responses', async () => {
+  const cases = [
+    [null, 'configuration'],
+    [makeClient(async () => new Response('{}', { status: 401 })), 'access'],
+    [makeClient(async () => Response.json({ code: '42501' }, { status: 400 })), 'access'],
+    [makeClient(async () => { throw new Error('offline') }), 'network'],
+    [makeClient(async () => Response.json({}, { status: 503 })), 'network'],
+    [makeClient(async () => Response.json({})), 'response'],
+    [makeClient(async () => response([{ ...row(1), vocabulary_translations: [{ glosses: null }] }])), 'response'],
+  ]
+  for (const [client, reason] of cases) {
+    await assert.rejects(loadPublishedCatalog(client, bundledIds), { reason })
+  }
+  assert.deepEqual(await loadPublishedCatalog(makeClient(async () => response([])), bundledIds), [])
+})

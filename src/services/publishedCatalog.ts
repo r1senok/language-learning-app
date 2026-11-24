@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { CatalogLoadError } from '../domain/catalogError.ts'
 import { isCatalogId, legacyCatalogIds } from '../domain/wordId.ts'
 import type { StoredProgress, Word, WordId } from '../types'
 
@@ -20,7 +21,7 @@ export async function loadPublishedCatalog(
   bundledIds: ReadonlySet<WordId>,
   signal?: AbortSignal,
 ): Promise<Word[]> {
-  if (!client) throw new Error('Catalog client is unavailable')
+  if (!client) throw new CatalogLoadError('configuration')
 
   const words: Word[] = []
   for (let offset = 0; ; offset += pageSize) {
@@ -38,9 +39,21 @@ export async function loadPublishedCatalog(
       .retry(false)
 
     const request = signal ? query.abortSignal(signal) : query
-    const { data, error } = await request.overrideTypes<CatalogRow[], { merge: false }>()
-    if (error || !data) throw error ?? new Error('Missing catalog response')
+    const { data, error, status } = await request.overrideTypes<CatalogRow[], { merge: false }>()
+    if (error) {
+      if (status === 401 || status === 403 || error.code === '42501') throw new CatalogLoadError('access')
+      throw new CatalogLoadError(!status || status >= 500 ? 'network' : 'response')
+    }
+    if (!Array.isArray(data)) throw new CatalogLoadError('response')
     for (const row of data) {
+      if (!row || typeof row.lemma !== 'string' || !Array.isArray(row.vocabulary_translations) ||
+        !row.vocabulary_translations.every((translation) => translation && Array.isArray(translation.glosses) &&
+          translation.glosses.every((gloss) => typeof gloss === 'string')) ||
+        !Array.isArray(row.vocabulary_categories) || !row.vocabulary_categories.every((link) =>
+          link && (link.categories === null || typeof link.categories?.name === 'string')) ||
+        !Array.isArray(row.hint_emojis) || !row.grammatical_forms || typeof row.grammatical_forms !== 'object') {
+        throw new CatalogLoadError('response')
+      }
       const glosses = row.vocabulary_translations.flatMap(({ glosses }) => glosses).filter((text) => text.trim())
       if (!isCatalogId(row.id) || !glosses.length) continue
 

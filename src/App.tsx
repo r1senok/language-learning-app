@@ -28,6 +28,13 @@ const supabaseClient = createSupabaseClient(
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
 )
 
+const catalogErrorMessages = {
+  configuration: 'Проверьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY для этой сборки.',
+  access: 'Supabase отклонил запрос. Проверьте публичный ключ и доступ на чтение слов и переводов.',
+  network: 'Не удалось связаться с Supabase. Проверьте подключение и повторите загрузку.',
+  response: 'Supabase вернул неожиданный ответ. Проверьте настройки API и повторите загрузку.',
+}
+
 const categories = [
   { label: 'Все', icon: '✦' }, { label: 'Природа', icon: '🌿' }, { label: 'Характер', icon: '✨' },
   { label: 'Путешествия', icon: '🗺️' }, { label: 'Еда', icon: '🍓' }, { label: 'Дом', icon: '🏠' }, { label: 'Общение', icon: '💬' },
@@ -74,7 +81,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const answerTimer = useRef<number | null>(null)
   const [study, setStudy] = useState<{ initial: Set<WordId>; answered: Set<WordId>; round: number } | null>(null)
   const [wordFilter, setWordFilter] = useState<WordFilter>('all')
-  const [catalogOpen, setCatalogOpen] = useState(false)
+  const [catalogOpen, setCatalogOpen] = useState(true)
   const catalogSection = useRef<HTMLDetailsElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
   const restoreStudyFocus = useRef(false)
@@ -349,30 +356,35 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
           <div className="word-list" aria-label="Мои слова">
             {filteredMyWords.map(renderDictionaryWord)}
             {!filteredMyWords.length && <div className="empty-state">
-              <h3>{myWords.length ? 'Слова не найдены' : 'Список пока пуст'}</h3>
+              <h3>{myWords.length ? 'Слова не найдены' : 'Добавь слова из общего словаря'}</h3>
             </div>}
           </div>
+          {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем общий словарь…</h3></div>}
+          {catalog.status === 'error' && <div className="empty-state" role="alert">
+            <h3>Не удалось загрузить общий словарь</h3>
+            <p>{catalogErrorMessages[catalog.reason]}</p>
+            <button type="button" className="profile-secondary" onClick={reloadCatalog}>Повторить загрузку</button>
+          </div>}
           <details className="my-words__catalog" ref={catalogSection} open={catalogOpen}
             onToggle={(event) => setCatalogOpen(event.currentTarget.open)}>
-            <summary>Общий словарь</summary>
-            {catalogOpen && <>
-              <div className="category-scroll" aria-label="Категории каталога">
+            <summary>Общий словарь{catalog.status === 'ready' ? ` · ${catalog.words.length}` : ''}</summary>
+            {catalogOpen && catalog.status === 'ready' && <>
+              {dictionary.length > 0 && <div className="category-scroll" aria-label="Категории каталога">
                 {filterCategories.map((item) => <button type="button" key={item.label}
                   className={category === item.label ? 'category active' : 'category'}
                   aria-pressed={category === item.label} onClick={() => setCategory(item.label)}>{item.label}</button>)}
-              </div>
-              {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем словарь…</h3></div>}
-              {catalog.status === 'error' && <div className="empty-state" role="alert">
-                <h3>Не удалось загрузить словарь</h3>
-                <button className="profile-secondary" onClick={reloadCatalog}>Повторить загрузку</button>
               </div>}
-              {catalog.status === 'ready' && <div className="word-list" aria-label="Общий словарь">
+              <div className="word-list" aria-label="Общий словарь">
                 {filteredWords.map(renderDictionaryWord)}
                 {!filteredWords.length && <div className="empty-state">
-                  <h3>{dictionary.length ? 'Слова не найдены' : 'Пока нет опубликованных слов'}</h3>
+                  <h3>{dictionary.length ? 'Слова не найдены' : 'Supabase не вернул опубликованные слова'}</h3>
+                  {dictionary.length ? <button type="button" className="profile-secondary" onClick={() => {
+                    setSearch(''); setCategory('Все')
+                  }}>Сбросить поиск и категорию</button>
+                    : <p>Проверьте публикацию эстонских слов и доступ к их русским переводам.</p>}
                 </div>}
-                <button className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
-              </div>}
+                <button type="button" className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
+              </div>
             </>}
           </details>
         </section>}
