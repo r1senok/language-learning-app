@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
 import { StudyScreen } from './StudyScreen'
-import { filterMyWords, selectMyWords, sessionProgress } from './domain/myWords'
-import type { WordFilter } from './domain/myWords'
-import { useStudyPronunciation } from './useStudyPronunciation'
+import { filterDictionary, sessionProgress } from './domain/myWords'
 import { sortByEstonian } from './domain/wordOrder'
 import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
 import { AuthDialog } from './AuthDialog'
@@ -13,7 +11,7 @@ import { useAuth } from './useAuth'
 import { useCloudProgress } from './useCloudProgress'
 import type { CloudAction } from './domain/cloudProgress'
 import { loadGuestProgress, saveGuestProgress } from './services/localProgress'
-import { availableLearningProgress, isPersonalWord, mergePublishedCatalog, preserveDormantGuestProgress,
+import { availableLearningProgress, mergePublishedCatalog, preserveDormantGuestProgress,
   sharedCatalogWithProgress } from './services/publishedCatalog'
 import { usePublishedCatalog } from './usePublishedCatalog'
 import type { CatalogState } from './usePublishedCatalog'
@@ -34,11 +32,6 @@ const catalogErrorMessages = {
   network: 'Не удалось связаться с Supabase. Проверьте подключение и повторите загрузку.',
   response: 'Supabase вернул неожиданный ответ. Проверьте настройки API и повторите загрузку.',
 }
-
-const categories = [
-  { label: 'Все', icon: '✦' }, { label: 'Природа', icon: '🌿' }, { label: 'Характер', icon: '✨' },
-  { label: 'Путешествия', icon: '🗺️' }, { label: 'Еда', icon: '🍓' }, { label: 'Дом', icon: '🏠' }, { label: 'Общение', icon: '💬' },
-]
 
 const statusOf = (word: Word) => word.progress === 0 ? 'new' : word.progress === 3 ? 'learned' : 'studying'
 const shuffled = <T,>(items: T[]) => [...items].sort(() => Math.random() - .5)
@@ -80,15 +73,11 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const latestGuest = useRef(guest)
   const answerTimer = useRef<number | null>(null)
   const [study, setStudy] = useState<{ initial: Set<WordId>; answered: Set<WordId>; round: number } | null>(null)
-  const [wordFilter, setWordFilter] = useState<WordFilter>('all')
-  const [catalogOpen, setCatalogOpen] = useState(true)
-  const catalogSection = useRef<HTMLDetailsElement>(null)
+  const catalogSection = useRef<HTMLDivElement>(null)
   const startButton = useRef<HTMLButtonElement>(null)
   const restoreStudyFocus = useRef(false)
-  const [category, setCategory] = useState('Все')
   const [search, setSearch] = useState('')
   const [feedback, setFeedback] = useState<{ kind: 'known' | 'unknown'; before: StoredProgress } | null>(null)
-  const { pronounce, speechMessage, setSpeechMessage } = useStudyPronunciation()
   const [showAdd, setShowAdd] = useState(false)
   const [newEstonian, setNewEstonian] = useState('')
   const [newRussian, setNewRussian] = useState('')
@@ -154,18 +143,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const { words, queue } = individualProgress
 
   const dictionary = useMemo(() => sortByEstonian(sharedCatalogWithProgress(catalog.words ?? [], words)), [catalog.words, words])
-  const myWords = useMemo(() => selectMyWords(words, isPersonalWord), [words])
-  const filteredMyWords = useMemo(() => filterMyWords(myWords, search, wordFilter), [myWords, search, wordFilter])
-  const filterCategories = useMemo(() => {
-    const names = new Set(categories.map(({ label }) => label))
-    const additional = dictionary.flatMap((word) => word.categories?.length ? word.categories : [word.category])
-    return [...categories, ...[...new Set(additional)].filter((label) => !names.has(label))
-      .sort().map((label) => ({ label, icon: '✦' }))]
-  }, [dictionary])
-  const matchesSearch = (word: Word) =>
-    `${word.estonian} ${word.russian} ${word.forms || ''}`.toLowerCase().includes(search.toLowerCase())
-  const filteredWords = dictionary.filter((word) =>
-    (category === 'Все' || word.category === category || word.categories?.includes(category)) && matchesSearch(word))
+  const filteredWords = useMemo(() => filterDictionary(dictionary, search), [dictionary, search])
   const learnedWords = words.filter((word) => word.progress === 3)
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
   const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
@@ -176,7 +154,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     const active = currentProgress().queue
     if (!active.length || answerTimer.current !== null) return
     setSessionCompleted(false)
-    setSpeechMessage('')
     setStudy({ initial: new Set(active), answered: new Set(), round: 0 })
   }
 
@@ -197,8 +174,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }, [study])
 
   function openCatalog() {
-    setCatalogOpen(true)
-    requestAnimationFrame(() => catalogSection.current?.scrollIntoView({ block: 'start' }))
+    catalogSection.current?.scrollIntoView({ block: 'start' })
   }
   const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
 
@@ -286,10 +262,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       <button type="button" className="my-words__word-info" onClick={() => setStatusWordId(word.id)} aria-haspopup="dialog">
         <span className="my-words__word-name" lang="et">{word.estonian}</span>
         <span className="my-words__translation">{word.russian}</span>
-        <span className="status-label">{status === 'learned' ? 'Выучено' : status === 'studying' ? 'Изучаю' : 'Новое'}</span>
+        {status !== 'new' && <span className="status-label">{status === 'learned' ? 'Выучено' : 'Изучаю'}</span>}
       </button>
-      <button type="button" className="sound-button" onClick={() => pronounce(word.estonian)}
-        aria-label={`Прослушать ${word.estonian}`}><Icon name="volume" /></button>
       {status === 'new' && <button type="button" className="add-study" aria-label={`Учить ${word.estonian}`}
         onClick={() => addToStudy([word.id])}><Icon name="plus" /></button>}
     </article>
@@ -324,9 +298,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         </section>}
 
         {primaryTab === 'vocabulary' && <section className="screen screen--dictionary my-words" aria-labelledby="my-words-heading">
-          <div className="section-row my-words__heading"><h1 id="my-words-heading">Мои слова</h1>
-            <button type="button" className="add-study" onClick={() => setShowAdd(true)}><Icon name="plus" /><span>Добавить слово</span></button>
-          </div>
+          <div className="section-row my-words__heading"><h1 id="my-words-heading">Словарь</h1></div>
           <div className="my-words__hero">
             <div className="my-words__hero-copy">
               <h2>{queue.length ? 'Продолжим изучение?' : 'Начнём учиться?'}</h2>
@@ -339,7 +311,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             <Mascot />
           </div>
           <dl className="my-words__stats">
-            <div><dt>Всего</dt><dd>{myWords.length}</dd></div>
+            <div><dt>Всего</dt><dd aria-live="polite">{catalog.status === 'ready' ? catalog.words.length : '—'}</dd></div>
             <div><dt>Выучено</dt><dd>{learnedWords.length}</dd></div>
             <div><dt>Изучаю</dt><dd>{studyingCount}</dd></div>
           </dl>
@@ -347,46 +319,24 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             <input type="search" aria-label="Поиск слов" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Искать на эстонском или русском" />
           </label>
-          <div className="my-words__filters" aria-label="Фильтр моих слов">
-            {([['all', 'Все'], ['studying', 'Изучаю'], ['learned', 'Выучено']] as const).map(([value, label]) =>
-              <button type="button" className={`category ${wordFilter === value ? 'active' : ''}`}
-                key={value} aria-pressed={wordFilter === value} onClick={() => setWordFilter(value)}>{label}</button>)}
-          </div>
-          {speechMessage && <p role="status" className="study-tip">{speechMessage}</p>}
-          <div className="word-list" aria-label="Мои слова">
-            {filteredMyWords.map(renderDictionaryWord)}
-            {!filteredMyWords.length && <div className="empty-state">
-              <h3>{myWords.length ? 'Слова не найдены' : 'Добавь слова из общего словаря'}</h3>
+          <div className="dictionary-results" ref={catalogSection}>
+            {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем общий словарь…</h3></div>}
+            {catalog.status === 'error' && <div className="empty-state" role="alert">
+              <h3>Не удалось загрузить общий словарь</h3>
+              <p>{catalogErrorMessages[catalog.reason]}</p>
+              <button type="button" className="profile-secondary" onClick={reloadCatalog}>Повторить загрузку</button>
+            </div>}
+            {catalog.status === 'ready' && <div className="word-list" aria-label="Опубликованные слова">
+              {filteredWords.map(renderDictionaryWord)}
+              {!filteredWords.length && <div className="empty-state">
+                <h3>{dictionary.length ? 'Слова не найдены' : 'Supabase не вернул опубликованные слова'}</h3>
+                {dictionary.length ? <button type="button" className="profile-secondary" onClick={() => setSearch('')}>
+                  Сбросить поиск
+                </button> : <p>Проверьте публикацию эстонских слов и доступ к их русским переводам.</p>}
+              </div>}
+              <button type="button" className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
             </div>}
           </div>
-          {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем общий словарь…</h3></div>}
-          {catalog.status === 'error' && <div className="empty-state" role="alert">
-            <h3>Не удалось загрузить общий словарь</h3>
-            <p>{catalogErrorMessages[catalog.reason]}</p>
-            <button type="button" className="profile-secondary" onClick={reloadCatalog}>Повторить загрузку</button>
-          </div>}
-          <details className="my-words__catalog" ref={catalogSection} open={catalogOpen}
-            onToggle={(event) => setCatalogOpen(event.currentTarget.open)}>
-            <summary>Общий словарь{catalog.status === 'ready' ? ` · ${catalog.words.length}` : ''}</summary>
-            {catalogOpen && catalog.status === 'ready' && <>
-              {dictionary.length > 0 && <div className="category-scroll" aria-label="Категории каталога">
-                {filterCategories.map((item) => <button type="button" key={item.label}
-                  className={category === item.label ? 'category active' : 'category'}
-                  aria-pressed={category === item.label} onClick={() => setCategory(item.label)}>{item.label}</button>)}
-              </div>}
-              <div className="word-list" aria-label="Общий словарь">
-                {filteredWords.map(renderDictionaryWord)}
-                {!filteredWords.length && <div className="empty-state">
-                  <h3>{dictionary.length ? 'Слова не найдены' : 'Supabase не вернул опубликованные слова'}</h3>
-                  {dictionary.length ? <button type="button" className="profile-secondary" onClick={() => {
-                    setSearch(''); setCategory('Все')
-                  }}>Сбросить поиск и категорию</button>
-                    : <p>Проверьте публикацию эстонских слов и доступ к их русским переводам.</p>}
-                </div>}
-                <button type="button" className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
-              </div>
-            </>}
-          </details>
         </section>}
 
         {primaryTab === 'profile' && <section className="screen screen--profile">
@@ -426,7 +376,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
 
       <nav className="bottom-nav" aria-label="Основная навигация">
         <button className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><Icon name="library" /></span><b>Библиотека</b></button>
-        <button className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><Icon name="cards" /></span><b>Слова</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
+        <button className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><Icon name="cards" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
         <button className={primaryTab === 'profile' ? 'active' : ''} onClick={() => { setPrimaryTab('profile'); setSessionCompleted(false) }}><span><Icon name="profile" /></span><b>Профиль</b></button>
       </nav>
     </main>}

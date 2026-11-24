@@ -1,19 +1,12 @@
-import { sortByEstonian } from './wordOrder.ts'
 import type { Word, WordId } from '../types'
 
-export type WordFilter = 'all' | 'studying' | 'learned'
+export function filterDictionary(words: readonly Word[], search: string): readonly Word[] {
+  const normalize = (value: string) => value.normalize('NFC').toLowerCase()
+  const query = normalize(search.trim())
+  if (!query) return words
 
-export function selectMyWords(words: readonly Word[], isPersonal: (word: Word) => boolean) {
-  return sortByEstonian(words.filter((word) => isPersonal(word) || word.progress > 0))
-}
-
-export function filterMyWords(words: readonly Word[], query: string, filter: WordFilter) {
-  const term = query.trim().toLowerCase()
-  return words.filter((word) => {
-    if (filter === 'learned' && word.progress !== 3) return false
-    if (filter === 'studying' && word.progress !== 1 && word.progress !== 2) return false
-    return `${word.estonian} ${word.russian}`.toLowerCase().includes(term)
-  })
+  return words.filter(({ estonian, russian }) =>
+    normalize(estonian).includes(query) || normalize(russian).includes(query))
 }
 
 export function sessionProgress(initial: ReadonlySet<WordId>, answered: ReadonlySet<WordId>) {
