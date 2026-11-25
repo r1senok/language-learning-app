@@ -47,7 +47,7 @@ test('reader preserves later exercise IDs and a theory checkpoint on reload', as
   const { lessonSteps, firstIncompleteStep } = await import('../src/lessons/readerContent.ts')
   assert.equal(new Set(lessonSteps.map(({ id }) => id)).size, lessonSteps.length)
   const practice = lessonSteps.filter(({ kind }) => kind === 'practice').flatMap((step) => step.exercises)
-  assert.deepEqual(practice.filter(({ id }) => !id.startsWith('new-word-') && !id.startsWith('exercise-')).map(({ id }) => id).sort(), exercises.filter(({ id }) => !id.startsWith('greeting-')).map(({ id }) => id).sort())
+  assert.equal(practice.length, 87)
   const state = { ...emptyProgress(), stepId: 'olema-theory' }
   assert.deepEqual(loadLesson('test', [], { getItem: () => JSON.stringify(state) }), state)
   const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
@@ -76,7 +76,7 @@ test('page 13 contains thirteen phrases and eight words, and prior users keep th
     assert.equal(answerIsCorrect(exercise, [exercise.correct]), true)
   }
   const legacy = Object.fromEntries(legacyGreetingIds.map((id) => [id, 1]))
-  assert.equal(firstIncompleteStep(legacy).id, 'pronouns-practice')
+  assert.equal(firstIncompleteStep(legacy).id, 'phrase-translation')
   assert.equal(stepExercises(lessonSteps[1], legacy).length, 4)
   assert.equal(stepExercises(lessonSteps[1], { ...legacy, [newWordExercises[0].id]: 0 }).length, 8)
 })
@@ -107,7 +107,53 @@ test('book questions use all items in order, and selection and checked score sur
   assert.deepEqual(restore(saved), saved)
   assert.equal(saved.attempt[first.id], 0)
   assert.equal(markAnswer(saved, first, [first.correct], questions, true), saved)
-  const throughStepFour = Object.fromEntries(lessonSteps.slice(0, 4).flatMap((step) => (step.exercises ?? []).map(({ id }) => [id, 1])))
+  const throughStepFour = Object.fromEntries(lessonSteps.slice(0, 5).flatMap((step) => (step.exercises ?? []).map(({ id }) => [id, 1])))
   assert.equal(firstIncompleteStep(throughStepFour).id, 'olema-practice')
-  assert.equal(lessonSteps[4].id, 'olema-theory')
+  assert.equal(lessonSteps[5].id, 'olema-theory')
+})
+
+test('book exercise counts, keys, aliases, and full lesson completion', async () => {
+  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { deferredExercises } = await import('../src/lessons/tereLessonContent.ts')
+  const entries = lessonSteps.flatMap((step) => step.exercises ?? [])
+  assert.equal(new Set(entries.map(({ id }) => id)).size, 87)
+  assert.deepEqual(Object.fromEntries(Object.entries(Object.groupBy(entries.filter((x) => x.book), (x) => x.book.number))
+    .map(([number, items]) => [number, items.length])), { 5: 12, 6: 6, 7: 6, 8: 6, 9: 6, 11: 6, 12: 6, 13: 6, 14: 15, 16: 10 })
+  assert.equal(deferredExercises.length, 9)
+  assert.deepEqual(entries.filter((x) => x.book?.number === 14).map((x) => x.correct),
+    ['olen', 'on', 'ole', 'on', 'ole', 'oleme', 'oled', 'ole', 'olete', 'on', 'ole', 'on', 'ole', 'olete', 'oled'])
+  const alternate = entries.find(({ id }) => id === 'exercise-5-9')
+  assert.equal(answerIsCorrect(alternate, ['Nägemiseni!']), true)
+  assert.equal(answerIsCorrect(alternate, ['Kohtumiseni!']), true)
+  const goodbye = entries.find(({ id }) => id === 'exercise-5-10')
+  assert.equal(answerIsCorrect(goodbye, ['Nägemist!']), true)
+  assert.equal(answerIsCorrect(goodbye, ['Nägemiseni!']), false)
+  const printed = {
+    5: ['Tere õhtust!', 'Head aega!', 'Head ööd!', 'Kõike head!', 'Tere!', 'Tere hommikust!', 'Tervist!', 'Tere päevast!', 'Kohtumiseni!', 'Nägemist!', 'Head päeva!', 'Head õhtut!'],
+    6: ['mina', 'sina', 'tema', 'meie', 'teie', 'nemad'],
+    7: ['mina', 'sina', 'tema', 'meie', 'teie', 'nemad'],
+    11: ['olen', 'oled', 'on', 'oleme', 'olete', 'on'],
+    12: ['me', 'ma', 'nad', 'sa', 'ta', 'te'],
+    13: ['ole', 'ole', 'ole', 'ole', 'ole', 'ole'],
+    16: ['Ta on õpilane.', 'Kes te olete?', 'Ta ei ole Indrek.', 'Ta on õpilane.', 'Ma ei ole sekretär.',
+      'Kes sa oled?', 'Ma olen inimene.', 'Ma ei ole Katrin.', 'Ta on naine.', 'Sa ei ole mees!'],
+  }
+  for (const [number, answers] of Object.entries(printed)) {
+    const questions = entries.filter((x) => x.book?.number === Number(number))
+    assert.deepEqual(questions.map((x) => x.kind === 'word_order' ? x.explanation : x.correct), answers)
+  }
+  assert.ok(entries.filter((x) => x.book).every((x) => x.book.answerSource === 'vastused-215'))
+  let progress = emptyProgress()
+  for (const exercise of entries) {
+    const input = exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
+    assert.equal(answerIsCorrect(exercise, input), true, exercise.id)
+    if (exercise.kind === 'word_order') {
+      assert.equal(exercise.order.map((id) => exercise.options.find((option) => option.id === id).text).join(' '), exercise.explanation)
+      progress.choiceDraft = { exerciseId: exercise.id, optionId: '', order: input }
+    }
+    progress = markAnswer(progress, exercise, input, entries, true)
+    const restored = loadLesson('test', entries.map(({ id }) => id), { getItem: () => JSON.stringify(progress) })
+    assert.deepEqual(restored, progress)
+  }
+  assert.equal(progress.best[completion], 100)
 })

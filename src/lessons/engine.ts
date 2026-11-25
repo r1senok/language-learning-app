@@ -2,18 +2,21 @@ export type Option = { id: string; text: string }
 type BookQuestion = {
   lessonId: string; number: number; question: number; total: number; page: number
   heading: string; language: 'ru' | 'et'
+  bookId?: string; mode?: 'translate' | 'match' | 'gap' | 'order'; answerSource?: 'vastused-215'
 }
 type Question = { id: string; prompt: string; explanation: string; exampleAudio?: string; scene?: { icon: string; label: string } }
 export type Exercise = Question & (
-  | { kind: 'multiple_choice'; options: Option[]; correct: string; book?: BookQuestion }
+  | { kind: 'multiple_choice'; options: Option[]; correct: string; accepted?: string[]; book?: BookQuestion }
   | { kind: 'fill_blank'; options: Option[]; correct: string }
   | { kind: 'matching_pairs'; pairs: { id: string; left: string; right: string }[] }
-  | { kind: 'word_order'; options: Option[]; order: string[] }
+  | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
 )
 
 export type BookChoice = Extract<Exercise, { kind: 'multiple_choice' }> & { book: BookQuestion }
-export const isBookChoice = (exercise?: Exercise): exercise is BookChoice =>
-  exercise?.kind === 'multiple_choice' && exercise.book !== undefined
+export type BookOrder = Extract<Exercise, { kind: 'word_order' }> & { book: BookQuestion }
+export type BookExercise = BookChoice | BookOrder
+export const isBookChoice = (exercise?: Exercise): exercise is BookExercise =>
+  (exercise?.kind === 'multiple_choice' || exercise?.kind === 'word_order') && exercise.book !== undefined
 
 export function answerIsCorrect(exercise: Exercise, selected: string[]) {
   if (exercise.kind === 'matching_pairs') {
@@ -23,13 +26,13 @@ export function answerIsCorrect(exercise: Exercise, selected: string[]) {
   if (exercise.kind === 'word_order') {
     return selected.length === exercise.order.length && exercise.order.every((id, index) => selected[index] === id)
   }
-  return selected.length === 1 && selected[0] === exercise.correct
+  return selected.length === 1 && (exercise.kind === 'multiple_choice' ? (exercise.accepted ?? [exercise.correct]).includes(selected[0]) : selected[0] === exercise.correct)
 }
 
 export const completion = '@completed'
 export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: { exerciseId: string; optionId: string } }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: { exerciseId: string; optionId: string; order?: string[] } }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -77,7 +80,8 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
     return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
       ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }),
       ...(ids.includes(parsed.choiceDraft?.exerciseId) && typeof parsed.choiceDraft?.optionId === 'string' &&
-        { choiceDraft: { exerciseId: parsed.choiceDraft.exerciseId, optionId: parsed.choiceDraft.optionId } }) }
+        { choiceDraft: { exerciseId: parsed.choiceDraft.exerciseId, optionId: parsed.choiceDraft.optionId,
+          ...(Array.isArray(parsed.choiceDraft.order) && parsed.choiceDraft.order.every((id: unknown) => typeof id === 'string') ? { order: parsed.choiceDraft.order } : {}) } }) }
   } catch {
     return emptyProgress()
   }

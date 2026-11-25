@@ -45,5 +45,5 @@ test('generation plan deduplicates across lesson and dictionary, and includes ev
   assert.deepEqual(plan.find(({ id }) => id === 'tere').sources, ['pilot', 'dictionary', 'lesson'])
   assert.equal(plan.filter(({ text }) => text === 'või').length, 1)
   assert.ok(lessonAudioTexts().every((text) => plan.some((item) => item.text === text)))
-  assert.ok(plan.some(({ text }) => text === 'Sa ei ole siin.'))
+  assert.ok(plan.some(({ text }) => text === 'Sa ei ole mees!'))
 })

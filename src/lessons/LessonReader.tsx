@@ -15,7 +15,7 @@ function TheoryCard({ panel }: { panel: TheoryPanel }) {
     <caption>{panel.title}</caption>
     <thead><tr>{panel.headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead>
     <tbody>{panel.rows.map((row) => <tr key={row[0]}>
-      {row.map((value, index) => <td key={index} lang={index < 2 ? 'et' : undefined}>
+      {row.map((value, index) => <td key={index} lang={(panel.estonianColumns?.includes(index) ?? index < 2) ? 'et' : undefined}>
         {index === panel.accent ? <strong className="reader-accent">{value}</strong> : value}
       </td>)}
     </tr>)}</tbody>
@@ -50,6 +50,11 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
   const bookChoice = !result && isBookChoice(active) ? active : undefined
   const selectedOption = bookChoice?.options.find(({ id }) => progress.choiceDraft?.exerciseId === bookChoice.id &&
     progress.choiceDraft.optionId === id)?.id
+  const selectedOrder = bookChoice && progress.choiceDraft?.exerciseId === bookChoice.id
+    ? [...new Set(progress.choiceDraft.order ?? [])].filter((id) => bookChoice.options.some((option) => option.id === id)) : []
+  const matching = bookChoice?.book.mode === 'match' ? stepQuestions.flatMap((question) =>
+    isBookChoice(question) && question.kind === 'multiple_choice' && question.book.number === bookChoice.book.number
+      ? [{ question, done: hasScore(progress.attempt, question.id) }] : []) : []
   const newWord = active && newWordExercises.find(({ id }) => id === active.id)
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const wordNumber = newWord ? newWordExercises.indexOf(newWord) + 1 : 0
@@ -81,7 +86,9 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
     onClose()
   }
 
-  const score = exercises.reduce((sum, { id }) => sum + (progress.attempt[id] ?? 0), 0)
+  const recorded = result && exercises.some(({ id }) => !hasScore(progress.attempt, id))
+    ? Object.values(progress.attempt) : exercises.map(({ id }) => progress.attempt[id] ?? 0)
+  const score = recorded.reduce((sum, value) => sum + value, 0)
   return <section ref={reader} className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : (newWord && !result) || bookChoice ? ' lesson-reader--new-word' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') close() }}>
     <header className="reader-bar">
@@ -96,7 +103,7 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
       <h1 id="reader-heading" lang="et" ref={heading} tabIndex={-1}>{title}</h1>
       {result ? <div className="reader-panel">
         <h2>Урок завершён</h2>
-        <p>Верных ответов в этой попытке: {score} из {exercises.length}.</p>
+        <p>Верных ответов в этой попытке: {score} из {recorded.length}.</p>
         <p>Лучший результат: {progress.best[completion] ?? 0}%.</p>
         <button className="tactile-button tactile-button--primary tactile-button--wide"
           onClick={() => navigate(steps[0].id, true)}>Пройти ещё раз</button>
@@ -107,22 +114,37 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
           {step.kind === 'theory' ? <>
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : bookChoice ? <BookChoiceCard key={bookChoice.id} exercise={bookChoice} selected={selectedOption}
-            score={progress.attempt[bookChoice.id]} onSelect={(optionId) => {
+            score={progress.attempt[bookChoice.id]} order={selectedOrder} matching={matching}
+            pairActive={progress.choiceDraft?.exerciseId === bookChoice.id}
+            onPair={(exerciseId) => save({ ...current(), choiceDraft: { exerciseId, optionId: '' } })}
+            onOrder={(order) => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) {
-                save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId } })
+                save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId: '', order } })
               }
+            }}
+            onSelect={(optionId) => {
+              const previous = current()
+              if (hasScore(previous.attempt, bookChoice.id)) return
+              const selected = { ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId } }
+              save(bookChoice.kind === 'multiple_choice' && bookChoice.book.mode === 'match' && bookChoice.correct === optionId
+                ? markAnswer(selected, bookChoice, [optionId], exercises, cloud) : selected)
             }} onCheck={() => {
               const previous = current()
               const draft = previous.choiceDraft
-              if (draft?.exerciseId === bookChoice.id && bookChoice.options.some(({ id }) => id === draft.optionId)) {
-                save(markAnswer(previous, bookChoice, [draft.optionId], exercises, cloud))
+              if (draft?.exerciseId !== bookChoice.id) return
+              const inputs = bookChoice.kind === 'word_order' ? selectedOrder : [draft.optionId]
+              if (inputs.length && inputs.every((id) => bookChoice.options.some((option) => option.id === id)) &&
+                  (bookChoice.kind !== 'word_order' || inputs.length === bookChoice.options.length)) {
+                save(markAnswer(previous, bookChoice, inputs, exercises, cloud))
               }
             }} onContinue={() => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) return
-              if (steps[index + 1] && stepQuestions.every(({ id }) => hasScore(previous.attempt, id))) navigate(steps[index + 1].id)
-              else save({ ...previous, choiceDraft: undefined })
+              if (stepQuestions.every(({ id }) => hasScore(previous.attempt, id))) {
+                const destination = steps[index + 1] ?? firstIncompleteStep(previous.attempt, steps)
+                navigate(destination?.id ?? '@result')
+              } else save({ ...previous, choiceDraft: undefined })
             }} /> : newWord ? <NewWordCard key={newWord.id} exercise={newWord} onAnswer={(answer) => {
             setAnswered(newWord)
             save(markAnswer(current(), newWord, answer, exercises, cloud))

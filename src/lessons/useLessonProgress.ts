@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { exercises, lessonId } from './course'
-import { pronounBookExercises } from './pronounExercises'
+import { lessonSteps } from './readerContent'
 import { newWordExercises } from './greetingsContent'
 import { completion, loadLesson, resumeFromCloud } from './engine'
 import type { LessonProgress, Scores } from './engine'
 
-const exerciseIds = [...exercises, ...newWordExercises, ...pronounBookExercises].map(({ id }) => id)
+const exerciseIds = [...new Set([...exercises, ...newWordExercises, ...lessonSteps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])].map(({ id }) => id))]
 
 export function useLessonProgress(client?: SupabaseClient | null, userId?: string) {
   const key = `takku-lessons-v1:${userId ?? 'guest'}:${lessonId}`
