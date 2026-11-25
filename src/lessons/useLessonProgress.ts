@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { exercises, lessonId } from './course'
+import { newWordExercises } from './greetingsContent'
 import { completion, loadLesson, resumeFromCloud } from './engine'
 import type { LessonProgress, Scores } from './engine'
 
-const exerciseIds = exercises.map(({ id }) => id)
+const exerciseIds = [...exercises, ...newWordExercises].map(({ id }) => id)
 
 export function useLessonProgress(client?: SupabaseClient | null, userId?: string) {
   const key = `takku-lessons-v1:${userId ?? 'guest'}:${lessonId}`

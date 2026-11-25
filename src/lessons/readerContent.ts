@@ -1,5 +1,6 @@
 import { exercises } from './course.ts'
 import { hasScore } from './engine.ts'
+import { keyPhrases, legacyGreetingIds, newWordExercises } from './greetingsContent.ts'
 import type { Exercise, Scores } from './engine.ts'
 
 export type TheoryPanel =
@@ -16,23 +17,9 @@ function practice(...ids: string[]) {
 }
 
 export const lessonSteps: ReaderStep[] = [
-  { id: 'greetings-theory', kind: 'theory', title: 'Приветствия и прощания', page: '13', panels: [
-    { kind: 'tip', text: 'Выбирай фразу по ситуации: приветствие в начале разговора, прощание в конце. Посмотри, какие фразы подходят для утра, дня, вечера и прощания.' },
-    { kind: 'phrases', items: [
-      { et: 'Tere!', ru: 'Привет!', icon: '👋' },
-      { et: 'Tervist!', ru: 'Здравствуйте!' },
-      { et: 'Tere hommikust!', ru: 'Доброе утро!', icon: '🌅' },
-      { et: 'Tere päevast!', ru: 'Добрый день!', icon: '☀️' },
-      { et: 'Tere õhtust!', ru: 'Добрый вечер!', icon: '🌆' },
-      { et: 'Head aega!', ru: 'До свидания!', icon: '🚪' },
-      { et: 'Nägemist!', ru: 'Пока!' },
-      { et: 'Kohtumiseni!', ru: 'До встречи!' },
-      { et: 'Kõike head!', ru: 'Всего доброго!' },
-      { et: 'Head ööd!', ru: 'Спокойной ночи!', icon: '🌙' },
-    ] },
-  ] },
-  { id: 'greetings-practice', kind: 'practice', title: 'Приветствия в разговоре', page: '13–14',
-    exercises: practice('greeting-listen', 'greeting-morning', 'greeting-meaning', 'greeting-reply') },
+  { id: 'greetings-theory', kind: 'theory', title: 'Знакомство с фразами', page: '13',
+    panels: [{ kind: 'phrases', items: keyPhrases }] },
+  { id: 'greetings-practice', kind: 'practice', title: 'Изучение новых слов', page: '13', exercises: newWordExercises },
   { id: 'pronouns-theory', kind: 'theory', title: 'Личные местоимения', page: '14', panels: [
     { kind: 'table', title: 'Полные и краткие формы', headers: ['Полная форма', 'Краткая', 'Перевод'], accent: 1,
       rows: [['Mina', 'Ma', 'Я'], ['Sina', 'Sa', 'Ты'], ['Tema', 'Ta', 'Он / она'], ['Meie', 'Me', 'Мы'], ['Teie', 'Te', 'Вы'], ['Nemad', 'Nad', 'Они']] },
@@ -63,7 +50,15 @@ export const lessonSteps: ReaderStep[] = [
     exercises: practice('negative-build', 'negative-choice', 'negative-blank', 'negative-review') },
 ]
 
+export function stepExercises(step: ReaderStep, attempt: Scores) {
+  if (step.kind !== 'practice') return []
+  // A completed checkpoint from the previous lesson version remains completed.
+  if (step.id === 'greetings-practice' && legacyGreetingIds.every((id) => hasScore(attempt, id)) &&
+      !step.exercises.some(({ id }) => hasScore(attempt, id))) return practice(...legacyGreetingIds)
+  return step.exercises
+}
+
 export function firstIncompleteStep(attempt: Scores, steps = lessonSteps) {
   if (!Object.keys(attempt).length) return steps[0]
-  return steps.find((step) => step.kind === 'practice' && step.exercises.some(({ id }) => !hasScore(attempt, id)))
+  return steps.find((step) => stepExercises(step, attempt).some(({ id }) => !hasScore(attempt, id)))
 }

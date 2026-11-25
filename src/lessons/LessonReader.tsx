@@ -2,9 +2,11 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { completion, hasScore, markAnswer } from './engine'
 import type { Exercise, LessonProgress } from './engine'
-import { firstIncompleteStep } from './readerContent'
+import { firstIncompleteStep, stepExercises } from './readerContent'
 import type { ReaderStep, TheoryPanel } from './readerContent'
 import { ExerciseCard } from './ExerciseCard'
+import { NewWordCard } from './NewWordCard'
+import { newWordExercises } from './greetingsContent'
 
 function TheoryCard({ panel }: { panel: TheoryPanel }) {
   if (panel.kind === 'tip') return <aside className="reader-tip">{panel.text}</aside>
@@ -35,18 +37,21 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
   const [answered, setAnswered] = useState<Exercise>()
   const reader = useRef<HTMLElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
-  const exercises = steps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])
+  const exercises = steps.flatMap((step) => stepExercises(step, progress.attempt))
   const last = steps.length
   const result = progress.stepId === '@result'
   const step = steps.find((item) => item.id === progress.stepId) ?? firstIncompleteStep(progress.attempt, steps) ?? steps[last - 1]
   const index = steps.indexOf(step)
-  const active = answered ?? (step.kind === 'practice' ? step.exercises.find(({ id }) => !hasScore(progress.attempt, id)) : undefined)
+  const active = answered ?? stepExercises(step, progress.attempt).find(({ id }) => !hasScore(progress.attempt, id))
+  const newWord = active && newWordExercises.find(({ id }) => id === active.id)
+  const keyPhrasesStep = !result && step.id === 'greetings-theory'
+  const wordNumber = newWord ? newWordExercises.indexOf(newWord) + 1 : 0
   const displayed = result ? last : index + 1
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
-  }, [step.id, result])
+  }, [step.id, result, newWord?.id])
 
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
@@ -70,13 +75,13 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
   }
 
   const score = exercises.reduce((sum, { id }) => sum + (progress.attempt[id] ?? 0), 0)
-  return <section ref={reader} className="lesson-reader" aria-labelledby="reader-heading"
+  return <section ref={reader} className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord && !result ? ' lesson-reader--new-word' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') close() }}>
     <header className="reader-bar">
       <div className="reader-bar__inner">
-        <button className="lesson-option" onClick={close}>← К курсу</button>
-        <label htmlFor="reader-progress">Шаг {displayed} из {last}</label>
-        <progress id="reader-progress" value={result ? last : index} max={last} />
+        <button className="lesson-option" onClick={close} aria-label={newWord && !result ? 'Закрыть урок' : undefined}>{newWord && !result ? '×' : '← К курсу'}</button>
+        <label htmlFor="reader-progress">{newWord && !result ? `Слово ${wordNumber} из ${newWordExercises.length}` : `Шаг ${displayed} из ${last}`}</label>
+        <progress id="reader-progress" value={newWord && !result ? newWordExercises.filter(({ id }) => hasScore(progress.attempt, id)).length : result ? last : index} max={newWord && !result ? newWordExercises.length : last} />
       </div>
     </header>
     <div className="reader-content">
@@ -90,19 +95,25 @@ export function LessonReader({ title, steps, progress, current, save, onClose, c
           onClick={() => navigate(steps[0].id, true)}>Пройти ещё раз</button>
       </div> : <>
         <section className="reader-panel" aria-labelledby="reader-step-heading">
-          <span className="reader-source">TERE! A1 · с. {step.page}</span>
-          <h2 id="reader-step-heading">{step.title}</h2>
+          {!newWord && <span className="reader-source">TERE! A1 · с. {step.page}</span>}
+          <h2 id="reader-step-heading" className={newWord ? 'sr-only' : undefined}>{step.title}</h2>
           {step.kind === 'theory' ? <>
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
-          </> : active ? <ExerciseCard key={active.id} exercise={active} onAnswer={(answer) => {
+          </> : newWord ? <NewWordCard key={newWord.id} exercise={newWord} onAnswer={(answer) => {
+            setAnswered(newWord)
+            save(markAnswer(current(), newWord, answer, exercises, cloud))
+          }} onContinue={() => {
+            if (newWordExercises.every(({ id }) => hasScore(current().attempt, id))) navigate(steps[index + 1].id)
+            else setAnswered(undefined)
+          }} /> : active ? <ExerciseCard key={active.id} exercise={active} onAnswer={(answer) => {
             setAnswered(active)
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}
         </section>
-        <nav className="reader-actions" aria-label="Шаги урока">
-          <button className="lesson-option" disabled={index === 0} onClick={() => navigate(steps[index - 1].id)}>Назад</button>
+        {!newWord && <nav className={keyPhrasesStep ? "reader-sticky-action" : "reader-actions"} aria-label="Шаги урока">
+          {!keyPhrasesStep && <button className="lesson-option" disabled={index === 0} onClick={() => navigate(steps[index - 1].id)}>Назад</button>}
           <button className="tactile-button tactile-button--primary" disabled={Boolean(active)} onClick={next}>Продолжить</button>
-        </nav>
+        </nav>}
       </>}
     </div>
   </section>

@@ -43,11 +43,11 @@ test('recovers storage exceptions and restores a cloud checkpoint', () => {
   assert.equal(nextExercise(exercises, progress.attempt)?.id, exercises[1].id)
 })
 
-test('reader steps reuse all exercise IDs and preserve a theory checkpoint on reload', async () => {
+test('reader preserves later exercise IDs and a theory checkpoint on reload', async () => {
   const { lessonSteps, firstIncompleteStep } = await import('../src/lessons/readerContent.ts')
   assert.equal(new Set(lessonSteps.map(({ id }) => id)).size, lessonSteps.length)
   const practice = lessonSteps.filter(({ kind }) => kind === 'practice').flatMap((step) => step.exercises)
-  assert.deepEqual(practice.map(({ id }) => id).sort(), exercises.map(({ id }) => id).sort())
+  assert.deepEqual(practice.filter(({ id }) => !id.startsWith('new-word-')).map(({ id }) => id).sort(), exercises.filter(({ id }) => !id.startsWith('greeting-')).map(({ id }) => id).sort())
   const state = { ...emptyProgress(), stepId: 'olema-theory' }
   assert.deepEqual(loadLesson('test', [], { getItem: () => JSON.stringify(state) }), state)
   const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
@@ -63,4 +63,20 @@ test('the text greeting exercise retains the original ID and saved answers', () 
   const restored = loadLesson('test', exercises.map(({ id }) => id), { getItem: () => JSON.stringify(saved) })
   assert.equal(restored.attempt['greeting-listen'], 1)
   assert.equal(markAnswer(restored, replaced, [], exercises, false), restored)
+})
+
+test('page 13 contains thirteen phrases and eight words, and prior users keep their checkpoint', async () => {
+  const { keyPhrases, newWordExercises, legacyGreetingIds } = await import('../src/lessons/greetingsContent.ts')
+  const { firstIncompleteStep, lessonSteps, stepExercises } = await import('../src/lessons/readerContent.ts')
+  assert.equal(keyPhrases.length, 13)
+  assert.deepEqual(newWordExercises.map(({ word }) => word.et), ['hommik', 'päev', 'õhtu', 'aeg', 'öö', 'hea', 'kõik', 'kuulama'])
+  for (const exercise of newWordExercises) {
+    assert.equal(exercise.options.length, 4)
+    assert.equal(new Set(exercise.options.map(({ id }) => id)).size, 4)
+    assert.equal(answerIsCorrect(exercise, [exercise.correct]), true)
+  }
+  const legacy = Object.fromEntries(legacyGreetingIds.map((id) => [id, 1]))
+  assert.equal(firstIncompleteStep(legacy).id, 'pronouns-practice')
+  assert.equal(stepExercises(lessonSteps[1], legacy).length, 4)
+  assert.equal(stepExercises(lessonSteps[1], { ...legacy, [newWordExercises[0].id]: 0 }).length, 8)
 })

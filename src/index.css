@@ -694,3 +694,45 @@
 .reader-actions button:disabled { opacity: .55; }
 .lesson-option[data-result="correct"], .lesson-feedback--correct { background: #e6f2df; }
 .lesson-option[data-result="incorrect"], .lesson-feedback--incorrect { background: #fbe9e5; }
+
+.lesson-reader--key-phrases .reader-content,
+.lesson-reader--new-word .reader-content { display: flex; flex-direction: column; min-height: calc(100dvh - 76px); padding-bottom: 0; }
+.lesson-reader--key-phrases .reader-panel { flex: 1; align-content: start; }
+.lesson-reader--key-phrases .reader-phrase {
+  position: relative; width: fit-content; max-width: 92%; padding: 11px 16px;
+  border-radius: 17px 17px 17px 4px; background: #fff;
+}
+.lesson-reader--key-phrases .reader-phrase:nth-child(even) {
+  justify-self: end; border-radius: 17px 17px 4px 17px; background: #e8f3e1;
+}
+.lesson-reader--key-phrases .reader-phrase h3 { font-size: 19px; }
+.lesson-reader--key-phrases .reader-phrase p { color: #486147; }
+.reader-sticky-action {
+  position: sticky; bottom: 0; z-index: 1;
+  display: grid; gap: 8px; align-content: end;
+  padding-block: 10px max(12px, env(safe-area-inset-bottom)); background: #f3f8ef;
+}
+.reader-sticky-action .tactile-button { min-height: 48px; width: 100%; }
+.reader-sticky-action .tactile-button:disabled { opacity: .55; }
+.lesson-reader--new-word .reader-panel { flex: 1; display: flex; flex-direction: column; }
+.lesson-reader--new-word #reader-heading { font-size: clamp(18px, 5vw, 24px); }
+.lesson-reader--new-word .reader-bar button { min-width: 44px; text-align: center; font-size: 21px; }
+.new-word-card { flex: 1; display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 12px; }
+.new-word-label { justify-self: start; font-size: 12px; font-weight: 900; color: #34662c; }
+.new-word-prompt {
+  justify-self: center; min-height: 44px; font-size: clamp(32px, 10vw, 48px);
+  font-weight: 900; text-decoration: underline dotted #63835f 2px; text-underline-offset: 7px;
+}
+.new-word-hint { justify-self: center; text-align: center; background: #e6f2df; border-radius: 12px; padding: 8px 14px; }
+.new-word-options { grid-row: 4; display: grid; gap: 8px; align-content: start; }
+.new-word-options .lesson-option { min-height: 50px; background: #fff; display: flex; justify-content: space-between; }
+.new-word-options .lesson-option[aria-pressed="true"] { background: #e5eee1; }
+.new-word-options .lesson-option[data-result="correct"] { background: #ddf1d7; border-color: #67935a; opacity: 1; }
+.new-word-options .lesson-option[data-result="incorrect"] { background: #fbe9e5; border-color: #a75347; opacity: 1; }
+.new-word-card .reader-sticky-action { grid-row: 5; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .new-word-prompt { animation: new-word-enter .18s ease-out; }
+  .new-word-options .lesson-option { transition: background-color .15s, border-color .15s; }
+}
+@keyframes new-word-enter { from { opacity: 0; transform: translateY(4px); } }
