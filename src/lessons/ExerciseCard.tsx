@@ -1,9 +1,10 @@
+import { ReaderAction, ReaderInstruction } from './ReaderLayout'
 import { useState } from 'react'
 import { answerIsCorrect } from './engine'
 import type { Exercise } from './engine'
 
-export function ExerciseCard({ exercise, onAnswer, onContinue }: {
-  exercise: Exercise; onAnswer: (answer: string[]) => void; onContinue: () => void
+export function ExerciseCard({ actionTarget, exercise, onAnswer, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: Exercise; onAnswer: (answer: string[]) => void; onContinue: () => void
 }) {
   const [selected, setSelected] = useState<string[]>([])
   const [left, setLeft] = useState(-1)
@@ -22,6 +23,8 @@ export function ExerciseCard({ exercise, onAnswer, onContinue }: {
   }
 
   return <div className="lesson-exercise">
+    <ReaderInstruction>{exercise.kind === 'matching_pairs' ? 'Сопоставьте пары' :
+      exercise.kind === 'word_order' ? 'Соберите предложение' : 'Выберите ответ'}</ReaderInstruction>
     <h3>{exercise.prompt}</h3>
     {exercise.scene && <div className="reader-scene" role="img" aria-label={exercise.scene.label}>{exercise.scene.icon}</div>}
     {exercise.kind === 'matching_pairs' ? <div className="lesson-pairs">
@@ -48,9 +51,11 @@ export function ExerciseCard({ exercise, onAnswer, onContinue }: {
           onClick={() => setSelected((previous) => exercise.kind === 'word_order' ? [...previous, id] : [id])}>{text}</button>)}
       </div>
     </>}
+    <ReaderAction target={actionTarget}>
     {locked ? <>
       <div className={`lesson-feedback lesson-feedback--${result ? 'correct' : 'incorrect'}`} role="status"><strong>{result ? 'Верно!' : 'Неверно'}</strong><p>{exercise.explanation}</p></div>
       <button className="tactile-button tactile-button--primary tactile-button--wide" onClick={onContinue}>Продолжить</button>
     </> : <button className="tactile-button tactile-button--primary tactile-button--wide" disabled={!ready} onClick={submit}>Проверить</button>}
+    </ReaderAction>
   </div>
 }

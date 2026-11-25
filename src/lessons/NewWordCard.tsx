@@ -1,8 +1,9 @@
+import { ReaderAction, ReaderInstruction } from './ReaderLayout'
 import { useState } from 'react'
 import type { newWordExercises } from './greetingsContent'
 
-export function NewWordCard({ exercise, onAnswer, onContinue }: {
-  exercise: (typeof newWordExercises)[number]
+export function NewWordCard({ actionTarget, question, total, exercise, onAnswer, onContinue }: {
+  actionTarget: HTMLDivElement | null; question: number; total: number; exercise: (typeof newWordExercises)[number]
   onAnswer: (answers: string[]) => void
   onContinue: () => void
 }) {
@@ -20,7 +21,7 @@ export function NewWordCard({ exercise, onAnswer, onContinue }: {
   }
 
   return <div className="new-word-card">
-    <span className="new-word-label" lang="en">NEW WORD</span>
+    <ReaderInstruction question={question} total={total}>Выберите перевод</ReaderInstruction>
     <button className="new-word-prompt" type="button" aria-expanded={showHint} aria-controls="new-word-hint"
       onClick={() => setShowHint(!showHint)} lang="et">{word.et}</button>
     <div id="new-word-hint" hidden={!showHint} className="new-word-hint">
@@ -39,7 +40,7 @@ export function NewWordCard({ exercise, onAnswer, onContinue }: {
         </button>
       })}
     </div>
-    <div className="reader-sticky-action">
+    <ReaderAction target={actionTarget}>
       {checked && <div className={`lesson-feedback lesson-feedback--${right ? 'correct' : 'incorrect'}`} role="status">
         <strong>{right ? 'Верно!' : 'Неверно'}</strong><p>{word.ru} · <span lang="et">{word.forms}</span></p>
       </div>}
@@ -47,6 +48,6 @@ export function NewWordCard({ exercise, onAnswer, onContinue }: {
         disabled={!selected} onClick={checked ? onContinue : check}>
         {checked ? 'Продолжить' : 'Проверить'}
       </button>
-    </div>
+    </ReaderAction>
   </div>
 }

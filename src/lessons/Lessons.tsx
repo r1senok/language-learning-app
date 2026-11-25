@@ -35,7 +35,7 @@ export function Lessons({ client, userId, onReaderChange }: {
     {storageError && <p role="status" className="lesson-feedback">Хранилище устройства недоступно. Обновление страницы может сбросить текущую попытку.</p>}
     {syncError && !storageError && <p role="status" className="lesson-feedback">Облако пока недоступно. Урок сохраняется на этом устройстве.</p>}
   </>
-  if (screen === 'lesson') return <LessonReader title={heading[0]} steps={lessonSteps} progress={progress}
+  if (screen === 'lesson') return <LessonReader steps={lessonSteps} progress={progress}
     current={current} save={save} onClose={close} cloud={Boolean(userId)} warnings={warnings} />
 
   return <section className="screen lessons" aria-labelledby="lessons-heading">

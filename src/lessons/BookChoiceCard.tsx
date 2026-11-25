@@ -1,7 +1,8 @@
+import { ReaderAction, ReaderInstruction } from './ReaderLayout'
 import type { BookChoice, BookExercise } from './engine'
 
-export function BookChoiceCard({ exercise, selected, order, score, matching, pairActive, onSelect, onOrder, onPair, onCheck, onContinue }: {
-  exercise: BookExercise; selected?: string; order: string[]; score?: number
+export function BookChoiceCard({ actionTarget, exercise, selected, order, score, matching, pairActive, onSelect, onOrder, onPair, onCheck, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: BookExercise; selected?: string; order: string[]; score?: number
   matching: { question: BookChoice; done: boolean }[]; pairActive: boolean
   onSelect: (option: string) => void; onOrder: (order: string[]) => void
   onPair: (id: string) => void; onCheck: () => void; onContinue: () => void
@@ -18,11 +19,10 @@ export function BookChoiceCard({ exercise, selected, order, score, matching, pai
   const gap = book.mode === 'gap' ? exercise.prompt.split('…') : undefined
 
   return <div className="new-word-card book-choice-card">
-    <div className="book-choice-count">
-      <strong>Упражнение №{book.number}</strong><span>{match ? matching.filter(({ done }) => done).length : book.question} / {book.total}</span>
-    </div>
-    <progress aria-label="Прогресс упражнения" value={match ? matching.filter(({ done }) => done).length : book.question - Number(!checked)} max={book.total} />
-    <h3>{book.heading}</h3>
+    <ReaderInstruction question={match ? Math.min(book.total, matching.filter(({ done }) => done).length + Number(!checked)) : book.question}
+      total={book.total}>
+      {match ? 'Сопоставьте пары' : ordered ? 'Соберите предложение' : gap ? 'Заполните пропуск' : book.mode === 'translate' ? 'Выберите перевод' : book.heading}
+    </ReaderInstruction>
     {gap ? <p className="book-choice-prompt" lang="et">
       {gap[0]}<strong className="reader-accent">{selected || '…'}</strong>{gap[1]}
     </p> : !match && <p className="book-choice-prompt" lang={book.language}>
@@ -50,14 +50,14 @@ export function BookChoiceCard({ exercise, selected, order, score, matching, pai
         })}
       </div>
     </div>
-    <div className="reader-sticky-action">
+    <ReaderAction target={actionTarget}>
       {(checked || wrongPair) && <div className={`lesson-feedback lesson-feedback--${score ? 'correct' : 'incorrect'}`} role="status">
         <strong>{score ? 'Верно!' : 'Неверно'}</strong>{checked && <> · <span lang="et">{answer}</span></>}
       </div>}
-      {(!match || checked) && <button className="tactile-button tactile-button--primary tactile-button--wide" type="button"
-        disabled={!checked && !valid} onClick={checked ? onContinue : onCheck}>
+      <button className="tactile-button tactile-button--primary tactile-button--wide" type="button"
+        disabled={!checked && (match || !valid)} onClick={checked ? onContinue : onCheck}>
         {checked ? 'Продолжить' : 'Проверить'}
-      </button>}
-    </div>
+      </button>
+    </ReaderAction>
   </div>
 }

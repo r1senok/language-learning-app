@@ -157,3 +157,17 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   }
   assert.equal(progress.best[completion], 100)
 })
+
+test('reader progress counts completed theory and checked questions, including mistakes', async () => {
+  const { lessonReadingProgress, lessonSteps } = await import('../src/lessons/readerContent.ts')
+  assert.deepEqual(lessonReadingProgress(lessonSteps, {}, 0), { completed: 0, total: 91 })
+
+  const firstWord = lessonSteps[1].exercises[0]
+  const attempt = { [firstWord.id]: 0, unrelated: 1 }
+  assert.deepEqual(lessonReadingProgress(lessonSteps, attempt, 1), { completed: 2, total: 91 })
+  assert.deepEqual(lessonReadingProgress(lessonSteps, attempt, 0), { completed: 2, total: 91 })
+
+  const allAnswers = Object.fromEntries(lessonSteps.flatMap((step) =>
+    (step.exercises ?? []).map(({ id }) => [id, 1])))
+  assert.deepEqual(lessonReadingProgress(lessonSteps, allAnswers, 9), { completed: 91, total: 91 })
+})
