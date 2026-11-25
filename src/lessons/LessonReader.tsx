@@ -2,8 +2,8 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { completion, hasScore, isBookChoice, markAnswer } from './engine'
 import type { Exercise, LessonProgress } from './engine'
-import { firstIncompleteStep, stageQuestionProgress, stepExercises } from './readerContent'
-import type { ReaderStep, TheoryPanel } from './readerContent'
+import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
+import type { ReaderStep } from './readerContent'
 import { PronounMatchingCard } from './PronounMatchingCard'
 import { pronounMatching } from './tereLessonContent'
 import { foundPronounPairs, recordPronounPair } from './matchingProgress'
@@ -11,29 +11,9 @@ import { BookChoiceCard } from './BookChoiceCard'
 import { ExerciseCard } from './ExerciseCard'
 import { NewWordCard } from './NewWordCard'
 import { ReaderAction, ReaderHeader } from './ReaderLayout'
+import { TheoryCard } from './TheoryCard'
+import { LessonReferenceSheet } from './LessonReferenceSheet'
 import { newWordExercises } from './greetingsContent'
-
-function TheoryCard({ panel }: { panel: TheoryPanel }) {
-  if (panel.kind === 'tip') return <aside className="reader-tip">{panel.text}</aside>
-  if (panel.kind === 'table') return <table className="reader-table">
-    <caption>{panel.title}</caption>
-    <thead><tr>{panel.headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead>
-    <tbody>{panel.rows.map((row) => <tr key={row[0]}>
-      {row.map((value, index) => <td key={index} lang={(panel.estonianColumns?.includes(index) ?? index < 2) ? 'et' : undefined}>
-        {index === panel.accent ? <strong className="reader-accent">{value}</strong> : value}
-      </td>)}
-    </tr>)}</tbody>
-  </table>
-  if (panel.kind === 'examples') return <div className="reader-examples">{panel.items.map(({ before, accent, after, ru }) =>
-    <div className="reader-example" key={before + accent + after}>
-      <p lang="et">{before}<strong className="reader-accent">{accent}</strong>{after}</p>
-      <p>{ru}</p>
-    </div>)}</div>
-  return <div className="reader-phrases">{panel.items.map(({ et, ru, icon }) => <article className="reader-phrase" key={et}>
-    {icon && <span className="reader-phrase__scene" aria-hidden="true">{icon}</span>}
-    <div><h3 lang="et">{et}</h3><p>{ru}</p></div>
-  </article>)}</div>
-}
 
 const stageTitles: Record<string, string> = {
   'greetings-practice': 'Новые слова',
@@ -68,6 +48,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const showMatching = !result && active?.id === pronounMatching.id
   const newWord = active && newWordExercises.find(({ id }) => id === active.id)
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
+  const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
   const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
@@ -115,8 +96,9 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
         </ReaderAction>
       </div> : <>
         <div className="reader-panel">
+          {references.length > 0 && <LessonReferenceSheet key={`reference-${active?.id}`} references={references} />}
           {step.kind === 'theory' ? <>
-            {stageTitles[step.id] && <h2>{step.title}</h2>}
+            {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'explanation') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={foundPronounPairs(progress)}
             onMatch={(left, right) => {

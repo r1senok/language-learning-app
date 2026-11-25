@@ -205,3 +205,19 @@ test('pronoun matching restores partial pairs and awards one result exactly once
   assert.equal(legacy.attempt[pronounMatching.id], 1)
   assert.deepEqual(legacy.pending, {})
 })
+
+test('olema theory keeps its grouped content and the reference is scoped to each applicable question', async () => {
+  const { lessonSteps, lessonReferences, referencesForExercise } = await import('../src/lessons/readerContent.ts')
+  const { panels } = lessonSteps.find(({ id }) => id === 'olema-theory')
+  assert.deepEqual(panels.map(({ kind }) => kind), ['explanation', 'example-group', 'dialogue-group'])
+  assert.equal(panels[0].paragraphs.length, 2)
+  assert.equal(panels[1].items.length, 6)
+  assert.deepEqual(panels[2].dialogues.map(({ length }) => length), [2, 2])
+  const questions = lessonSteps.flatMap((step) => step.exercises ?? [])
+  for (const { id, book } of questions) {
+    const result = referencesForExercise(lessonReferences, id)
+    assert.deepEqual(result, [11, 12].includes(book?.number) ? lessonReferences : [], id)
+  }
+  assert.equal(lessonReferences[0].exerciseIds.length, 12)
+  assert.equal(lessonReferences[0].panels[0].rows.length, 6)
+})

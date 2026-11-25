@@ -1,0 +1,26 @@
+import { useId, useRef } from 'react'
+import type { LessonReference } from './readerContent'
+import { TheoryCard } from './TheoryCard'
+
+export function LessonReferenceSheet({ references }: { references: LessonReference[] }) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
+  return <>
+    <button type="button" className="lesson-option reader-reference-trigger" onClick={() => dialog.current?.showModal()}
+      aria-haspopup="dialog"><span aria-hidden="true">💡</span> Шпаргалка</button>
+    <dialog ref={dialog} className="reader-reference-sheet" aria-labelledby={titleId}
+      onKeyDown={(event) => { if (event.key === 'Escape') event.stopPropagation() }}>
+      <div className="reader-reference-sheet__heading">
+        <h2 id={titleId}>Шпаргалка</h2>
+        <button type="button" autoFocus className="lesson-option reader-close" aria-label="Закрыть шпаргалку"
+          onClick={() => dialog.current?.close()}>×</button>
+      </div>
+      <div className="reader-reference-sheet__content">
+        {references.map(({ id, title, panels }) => <div className="reader-reference-sheet__block" key={id}>
+          <h3>{title}</h3>
+          {panels.map((panel, index) => <TheoryCard key={index} panel={panel} />)}
+        </div>)}
+      </div>
+    </dialog>
+  </>
+}
