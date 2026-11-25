@@ -19,10 +19,9 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
   const gap = book.mode === 'gap' ? exercise.prompt.split('…') : undefined
 
   return <div className="new-word-card book-choice-card">
-    <ReaderInstruction question={match ? Math.min(book.total, matching.filter(({ done }) => done).length + Number(!checked)) : book.question}
-      total={book.total}>
-      {match ? 'Сопоставьте пары' : ordered ? 'Соберите предложение' : gap ? 'Заполните пропуск' : book.mode === 'translate' ? 'Выберите перевод' : book.heading}
-    </ReaderInstruction>
+    {book.mode !== 'translate' && <ReaderInstruction>
+      {match ? 'Сопоставьте пары' : ordered ? 'Соберите предложение' : gap ? 'Заполните пропуск' : book.heading}
+    </ReaderInstruction>}
     {gap ? <p className="book-choice-prompt" lang="et">
       {gap[0]}<strong className="reader-accent">{selected || '…'}</strong>{gap[1]}
     </p> : !match && <p className="book-choice-prompt" lang={book.language}>

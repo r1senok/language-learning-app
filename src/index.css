@@ -672,8 +672,7 @@
 .reader-bar progress::-moz-progress-bar { background: #55824b; border-radius: 999px; }
 .reader-scroll { overflow: auto; overscroll-behavior-y: contain; }
 .reader-content { display: grid; gap: 12px; padding-block: 12px; overflow-wrap: anywhere; }
-.reader-instruction { display: flex; justify-content: space-between; gap: 8px; color: #536750; font-size: 14px; font-weight: 750; }
-.reader-instruction span:nth-child(2) { flex: none; font-variant-numeric: tabular-nums; }
+.reader-instruction { color: #536750; font-size: 14px; font-weight: 750; }
 .reader-back { justify-self: start; min-height: 44px; padding-inline: 8px; text-decoration: underline; }
 .reader-panel { display: grid; gap: 12px; }
 .reader-panel h2 { font-size: clamp(20px, 6vw, 28px); font-weight: 900; }

@@ -1,9 +1,9 @@
-import { ReaderAction, ReaderInstruction } from './ReaderLayout'
+import { ReaderAction } from './ReaderLayout'
 import { useState } from 'react'
 import type { newWordExercises } from './greetingsContent'
 
-export function NewWordCard({ actionTarget, question, total, exercise, onAnswer, onContinue }: {
-  actionTarget: HTMLDivElement | null; question: number; total: number; exercise: (typeof newWordExercises)[number]
+export function NewWordCard({ actionTarget, exercise, onAnswer, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: (typeof newWordExercises)[number]
   onAnswer: (answers: string[]) => void
   onContinue: () => void
 }) {
@@ -21,7 +21,6 @@ export function NewWordCard({ actionTarget, question, total, exercise, onAnswer,
   }
 
   return <div className="new-word-card">
-    <ReaderInstruction question={question} total={total}>Выберите перевод</ReaderInstruction>
     <button className="new-word-prompt" type="button" aria-expanded={showHint} aria-controls="new-word-hint"
       onClick={() => setShowHint(!showHint)} lang="et">{word.et}</button>
     <div id="new-word-hint" hidden={!showHint} className="new-word-hint">

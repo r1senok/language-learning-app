@@ -2,12 +2,12 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { completion, hasScore, isBookChoice, markAnswer } from './engine'
 import type { Exercise, LessonProgress } from './engine'
-import { firstIncompleteStep, lessonReadingProgress, stepExercises } from './readerContent'
+import { firstIncompleteStep, stageQuestionProgress, stepExercises } from './readerContent'
 import type { ReaderStep, TheoryPanel } from './readerContent'
 import { BookChoiceCard } from './BookChoiceCard'
 import { ExerciseCard } from './ExerciseCard'
 import { NewWordCard } from './NewWordCard'
-import { ReaderAction } from './ReaderLayout'
+import { ReaderAction, ReaderHeader } from './ReaderLayout'
 import { newWordExercises } from './greetingsContent'
 
 function TheoryCard({ panel }: { panel: TheoryPanel }) {
@@ -67,9 +67,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
       ? [{ question, done: hasScore(progress.attempt, question.id) }] : []) : []
   const newWord = active && newWordExercises.find(({ id }) => id === active.id)
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
-  const wordNumber = newWord ? newWordExercises.indexOf(newWord) + 1 : 0
-  const displayed = result ? last : index + 1
-  const stageProgress = lessonReadingProgress(steps, progress.attempt, index)
+  const stageProgress = result ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
@@ -102,14 +100,8 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const score = recorded.reduce((sum, value) => sum + value, 0)
   return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') close() }}>
-    <header className="reader-bar">
-      <div className="reader-bar__inner">
-        <button className="lesson-option reader-close" onClick={close} aria-label="Закрыть урок">×</button>
-        <h1 id="reader-heading" ref={heading} tabIndex={-1}>{result ? 'Урок завершён' : stageTitles[step.id] ?? step.title}</h1>
-        <span className="reader-stage" aria-label={`Этап ${displayed} из ${last}`}>{displayed} / {last}</span>
-        <progress aria-label="Прогресс урока" value={result ? stageProgress.total : stageProgress.completed} max={stageProgress.total} />
-      </div>
-    </header>
+    <ReaderHeader headingRef={heading} title={result ? 'Урок завершён' : stageTitles[step.id] ?? step.title}
+      onClose={close} progress={stageProgress} />
     <div className="reader-scroll" ref={reader}>
       <div className="reader-content">
       {warnings}
@@ -157,7 +149,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
                 const destination = steps[index + 1] ?? firstIncompleteStep(previous.attempt, steps)
                 navigate(destination?.id ?? '@result')
               } else save({ ...previous, choiceDraft: undefined })
-            }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} question={wordNumber} total={newWordExercises.length} exercise={newWord} onAnswer={(answer) => {
+            }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} exercise={newWord} onAnswer={(answer) => {
             setAnswered(newWord)
             save(markAnswer(current(), newWord, answer, exercises, cloud))
           }} onContinue={() => {

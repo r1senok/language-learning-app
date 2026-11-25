@@ -76,15 +76,11 @@ export function firstIncompleteStep(attempt: Scores, steps = lessonSteps) {
   if (!Object.keys(attempt).length) return steps[0]
   return steps.find((step) => stepExercises(step, attempt).some(({ id }) => !hasScore(attempt, id)))
 }
-export function lessonReadingProgress(steps: ReaderStep[], attempt: Scores, activeIndex: number) {
-  const questions = steps.map((step) => stepExercises(step, attempt))
-  const furthest = questions.reduce((index, items, stepIndex) =>
-    items.some(({ id }) => hasScore(attempt, id)) ? Math.max(index, stepIndex) : index, activeIndex)
 
-  return steps.reduce(({ completed, total }, step, index) => step.kind === 'theory'
-    ? { completed: completed + Number(index < furthest), total: total + 1 }
-    : {
-      completed: completed + questions[index].filter(({ id }) => hasScore(attempt, id)).length,
-      total: total + questions[index].length,
-    }, { completed: 0, total: 0 })
+export function stageQuestionProgress(questions: Exercise[], attempt: Scores, activeId?: string) {
+  const total = questions.length
+  if (!total) return undefined
+  const completed = questions.filter(({ id }) => hasScore(attempt, id)).length
+  const question = activeId === undefined ? total : Math.min(total, completed + Number(!hasScore(attempt, activeId)))
+  return { question, completed, total }
 }

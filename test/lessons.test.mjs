@@ -158,16 +158,20 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   assert.equal(progress.best[completion], 100)
 })
 
-test('reader progress counts completed theory and checked questions, including mistakes', async () => {
-  const { lessonReadingProgress, lessonSteps } = await import('../src/lessons/readerContent.ts')
-  assert.deepEqual(lessonReadingProgress(lessonSteps, {}, 0), { completed: 0, total: 91 })
+test('reader progress counts checked questions within one stage, including incorrect answers', async () => {
+  const { stageQuestionProgress, lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const words = lessonSteps[1].exercises
+  const translations = lessonSteps[2].exercises
+  const attempt = { [words[0].id]: 0 }
 
-  const firstWord = lessonSteps[1].exercises[0]
-  const attempt = { [firstWord.id]: 0, unrelated: 1 }
-  assert.deepEqual(lessonReadingProgress(lessonSteps, attempt, 1), { completed: 2, total: 91 })
-  assert.deepEqual(lessonReadingProgress(lessonSteps, attempt, 0), { completed: 2, total: 91 })
+  assert.equal(stageQuestionProgress([], attempt), undefined)
+  assert.deepEqual(stageQuestionProgress(words, {}, words[0].id), { question: 1, completed: 0, total: 8 })
+  assert.deepEqual(stageQuestionProgress(words, attempt, words[0].id), { question: 1, completed: 1, total: 8 })
+  assert.deepEqual(stageQuestionProgress(words, attempt, words[1].id), { question: 2, completed: 1, total: 8 })
+  assert.deepEqual(stageQuestionProgress(translations, attempt, translations[0].id), { question: 1, completed: 0, total: 12 })
 
-  const allAnswers = Object.fromEntries(lessonSteps.flatMap((step) =>
-    (step.exercises ?? []).map(({ id }) => [id, 1])))
-  assert.deepEqual(lessonReadingProgress(lessonSteps, allAnswers, 9), { completed: 91, total: 91 })
+  const pairs = lessonSteps[4].exercises
+  assert.deepEqual(stageQuestionProgress(pairs, {}, pairs[4].id), { question: 1, completed: 0, total: 24 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[4].id), { question: 1, completed: 1, total: 24 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[0].id), { question: 2, completed: 1, total: 24 })
 })
