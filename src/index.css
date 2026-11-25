@@ -736,3 +736,16 @@
   .new-word-options .lesson-option { transition: background-color .15s, border-color .15s; }
 }
 @keyframes new-word-enter { from { opacity: 0; transform: translateY(4px); } }
+
+.book-choice-card { grid-template-rows: auto auto auto auto 1fr auto; }
+.book-choice-count { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.book-choice-card progress { width: 100%; height: 8px; accent-color: #55824b; }
+.book-choice-card h3 { text-align: center; font-weight: 800; }
+.book-choice-prompt { text-align: center; font-size: clamp(28px, 9vw, 42px); font-weight: 900; }
+.book-choice-options { display: grid; gap: 8px; align-content: start; }
+.book-choice-options--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.book-choice-options .lesson-option { min-height: 48px; background: #fff; text-align: center; }
+.book-choice-options .lesson-option[aria-pressed="true"] { background: #e5eee1; }
+.book-choice-options .lesson-option[data-result="correct"] { background: #ddf1d7; opacity: 1; }
+.book-choice-options .lesson-option[data-result="incorrect"] { background: #fbe9e5; opacity: 1; }
+.book-choice-card .reader-sticky-action { grid-row: 6; }

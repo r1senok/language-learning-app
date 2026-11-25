@@ -1,4 +1,5 @@
 import { exercises } from './course.ts'
+import { pronounBookExercises } from './pronounExercises.ts'
 import { hasScore } from './engine.ts'
 import { keyPhrases, legacyGreetingIds, newWordExercises } from './greetingsContent.ts'
 import type { Exercise, Scores } from './engine.ts'
@@ -26,7 +27,7 @@ export const lessonSteps: ReaderStep[] = [
     { kind: 'tip', text: 'Краткая форма удобна в нейтральной речи. Полная помогает подчеркнуть, о ком речь. Tema и ta означают и «он», и «она».' },
   ] },
   { id: 'pronouns-practice', kind: 'practice', title: 'Практика местоимений', page: '14–15',
-    exercises: practice('pronoun-pairs', 'pronoun-meaning', 'pronoun-blank', 'pronoun-pair') },
+    exercises: [...practice('pronoun-pairs', 'pronoun-meaning', 'pronoun-blank', 'pronoun-pair'), ...pronounBookExercises] },
   { id: 'olema-theory', kind: 'theory', title: 'Глагол olema', page: '15', panels: [
     { kind: 'tip', text: 'В русском «я дома» обходится без «есть». В эстонском глагол olema в такой фразе выражен явно.' },
     { kind: 'table', title: 'Настоящее время', headers: ['Местоимение', 'Форма olema', 'Перевод'], accent: 1,
