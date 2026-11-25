@@ -1,11 +1,14 @@
+import { shuffledWordBank } from './wordBank'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { answerIsCorrect } from './engine'
 import type { Exercise } from './engine'
 
 export function ExerciseCard({ actionTarget, exercise, onAnswer, onContinue }: {
   actionTarget: HTMLDivElement | null; exercise: Exercise; onAnswer: (answer: string[]) => void; onContinue: () => void
 }) {
+  const choices = useMemo(() => exercise.kind === 'word_order'
+    ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : 'options' in exercise ? exercise.options : [], [exercise])
   const [selected, setSelected] = useState<string[]>([])
   const [left, setLeft] = useState(-1)
   const [matches, setMatches] = useState<Record<number, string>>({})
@@ -44,7 +47,7 @@ export function ExerciseCard({ actionTarget, exercise, onAnswer, onContinue }: {
           onClick={() => setSelected((previous) => previous.filter((part) => part !== id))}>{exercise.options.find((option) => option.id === id)?.text}</button>)}
       </div>}
       <div className={exercise.kind === 'word_order' ? 'lesson-bank' : 'lesson-options'}>
-        {exercise.options.map(({ id, text }) => <button className="lesson-option" key={id}
+        {choices.map(({ id, text }) => <button className="lesson-option" key={id}
           aria-pressed={exercise.kind === 'word_order' ? undefined : selected.includes(id)}
           data-result={locked && exercise.kind !== 'word_order' ? (id === exercise.correct ? 'correct' : selected.includes(id) ? 'incorrect' : undefined) : undefined}
           disabled={locked || (exercise.kind === 'word_order' && selected.includes(id))}

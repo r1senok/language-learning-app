@@ -221,3 +221,50 @@ test('olema theory keeps its grouped content and the reference is scoped to each
   assert.equal(lessonReferences[0].exerciseIds.length, 12)
   assert.equal(lessonReferences[0].panels[0].rows.length, 6)
 })
+
+test('all ten sentence banks are stable, non-linear permutations of the original words', async () => {
+  const { sentenceTranslation } = await import('../src/lessons/tereLessonContent.ts')
+  const { shuffledWordBank } = await import('../src/lessons/wordBank.ts')
+  assert.equal(sentenceTranslation.length, 10)
+  for (const exercise of sentenceTranslation) {
+    const { id, options, order } = exercise
+    const bank = shuffledWordBank(id, options, order)
+    assert.deepEqual(bank, shuffledWordBank(id, options, order))
+    assert.deepEqual(bank.map(({ id }) => id).sort(), [...order].sort())
+    assert.notDeepEqual(bank.map(({ id }) => id), order)
+    assert.notDeepEqual(bank.map(({ id }) => id), [...order].reverse())
+    assert.equal(answerIsCorrect(exercise, order), true)
+  }
+  const repeated = { ...sentenceTranslation[0], options: [
+    { id: '0', text: 'Ei' }, { id: '1', text: 'Ei' }, { id: '2', text: 'ole!' },
+  ], order: ['0', '1', '2'] }
+  assert.equal(answerIsCorrect(repeated, ['1', '0', '2']), true)
+  assert.equal(answerIsCorrect(repeated, ['0', '0', '2']), false)
+  assert.equal(answerIsCorrect(repeated, ['1', '2', '0']), false)
+})
+
+test('moving between stages parks persistent drafts and replay keeps the best result', async () => {
+  const { moveLessonStage } = await import('../src/lessons/engine.ts')
+  const draft = { exerciseId: 'exercise-16-1', optionId: '', order: ['0'] }
+  const progress = { ...emptyProgress(), best: { [completion]: 86 }, attempt: { 'exercise-16-2': 1 },
+    stepId: 'sentence-translation', choiceDraft: draft }
+  const back = moveLessonStage(progress, 'negation-practice')
+  const restored = loadLesson('test', ['exercise-16-1', 'exercise-16-2'], { getItem: () => JSON.stringify(back) })
+  const forward = moveLessonStage(restored, 'sentence-translation')
+  assert.deepEqual(forward.choiceDraft, draft)
+  assert.deepEqual(forward.attempt, progress.attempt)
+  const replay = moveLessonStage(forward, 'greetings-theory', true)
+  assert.deepEqual(replay.attempt, {})
+  assert.equal(replay.choiceDraft, undefined)
+  assert.equal(replay.stageDrafts, undefined)
+  assert.equal(replay.best[completion], 86)
+})
+
+test('result counts unique answered active exercises and handles all right, all wrong and empty', async () => {
+  const { lessonResult } = await import('../src/lessons/engine.ts')
+  const [a, b] = exercises
+  const result = (attempt) => lessonResult([a, a, b], { ...emptyProgress(), attempt, best: { [completion]: 86 } })
+  assert.deepEqual(result({ [a.id]: 1, ignored: 1 }), { correct: 1, total: 1, errors: 0, percent: 100, best: 86 })
+  assert.deepEqual(result({ [a.id]: 0, [b.id]: 0 }), { correct: 0, total: 2, errors: 2, percent: 0, best: 86 })
+  assert.deepEqual(result({}), { correct: 0, total: 0, errors: 0, percent: 0, best: 86 })
+})

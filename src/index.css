@@ -568,9 +568,16 @@
 .study-card__original { color: #52604e; font-weight: 800; font-size: clamp(17px, 5vw, 24px); margin-top: 7px; }
 .study-card__grammar { margin-top: 12px; color: #354b2f; font-size: 13px; }
 .study-card__grammar h3 { font-weight: 900; margin-bottom: 4px; }
-.study-card__grammar dl > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 8px; }
-.study-card__grammar dt { font-weight: 800; }
-.study-card__grammar dd { min-width: 0; }
+.study-card__text--with-grammar { width: min(100%, 360px); }
+.study-card__forms { display: grid; gap: 4px; }
+.study-card__forms > div {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); align-items: center; gap: 8px;
+  min-width: 0; padding: 6px 9px; border-radius: 10px; background: #edf2ea; text-align: start;
+}
+.study-card__forms dt { color: #52604e; font-size: 12px; font-weight: 600; line-height: 1.15; }
+.study-card__forms dd { color: #263625; font-size: clamp(15px, 4vw, 19px); font-weight: 750; line-height: 1.15; }
+.study-card__forms--verb { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.study-card__forms--verb > div { grid-template-columns: minmax(0, 1fr); gap: 3px; }
 .study-card__hint {
   width: 44px; height: 44px; flex: none; display: grid; place-items: center; overflow: hidden;
   border-radius: 12px; background: #fff3c3; color: #765500;
@@ -664,7 +671,7 @@
 .reader-bar h1 { text-align: center; font-size: clamp(16px, 4.5vw, 20px); line-height: 1.15; font-weight: 850; }
 .reader-stage { justify-self: end; font-weight: 800; font-size: 13px; font-variant-numeric: tabular-nums; }
 .reader-bar progress {
-  grid-column: 1 / -1; width: 100%; height: 5px; appearance: none;
+  width: 100%; height: 5px; appearance: none;
   border: 0; border-radius: 999px; overflow: hidden; background: #dce8d9; color: #55824b;
 }
 .reader-bar progress::-webkit-progress-bar { background: #dce8d9; }
@@ -673,7 +680,6 @@
 .reader-scroll { overflow: auto; overscroll-behavior-y: contain; }
 .reader-content { display: grid; gap: 12px; padding-block: 12px; overflow-wrap: anywhere; }
 .reader-instruction { color: #536750; font-size: 14px; font-weight: 750; }
-.reader-back { justify-self: start; min-height: 44px; padding-inline: 8px; text-decoration: underline; }
 .reader-panel { display: grid; gap: 12px; }
 .reader-panel h2 { font-size: clamp(20px, 6vw, 28px); font-weight: 900; }
 .reader-tip, .reader-phrase, .reader-panel .lesson-exercise {
@@ -787,3 +793,33 @@
 }
 .reader-reference-sheet__block { display: grid; gap: 8px; min-width: 0; }
 .reader-reference-sheet__block h3 { font-weight: 800; }
+
+.reader-header-back:disabled { visibility: hidden; }
+.reader-header-exit { justify-self: end; }
+.reader-bar__progress { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.reader-bar__progress .reader-stage { flex: none; }
+.reader-result {
+  display: grid; justify-items: center; gap: 10px; padding: 12px 0; text-align: center;
+}
+.reader-result img { width: 96px; height: 96px; object-fit: contain; background: #e6f2df; border-radius: 50%; }
+.reader-result h2 { font-size: clamp(26px, 8vw, 38px); line-height: 1.1; }
+.reader-result p { max-width: 30ch; color: #486147; }
+.reader-result__percent { font-size: clamp(44px, 14vw, 66px); line-height: 1; color: #34662c; }
+.reader-result__stats { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.reader-result__stats > div {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-width: 0;
+  padding: 8px 4px; border: 1px solid #dce8d9; background: #fff; border-radius: 12px;
+}
+.reader-result__stats dt { color: #52604e; font-size: 12px; }
+.reader-result__stats dd { font-weight: 850; }
+.reader-result__replay { min-height: 44px; text-align: center; }
+.reader-exit {
+  position: fixed; inset: 0; margin: auto; width: min(calc(100% - 32px), 400px);
+  max-height: calc(100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom)));
+  padding: 16px; overflow: auto; border: 1px solid #dce8d9; border-radius: 20px; background: #f3f8ef; color: #2f422f;
+}
+.reader-exit[open] { display: grid; gap: 12px; }
+.reader-exit::backdrop { background: rgb(31 49 33 / 45%); }
+.reader-exit h2 { font-size: 22px; font-weight: 900; }
+.reader-exit__actions { display: grid; gap: 8px; }
+.reader-exit__actions button { min-height: 44px; text-align: center; }

@@ -1,3 +1,5 @@
+import { shuffledWordBank } from './wordBank'
+import { useMemo } from 'react'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
 import type { BookExercise } from './engine'
 
@@ -7,6 +9,8 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
   onCheck: () => void; onContinue: () => void
 }) {
   const { book, options } = exercise
+  const choices = useMemo(() => exercise.kind === 'word_order'
+    ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : exercise.options, [exercise])
   const checked = score !== undefined
   const ordered = exercise.kind === 'word_order'
   const correct = ordered ? [] : exercise.accepted ?? [exercise.correct]
@@ -29,7 +33,7 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
         onClick={() => onOrder(order.filter((part) => part !== id))}>{optionText(id)}</button>)}
     </div>}
     <div className={`book-choice-options${options.length > 4 ? ' book-choice-options--grid' : ''}`} aria-label="Варианты ответа">
-      {options.map(({ id, text }) => {
+      {choices.map(({ id, text }) => {
         const right = checked && correct.includes(id)
         const wrong = checked && !correct.includes(id) && id === selected
         return <button className="lesson-option" type="button" key={id} lang="et" aria-pressed={id === selected}

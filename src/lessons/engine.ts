@@ -24,7 +24,9 @@ export function answerIsCorrect(exercise: Exercise, selected: string[]) {
       exercise.pairs.every(({ id }, index) => selected[index] === id)
   }
   if (exercise.kind === 'word_order') {
-    return selected.length === exercise.order.length && exercise.order.every((id, index) => selected[index] === id)
+    const options = new Map(exercise.options.map(({ id, text }) => [id, text]))
+    return selected.length === exercise.order.length && new Set(selected).size === selected.length &&
+      exercise.order.every((id, index) => options.has(selected[index]) && options.get(selected[index]) === options.get(id))
   }
   return selected.length === 1 && (exercise.kind === 'multiple_choice' ? (exercise.accepted ?? [exercise.correct]).includes(selected[0]) : selected[0] === exercise.correct)
 }
@@ -32,7 +34,8 @@ export function answerIsCorrect(exercise: Exercise, selected: string[]) {
 export const completion = '@completed'
 export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: { exerciseId: string; optionId: string; order?: string[] } }
+type ChoiceDraft = { exerciseId: string; optionId: string; order?: string[] }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft> }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -69,6 +72,22 @@ export function resumeFromCloud(progress: LessonProgress, remote: Scores) {
   return { ...progress, best, attempt }
 }
 
+export function moveLessonStage(progress: LessonProgress, stepId: string, replay = false): LessonProgress {
+  if (replay) return { ...progress, stepId, attempt: {}, choiceDraft: undefined, stageDrafts: undefined }
+  const stageDrafts = { ...progress.stageDrafts }
+  if (progress.stepId && progress.choiceDraft) stageDrafts[progress.stepId] = progress.choiceDraft
+  const choiceDraft = Object.prototype.hasOwnProperty.call(stageDrafts, stepId) ? stageDrafts[stepId] : undefined
+  delete stageDrafts[stepId]
+  return { ...progress, stepId, choiceDraft, stageDrafts: Object.keys(stageDrafts).length ? stageDrafts : undefined }
+}
+
+export function lessonResult(exercises: Exercise[], progress: LessonProgress) {
+  const ids = [...new Set(exercises.map(({ id }) => id))].filter((id) => hasScore(progress.attempt, id))
+  const correct = ids.filter((id) => progress.attempt[id] === 1).length
+  return { correct, total: ids.length, errors: ids.length - correct,
+    percent: ids.length ? Math.round(100 * correct / ids.length) : 0, best: progress.best[completion] ?? 0 }
+}
+
 export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'getItem'>) {
   try {
     const parsed = JSON.parse(storage.getItem(key) ?? '{}')
@@ -77,11 +96,22 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
         const score = (value as Scores | undefined)?.[id]
         return typeof score === 'number' && Number.isInteger(score) && score >= 0 && score <= (id === completion ? 100 : 1) ? [[id, score]] : []
       }))
+    const readDraft = (value: unknown): ChoiceDraft | undefined => {
+      const draft = value as Partial<ChoiceDraft> | undefined
+      if (!draft || typeof draft.exerciseId !== 'string' || !ids.includes(draft.exerciseId) ||
+          typeof draft.optionId !== 'string') return undefined
+      return { exerciseId: draft.exerciseId, optionId: draft.optionId,
+        ...(Array.isArray(draft.order) && draft.order.every((id) => typeof id === 'string') ? { order: draft.order } : {}) }
+    }
+    const choiceDraft = readDraft(parsed.choiceDraft)
+    const stageDrafts = Object.fromEntries(Object.entries(parsed.stageDrafts ?? {}).flatMap(([step, value]) => {
+      const draft = readDraft(value)
+      return /^[a-z0-9-]+$/.test(step) && draft ? [[step, draft]] : []
+    }))
     return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
       ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }),
-      ...(ids.includes(parsed.choiceDraft?.exerciseId) && typeof parsed.choiceDraft?.optionId === 'string' &&
-        { choiceDraft: { exerciseId: parsed.choiceDraft.exerciseId, optionId: parsed.choiceDraft.optionId,
-          ...(Array.isArray(parsed.choiceDraft.order) && parsed.choiceDraft.order.every((id: unknown) => typeof id === 'string') ? { order: parsed.choiceDraft.order } : {}) } }) }
+      ...(choiceDraft && { choiceDraft }),
+      ...(Object.keys(stageDrafts).length > 0 && { stageDrafts }) }
   } catch {
     return emptyProgress()
   }

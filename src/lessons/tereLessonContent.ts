@@ -97,6 +97,6 @@ const sentenceRows: [string, string][] = [
 export const sentenceTranslation: BookOrder[] = sentenceRows.map(([prompt, correct], index) => {
   const options = correct.split(' ').map((text, position) => ({ id: String(position), text }))
   return { id: `exercise-16-${index + 1}`, kind: 'word_order', prompt, explanation: correct, exampleAudio: correct,
-    options: [...options].reverse(), order: options.map(({ id }) => id),
+    options, order: options.map(({ id }) => id),
     book: metadata(16, 16, index + 1, sentenceRows.length, 'Переведите', 'ru', 'order') }
 })

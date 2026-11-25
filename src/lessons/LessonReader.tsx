@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { completion, hasScore, isBookChoice, markAnswer } from './engine'
+import { hasScore, isBookChoice, lessonResult, markAnswer, moveLessonStage } from './engine'
 import type { Exercise, LessonProgress } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
 import type { ReaderStep } from './readerContent'
@@ -11,6 +11,8 @@ import { BookChoiceCard } from './BookChoiceCard'
 import { ExerciseCard } from './ExerciseCard'
 import { NewWordCard } from './NewWordCard'
 import { ReaderAction, ReaderHeader } from './ReaderLayout'
+import { LessonExitDialog } from './LessonExitDialog'
+import { LessonResult } from './LessonResult'
 import { TheoryCard } from './TheoryCard'
 import { LessonReferenceSheet } from './LessonReferenceSheet'
 import { newWordExercises } from './greetingsContent'
@@ -30,6 +32,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const [answered, setAnswered] = useState<Exercise>()
   const reader = useRef<HTMLDivElement>(null)
   const [actionTarget, setActionTarget] = useState<HTMLDivElement | null>(null)
+  const exitDialog = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const exercises = steps.flatMap((step) => stepExercises(step, progress.attempt))
   const last = steps.length
@@ -58,8 +61,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
 
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
-    const previous = current()
-    save({ ...previous, stepId, attempt: replay ? {} : previous.attempt, choiceDraft: undefined })
+    save(moveLessonStage(current(), stepId, replay))
   }
 
   function next() {
@@ -77,22 +79,22 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
     onClose()
   }
 
-  const recorded = result && exercises.some(({ id }) => !hasScore(progress.attempt, id))
-    ? Object.values(progress.attempt) : exercises.map(({ id }) => progress.attempt[id] ?? 0)
-  const score = recorded.reduce((sum, value) => sum + value, 0)
+  const previousStage = result ? steps[last - 1] : steps[index - 1]
+  const confirmExit = () => exitDialog.current?.showModal()
   return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : ''}`} aria-labelledby="reader-heading"
-    onKeyDown={(event) => { if (event.key === 'Escape') close() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Урок завершён' : stageTitles[step.id] ?? step.title}
-      onClose={close} progress={stageProgress} />
+    onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : stageTitles[step.id] ?? step.title}
+      onBack={previousStage ? () => navigate(previousStage.id) : undefined}
+      onClose={confirmExit} progress={stageProgress} />
+    <LessonExitDialog dialogRef={exitDialog} onExit={close} />
     <div className="reader-scroll" ref={reader}>
       <div className="reader-content">
       {warnings}
       {result ? <div className="reader-panel">
-        <p>Верных ответов в этой попытке: {score} из {recorded.length}.</p>
-        <p>Лучший результат: {progress.best[completion] ?? 0}%.</p>
+        <LessonResult summary={lessonResult(exercises, progress)} />
         <ReaderAction target={actionTarget}>
-          <button className="tactile-button tactile-button--primary tactile-button--wide"
-            onClick={() => navigate(steps[0].id, true)}>Пройти ещё раз</button>
+          <button className="tactile-button tactile-button--primary" onClick={close}>Завершить</button>
+          <button className="lesson-option reader-result__replay" onClick={() => navigate(steps[0].id, true)}>Пройти ещё раз</button>
         </ReaderAction>
       </div> : <>
         <div className="reader-panel">
@@ -148,8 +150,6 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}
         </div>
-        {!newWord && !bookChoice && !showMatching && index > 0 &&
-          <button className="reader-back" onClick={() => navigate(steps[index - 1].id)}>Назад</button>}
         {!active && <ReaderAction target={actionTarget}>
           <button className="tactile-button tactile-button--primary" onClick={next}>Продолжить</button>
         </ReaderAction>}
