@@ -1,7 +1,7 @@
 import { lessonId } from './course.ts'
 import { keyPhrases } from './greetingsContent.ts'
 import { pronounBookExercises } from './pronounExercises.ts'
-import type { BookChoice, BookOrder } from './engine.ts'
+import type { BookChoice, BookOrder, Exercise } from './engine.ts'
 
 export const bookId = 'tere-a1'
 export const deferredExercises = [
@@ -53,7 +53,16 @@ const matching = (number: 6 | 7): BookChoice[] => pairRows.map(([prompt, correct
   book: metadata(14, number, index + 1, pairRows.length, number === 7 ? 'Соедините' : 'Выберите полную форму', 'et', 'match'),
 }))
 
-export const pronounPractice = [...matching(6), ...matching(7), ...pronounBookExercises]
+const legacyMatchingSeven = matching(7)
+export const legacyPronounExercises = [...matching(6), ...legacyMatchingSeven]
+
+export const pronounMatching = {
+  id: 'exercise-7-matching', kind: 'matching_pairs', prompt: 'Сопоставьте пары', explanation: '',
+  book: metadata(14, 7, 1, 1, 'Соедините', 'et', 'match'),
+  pairs: legacyMatchingSeven.map(({ id, prompt, correct }) => ({ id, left: prompt, right: correct })),
+} satisfies Exercise
+
+export const pronounPractice = [pronounMatching, ...pronounBookExercises]
 export const olemaPractice = [
   ...gap(15, 11, [
     ['Ma … õpetaja.', 'olen'], ['Sa … õpetaja.', 'oled'], ['Ta … õpetaja.', 'on'],

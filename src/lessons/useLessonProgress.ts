@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { exercises, lessonId } from './course'
+import { restoreLegacyMatching } from './matchingProgress'
+import { legacyPronounExercises } from './tereLessonContent'
 import { lessonSteps } from './readerContent'
 import { newWordExercises } from './greetingsContent'
 import { completion, loadLesson, resumeFromCloud } from './engine'
 import type { LessonProgress, Scores } from './engine'
 
-const exerciseIds = [...new Set([...exercises, ...newWordExercises, ...lessonSteps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])].map(({ id }) => id))]
+const exerciseIds = [...new Set([...exercises, ...legacyPronounExercises, ...newWordExercises, ...lessonSteps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])].map(({ id }) => id))]
 
 export function useLessonProgress(client?: SupabaseClient | null, userId?: string) {
   const key = `takku-lessons-v1:${userId ?? 'guest'}:${lessonId}`
-  const [progress, setProgress] = useState(() => loadLesson(key, exerciseIds, { getItem: (name) => localStorage.getItem(name) }))
+  const [progress, setProgress] = useState(() => restoreLegacyMatching(loadLesson(key, exerciseIds, { getItem: (name) => localStorage.getItem(name) })))
   const [syncError, setSyncError] = useState(false)
   const [storageError, setStorageError] = useState(false)
   const latest = useRef(progress)
@@ -54,7 +56,7 @@ export function useLessonProgress(client?: SupabaseClient | null, userId?: strin
         const remote: Scores = Object.fromEntries((data ?? [])
           .filter(({ exercise_id }) => exercise_id === completion || exerciseIds.includes(exercise_id))
           .map(({ exercise_id, score }) => [exercise_id, score]))
-        const merged = resumeFromCloud(latest.current, remote)
+        const merged = restoreLegacyMatching(resumeFromCloud(latest.current, remote))
         if (JSON.stringify(merged) !== JSON.stringify(latest.current)) save(merged)
         setSyncError(false)
       } catch {

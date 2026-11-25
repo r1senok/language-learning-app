@@ -740,3 +740,15 @@
 .book-choice-options .lesson-option[aria-pressed="true"] { background: #e5eee1; }
 .book-choice-options .lesson-option[data-result="correct"] { background: #ddf1d7; opacity: 1; }
 .book-choice-options .lesson-option[data-result="incorrect"] { background: #fbe9e5; opacity: 1; }
+
+.reader-action:empty { display: none; }
+.pronoun-matching {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px;
+}
+.pronoun-matching__count { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pronoun-matching .lesson-pairs { grid-column: 1 / -1; }
+.pronoun-matching .lesson-option { height: 44px; padding: 4px; text-align: center; }
+.pronoun-matching .lesson-option[data-result="correct"] {
+  color: #486147; border-color: #c3ddbb; opacity: 1;
+}
+.pronoun-matching .lesson-option[data-result="incorrect"] { border-color: #a75347; }

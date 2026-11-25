@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { blocks, exercises, lessons } from '../src/lessons/course.ts'
-import { answerIsCorrect, completion, emptyProgress, loadLesson, markAnswer, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
+import { answerIsCorrect, completion, emptyProgress, hasScore, loadLesson, markAnswer, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
 
 const correct = (exercise) => exercise.kind === 'matching_pairs' ? exercise.pairs.map(({ id }) => id)
   : exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
@@ -47,7 +47,7 @@ test('reader preserves later exercise IDs and a theory checkpoint on reload', as
   const { lessonSteps, firstIncompleteStep } = await import('../src/lessons/readerContent.ts')
   assert.equal(new Set(lessonSteps.map(({ id }) => id)).size, lessonSteps.length)
   const practice = lessonSteps.filter(({ kind }) => kind === 'practice').flatMap((step) => step.exercises)
-  assert.equal(practice.length, 87)
+  assert.equal(practice.length, 76)
   const state = { ...emptyProgress(), stepId: 'olema-theory' }
   assert.deepEqual(loadLesson('test', [], { getItem: () => JSON.stringify(state) }), state)
   const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
@@ -116,9 +116,9 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   const { lessonSteps } = await import('../src/lessons/readerContent.ts')
   const { deferredExercises } = await import('../src/lessons/tereLessonContent.ts')
   const entries = lessonSteps.flatMap((step) => step.exercises ?? [])
-  assert.equal(new Set(entries.map(({ id }) => id)).size, 87)
+  assert.equal(new Set(entries.map(({ id }) => id)).size, 76)
   assert.deepEqual(Object.fromEntries(Object.entries(Object.groupBy(entries.filter((x) => x.book), (x) => x.book.number))
-    .map(([number, items]) => [number, items.length])), { 5: 12, 6: 6, 7: 6, 8: 6, 9: 6, 11: 6, 12: 6, 13: 6, 14: 15, 16: 10 })
+    .map(([number, items]) => [number, items.length])), { 5: 12, 7: 1, 8: 6, 9: 6, 11: 6, 12: 6, 13: 6, 14: 15, 16: 10 })
   assert.equal(deferredExercises.length, 9)
   assert.deepEqual(entries.filter((x) => x.book?.number === 14).map((x) => x.correct),
     ['olen', 'on', 'ole', 'on', 'ole', 'oleme', 'oled', 'ole', 'olete', 'on', 'ole', 'on', 'ole', 'olete', 'oled'])
@@ -130,7 +130,6 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   assert.equal(answerIsCorrect(goodbye, ['Nägemiseni!']), false)
   const printed = {
     5: ['Tere õhtust!', 'Head aega!', 'Head ööd!', 'Kõike head!', 'Tere!', 'Tere hommikust!', 'Tervist!', 'Tere päevast!', 'Kohtumiseni!', 'Nägemist!', 'Head päeva!', 'Head õhtut!'],
-    6: ['mina', 'sina', 'tema', 'meie', 'teie', 'nemad'],
     7: ['mina', 'sina', 'tema', 'meie', 'teie', 'nemad'],
     11: ['olen', 'oled', 'on', 'oleme', 'olete', 'on'],
     12: ['me', 'ma', 'nad', 'sa', 'ta', 'te'],
@@ -140,12 +139,12 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   }
   for (const [number, answers] of Object.entries(printed)) {
     const questions = entries.filter((x) => x.book?.number === Number(number))
-    assert.deepEqual(questions.map((x) => x.kind === 'word_order' ? x.explanation : x.correct), answers)
+    assert.deepEqual(questions.flatMap((x) => x.kind === 'matching_pairs' ? x.pairs.map(({ right }) => right) : [x.kind === 'word_order' ? x.explanation : x.correct]), answers)
   }
   assert.ok(entries.filter((x) => x.book).every((x) => x.book.answerSource === 'vastused-215'))
   let progress = emptyProgress()
   for (const exercise of entries) {
-    const input = exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
+    const input = correct(exercise)
     assert.equal(answerIsCorrect(exercise, input), true, exercise.id)
     if (exercise.kind === 'word_order') {
       assert.equal(exercise.order.map((id) => exercise.options.find((option) => option.id === id).text).join(' '), exercise.explanation)
@@ -171,7 +170,38 @@ test('reader progress counts checked questions within one stage, including incor
   assert.deepEqual(stageQuestionProgress(translations, attempt, translations[0].id), { question: 1, completed: 0, total: 12 })
 
   const pairs = lessonSteps[4].exercises
-  assert.deepEqual(stageQuestionProgress(pairs, {}, pairs[4].id), { question: 1, completed: 0, total: 24 })
-  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[4].id), { question: 1, completed: 1, total: 24 })
-  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[0].id), { question: 2, completed: 1, total: 24 })
+  assert.deepEqual(stageQuestionProgress(pairs, {}, pairs[4].id), { question: 1, completed: 0, total: 13 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[4].id), { question: 1, completed: 1, total: 13 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[0].id), { question: 2, completed: 1, total: 13 })
+})
+
+test('pronoun matching restores partial pairs and awards one result exactly once', async () => {
+  const { pronounMatching, legacyPronounExercises } = await import('../src/lessons/tereLessonContent.ts')
+  const { foundPronounPairs, recordPronounPair, restoreLegacyMatching } = await import('../src/lessons/matchingProgress.ts')
+  const exercises = [pronounMatching]
+  const pairs = pronounMatching.pairs.map(({ id }) => id)
+  const restore = (progress) => restoreLegacyMatching(loadLesson('test',
+    [pronounMatching.id, ...legacyPronounExercises.map(({ id }) => id)],
+    { getItem: () => JSON.stringify(progress) }))
+  assert.equal(legacyPronounExercises.filter(({ book }) => book.number === 6).length, 6)
+  assert.deepEqual(pronounMatching.pairs.map(({ left }) => left), ['ma', 'sa', 'ta', 'me', 'te', 'nad'])
+
+  let progress = restore({ ...emptyProgress(), attempt: { 'exercise-6-1': 1, [pairs[0]]: 1,
+    [pairs[1]]: 0 }, choiceDraft: { exerciseId: pairs[0], optionId: 'mina' } })
+  assert.deepEqual(foundPronounPairs(progress), [pairs[0]])
+  assert.equal(recordPronounPair(progress, pairs[1], pairs[2], exercises, true), progress)
+  for (const id of pairs.slice(1, -1)) progress = recordPronounPair(progress, id, id, exercises, true)
+  progress = restore(progress)
+  assert.deepEqual(foundPronounPairs(progress), pairs.slice(0, -1))
+  assert.deepEqual(progress.pending, {})
+  assert.equal(hasScore(progress.attempt, pronounMatching.id), false)
+  const last = pairs.at(-1)
+  const finished = restore(recordPronounPair(progress, last, last, exercises, true))
+  assert.deepEqual(foundPronounPairs(finished), pairs)
+  assert.deepEqual(finished.pending, { [pronounMatching.id]: 1, [completion]: 100 })
+  assert.equal(recordPronounPair(finished, last, last, exercises, true), finished)
+
+  const legacy = restore({ ...emptyProgress(), attempt: Object.fromEntries(pairs.map((id) => [id, 1])) })
+  assert.equal(legacy.attempt[pronounMatching.id], 1)
+  assert.deepEqual(legacy.pending, {})
 })

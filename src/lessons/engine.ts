@@ -8,7 +8,7 @@ type Question = { id: string; prompt: string; explanation: string; exampleAudio?
 export type Exercise = Question & (
   | { kind: 'multiple_choice'; options: Option[]; correct: string; accepted?: string[]; book?: BookQuestion }
   | { kind: 'fill_blank'; options: Option[]; correct: string }
-  | { kind: 'matching_pairs'; pairs: { id: string; left: string; right: string }[] }
+  | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
   | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
 )
 

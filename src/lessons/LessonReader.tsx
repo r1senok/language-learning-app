@@ -4,6 +4,9 @@ import { completion, hasScore, isBookChoice, markAnswer } from './engine'
 import type { Exercise, LessonProgress } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises } from './readerContent'
 import type { ReaderStep, TheoryPanel } from './readerContent'
+import { PronounMatchingCard } from './PronounMatchingCard'
+import { pronounMatching } from './tereLessonContent'
+import { foundPronounPairs, recordPronounPair } from './matchingProgress'
 import { BookChoiceCard } from './BookChoiceCard'
 import { ExerciseCard } from './ExerciseCard'
 import { NewWordCard } from './NewWordCard'
@@ -55,24 +58,22 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const index = steps.indexOf(step)
   const stepQuestions = stepExercises(step, progress.attempt)
   const draftQuestion = stepQuestions.find(({ id }) => id === progress.choiceDraft?.exerciseId)
-  const active = answered ?? (isBookChoice(draftQuestion) ? draftQuestion : undefined)
+  const active = answered ?? ((isBookChoice(draftQuestion) || draftQuestion?.id === pronounMatching.id) ? draftQuestion : undefined)
     ?? stepQuestions.find(({ id }) => !hasScore(progress.attempt, id))
   const bookChoice = !result && isBookChoice(active) ? active : undefined
   const selectedOption = bookChoice?.options.find(({ id }) => progress.choiceDraft?.exerciseId === bookChoice.id &&
     progress.choiceDraft.optionId === id)?.id
   const selectedOrder = bookChoice && progress.choiceDraft?.exerciseId === bookChoice.id
     ? [...new Set(progress.choiceDraft.order ?? [])].filter((id) => bookChoice.options.some((option) => option.id === id)) : []
-  const matching = bookChoice?.book.mode === 'match' ? stepQuestions.flatMap((question) =>
-    isBookChoice(question) && question.kind === 'multiple_choice' && question.book.number === bookChoice.book.number
-      ? [{ question, done: hasScore(progress.attempt, question.id) }] : []) : []
+  const showMatching = !result && active?.id === pronounMatching.id
   const newWord = active && newWordExercises.find(({ id }) => id === active.id)
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
-  const stageProgress = result ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
+  const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
-  }, [step.id, result, newWord?.id, bookChoice?.id])
+  }, [step.id, result, active?.id])
 
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
@@ -117,10 +118,17 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
           {step.kind === 'theory' ? <>
             {stageTitles[step.id] && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
-          </> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
-            score={progress.attempt[bookChoice.id]} order={selectedOrder} matching={matching}
-            pairActive={progress.choiceDraft?.exerciseId === bookChoice.id}
-            onPair={(exerciseId) => save({ ...current(), choiceDraft: { exerciseId, optionId: '' } })}
+          </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={foundPronounPairs(progress)}
+            onMatch={(left, right) => {
+              const previous = current()
+              const nextProgress = recordPronounPair(previous, left, right, exercises, cloud)
+              if (nextProgress !== previous) save(nextProgress)
+            }}
+            onContinue={() => {
+              const previous = current()
+              if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
+            }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
+            score={progress.attempt[bookChoice.id]} order={selectedOrder}
             onOrder={(order) => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) {
@@ -130,9 +138,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
             onSelect={(optionId) => {
               const previous = current()
               if (hasScore(previous.attempt, bookChoice.id)) return
-              const selected = { ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId } }
-              save(bookChoice.kind === 'multiple_choice' && bookChoice.book.mode === 'match' && bookChoice.correct === optionId
-                ? markAnswer(selected, bookChoice, [optionId], exercises, cloud) : selected)
+              save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId } })
             }} onCheck={() => {
               const previous = current()
               const draft = previous.choiceDraft
@@ -160,7 +166,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}
         </div>
-        {!newWord && !bookChoice && index > 0 &&
+        {!newWord && !bookChoice && !showMatching && index > 0 &&
           <button className="reader-back" onClick={() => navigate(steps[index - 1].id)}>Назад</button>}
         {!active && <ReaderAction target={actionTarget}>
           <button className="tactile-button tactile-button--primary" onClick={next}>Продолжить</button>
