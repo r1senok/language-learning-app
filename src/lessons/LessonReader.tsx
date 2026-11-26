@@ -53,6 +53,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const catalogWord = newWord && catalogWords.find(({ catalogId }) => catalogId === newWord.word.catalogId)
   const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
   const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
+  const translationStep = bookChoice?.book.mode === 'translate'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
   const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
@@ -92,11 +93,11 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
 
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
-      onClose={confirmExit} progress={stageProgress} />
+      onClose={confirmExit} progress={stageProgress} progressBelow={translationStep} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
     <div className="reader-scroll" ref={reader}>
       <div className="reader-content">
@@ -141,7 +142,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
             }} onCheck={() => {
               const previous = current()
               const draft = previous.choiceDraft
-              if (draft?.exerciseId !== bookChoice.id) return
+              if (draft?.exerciseId !== bookChoice.id || hasScore(previous.attempt, bookChoice.id)) return
               const inputs = bookChoice.kind === 'word_order' ? selectedOrder : [draft.optionId]
               if (inputs.length && inputs.every((id) => bookChoice.options.some((option) => option.id === id)) &&
                   (bookChoice.kind !== 'word_order' || inputs.length === bookChoice.options.length)) {

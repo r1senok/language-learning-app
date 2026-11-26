@@ -1,3 +1,4 @@
+import { TranslationChoiceCard } from './TranslationChoiceCard'
 import { shuffledWordBank } from './wordBank'
 import { useMemo } from 'react'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
@@ -11,6 +12,10 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
   const { book, options } = exercise
   const choices = useMemo(() => exercise.kind === 'word_order'
     ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : exercise.options, [exercise])
+  if (exercise.kind === 'multiple_choice' && book.mode === 'translate') {
+    return <TranslationChoiceCard exercise={exercise} actionTarget={actionTarget} selected={selected}
+      score={score} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
+  }
   const checked = score !== undefined
   const ordered = exercise.kind === 'word_order'
   const correct = ordered ? [] : exercise.accepted ?? [exercise.correct]
