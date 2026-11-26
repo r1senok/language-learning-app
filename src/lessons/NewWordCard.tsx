@@ -9,7 +9,7 @@ export function NewWordCard({ actionTarget, word, forms, revealed, onKnow, onLea
   const [unavailable, setUnavailable] = useState(false)
 
   return <div className="word-intro">
-    <h2 className="word-intro__question">Вы знаете это слово?</h2>
+    <h2 className="lesson-accent-heading">Вы знаете это слово?</h2>
     <div className="word-intro__card">
       <div className="word-intro__body">
         <p className="word-intro__word" lang="et">{word.et}</p>

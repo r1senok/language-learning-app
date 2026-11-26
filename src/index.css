@@ -59,6 +59,9 @@
   --info-border: #84d8ff;
   --text: #3c3c3c;
   --text-muted: #777;
+  --color-accent-heading: var(--brand-dark);
+  --color-divider: #dedede;
+  --divider-width: 2px;
   --surface: #fff;
   --surface-soft: #f7f7f7;
   font-family: 'Nunito', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif;
@@ -107,7 +110,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: var(--divider-width) solid var(--color-divider);
   background: rgba(255,255,255,.94);
   position: sticky;
   z-index: 20;
@@ -132,7 +135,7 @@
   gap: 7px;
   padding: 10px 18px;
   background: rgba(255,255,255,.96);
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: var(--divider-width) solid var(--color-divider);
   backdrop-filter: blur(8px);
 }
 .vocabulary-nav button {
@@ -201,7 +204,7 @@
 .guest-progress-card { margin: 16px 0; min-height: 76px; padding: 11px 13px; display: flex; align-items: center; gap: 12px; border: 2px solid #e5e5e5; border-bottom-width: 5px; border-radius: 20px; }
 .guest-progress-card__icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; background: #fff3c3; font-size: 25px; }
 .guest-progress-card > div:nth-child(2) { flex: 1; }.guest-progress-card b { font-size: 14px; font-weight: 900; }.guest-progress-card p { margin-top: 2px; color: #888; font-size: 10px; font-weight: 700; }.guest-progress-card > span { color: var(--brand-dark); font-size: 15px; font-weight: 900; }
-.profile-primary { margin-top: 4px; }.profile-secondary { width: 100%; min-height: 52px; margin-top: 10px; border: 2px solid var(--brand-border); border-bottom-width: 5px; border-radius: 16px; color: var(--brand-dark); background: var(--brand-light); font-size: 13px; font-weight: 900; text-transform: uppercase; }
+.profile-primary { margin-top: 4px; }.profile-secondary { width: 100%; min-height: 52px; margin-top: 10px; border: 2px solid transparent; border-bottom-color: var(--brand-border); border-bottom-width: 5px; border-radius: 16px; color: var(--brand-dark); background: var(--brand-light); font-size: 13px; font-weight: 900; text-transform: uppercase; }
 .profile-secondary:active { transform: translateY(3px); border-bottom-width: 2px; }
 .cloud-unavailable { margin-top: 17px; padding: 13px; display: flex; align-items: flex-start; gap: 11px; border: 2px solid #ffe06a; border-radius: 17px; background: #fff9dd; }
 .cloud-unavailable > div { width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 11px; color: #b58900; background: #fff3c3; }.cloud-unavailable svg { width: 21px; stroke: currentColor; stroke-width: 2.4; fill: none; }
@@ -286,7 +289,7 @@
 .word-forms { display: block; color: #a0a0a0; font-size: 10px; font-weight: 700; line-height: 1.15; margin-top: 3px; }
 .word-card--studying .status-label { color: var(--info); }
 .word-card--learned .status-label { color: var(--success); }
-.add-study { color: var(--brand-dark); background: var(--brand-light); border: 2px solid var(--brand-border); border-bottom-width: 4px; min-width: 58px; border-radius: 14px; padding: 7px 7px 5px; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 9px; font-weight: 900; text-transform: uppercase; transition: .12s; }
+.add-study { color: var(--brand-dark); background: var(--brand-light); border: 2px solid transparent; border-bottom-color: var(--brand-border); border-bottom-width: 4px; min-width: 58px; border-radius: 14px; padding: 7px 7px 5px; display: flex; flex-direction: column; align-items: center; gap: 1px; font-size: 9px; font-weight: 900; text-transform: uppercase; transition: .12s; }
 .add-study svg { width: 17px; stroke: currentColor; stroke-width: 3; fill: none; }
 .add-study:active { transform: translateY(2px); border-bottom-width: 2px; }
 .learned-check, .studying-dot { width: 37px; height: 37px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; }
@@ -352,13 +355,19 @@
 .study-tools b { font-size: 10px; font-weight: 900; line-height: 1.15; }
 .study-tools button.active { border-color: #84d8ff; background: #f4fbff; color: #168ec7; }
 .study-tools button:active { transform: translateY(2px); border-bottom-width: 2px; }
-.tactile-button { min-height: 61px; border-radius: 17px; color: #fff; text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .1s, border-width .1s, filter .15s; }
+.tactile-button {
+  border: var(--tactile-side-width, 2px) solid transparent;
+  border-bottom: var(--tactile-edge-width, 6px) solid var(--tactile-edge-color, transparent);
+  min-height: 61px; border-radius: 17px; color: #fff; text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .1s, border-width .1s, filter .15s; }
 .tactile-button small { font-size: 9px; opacity: .75; margin-top: 1px; }
-.tactile-button--primary { min-height: var(--primary-button-height); border-radius: var(--radius-card); background: var(--brand); border: 2px solid var(--brand-dark); border-bottom: 6px solid var(--brand-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
-.tactile-button--green { background: var(--success); border: 2px solid var(--success-edge); border-bottom: 6px solid var(--success-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
-.tactile-button--red { background: var(--error); border: 2px solid #f64a4a; border-bottom: 6px solid var(--error-dark); }
+.tactile-button--primary { min-height: var(--primary-button-height); border-radius: var(--radius-card); background: var(--brand); --tactile-edge-color: var(--brand-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
+.tactile-button--green { background: var(--success); --tactile-edge-color: var(--success-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
+.tactile-button--red { background: var(--error); --tactile-edge-color: var(--error-dark); }
 .tactile-button:not(:disabled):active { transform: translateY(4px); border-bottom-width: 2px; }
 .tactile-button:disabled { cursor: default; }
+:is(.tactile-button, .round-add, .profile-secondary, .add-study, .return-study):focus-visible {
+  outline: 2px solid var(--brand-dark); outline-offset: 2px;
+}
 .tactile-button--wide { width: 100%; }
 
 .screen--study .answer-actions { flex: 0 0 auto; margin-top: 14px; }
@@ -393,12 +402,12 @@
 .learned-card div { font-size: 39px; margin-bottom: 7px; }
 .learned-card h3 { font-size: 17px; font-weight: 900; }
 .learned-card p { color: #888; font-size: 12px; font-weight: 700; }
-.return-study { min-height: 32px; margin-top: 10px; padding: 5px 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: 11px; color: #168ec7; background: #eaf8ff; border: 2px solid #bce8fb; border-bottom-width: 3px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+.return-study { min-height: 32px; margin-top: 10px; padding: 5px 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: 11px; color: #168ec7; background: #eaf8ff; border: 2px solid transparent; border-bottom-color: #bce8fb; border-bottom-width: 3px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
 .return-study svg { width: 14px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 .return-study:active { transform: translateY(1px); border-bottom-width: 2px; }
 .learned-empty { margin-top: 10px; }
 
-.bottom-nav { position: absolute; z-index: 30; bottom: 0; left: 0; right: 0; min-height: 85px; padding: 10px 14px max(10px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.97); border-top: 2px solid #eee; display: grid; grid-template-columns: repeat(3, 1fr); box-shadow: 0 -8px 25px rgba(0,0,0,.035); }
+.bottom-nav { position: absolute; z-index: 30; bottom: 0; left: 0; right: 0; min-height: 85px; padding: 10px 14px max(10px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.97); border-top: var(--divider-width) solid var(--color-divider); display: grid; grid-template-columns: repeat(3, 1fr); box-shadow: 0 -8px 25px rgba(0,0,0,.035); }
 .bottom-nav button { position: relative; color: #aaa; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 18px; transition: .18s; }
 .bottom-nav button > span { width: 42px; height: 35px; border-radius: 13px; display: grid; place-items: center; }
 .bottom-nav svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
@@ -466,7 +475,7 @@
 .status-sheet h2 { font-size: 23px; font-weight: 900; letter-spacing: -.3px; }
 .status-sheet > p { max-width: 390px; margin: 7px auto 19px; color: #777; font-size: 12px; line-height: 1.45; font-weight: 700; }
 .status-sheet .tactile-button { min-height: 57px; }
-.sheet-action--blue { color: white; background: var(--brand); border: 2px solid var(--brand-dark); border-bottom: 6px solid var(--brand-dark); }
+.sheet-action--blue { color: white; background: var(--brand); --tactile-edge-color: var(--brand-dark); }
 .sheet-action--remove { min-height: 45px; margin-top: 10px; padding: 0 15px; border-radius: 13px; color: var(--error); font-size: 11px; font-weight: 900; text-transform: uppercase; }
 .sheet-action--remove:hover { background: #fff1f1; }
 .sheet-action--remove:active { transform: translateY(1px); }
@@ -682,7 +691,7 @@
 .lesson-reader {
   --lesson-text-secondary: #6b6b6b;
   --lesson-text-tertiary: #737373;
-  --lesson-border: #dedede;
+  --lesson-border: var(--color-divider);
   --lesson-divider: #ececec;
   --lesson-icon-size: 24px;
   --lesson-touch-size: 44px;
@@ -694,14 +703,14 @@
   display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
   background: var(--color-background); color: var(--text);
 }
-.reader-bar { border-bottom: 1px solid var(--lesson-border); }
+.reader-bar { border-bottom: var(--divider-width) solid var(--color-divider); }
 .reader-bar__inner, .reader-content, .reader-action {
   width: min(100%, 600px); margin: 0 auto;
   padding-inline: max(var(--lesson-space), env(safe-area-inset-left)) max(var(--lesson-space), env(safe-area-inset-right));
 }
 .reader-bar__inner {
   display: grid; grid-template-columns: 54px minmax(0, 1fr) 54px; gap: 6px; align-items: center;
-  padding-top: max(4px, env(safe-area-inset-top)); padding-bottom: 8px;
+  padding-top: max(4px, env(safe-area-inset-top)); padding-bottom: calc(9px - var(--divider-width));
 }
 .reader-close {
   display: grid; place-items: center; width: var(--lesson-touch-size); height: var(--lesson-touch-size);
@@ -749,7 +758,10 @@
 
 .lesson-reader--key-phrases .reader-content { padding-top: 16px; }
 .reader-phrase-intro { display: grid; gap: 8px; color: var(--text); }
-.reader-phrase-intro > p { color: var(--brand-dark); font-weight: 900; text-transform: uppercase; }
+.lesson-reader .lesson-accent-heading {
+  color: var(--color-accent-heading); font-size: 1rem; line-height: 1.5;
+  font-weight: 900; letter-spacing: normal; text-transform: uppercase;
+}
 .reader-phrase-intro h2 { font-size: var(--lesson-title-size); line-height: 1.16; }
 .reader-phrases { gap: 14px; padding-inline-start: 13px; }
 .reader-phrase {
@@ -772,13 +784,13 @@
 .reader-phrase__audio > span { text-decoration: underline dotted #a4a4a4 2px; text-underline-offset: 5px; }
 .reader-phrase__body > p { margin: 5px 0 0 29px; color: var(--lesson-text-secondary); font-size: clamp(14px, 4vw, 17px); }
 .lesson-reader .tactile-button--primary {
-  height: var(--primary-button-height); border: 0; border-bottom: 4px solid var(--brand-dark);
+  height: var(--primary-button-height); --tactile-side-width: 0px; --tactile-edge-width: 4px;
 }
 .lesson-reader .tactile-button--primary:not(:disabled):active { transform: translateY(2px); border-bottom-width: 2px; }
 .lesson-reader .tactile-button--primary:disabled,
 .lesson-reader .tactile-button--primary[aria-busy="true"] { opacity: .55; }
 .reader-action {
-  border-top: 1px solid var(--lesson-border);
+  border-top: var(--divider-width) solid var(--color-divider);
   display: grid; gap: 8px; align-content: end;
   padding-block: 10px max(12px, env(safe-area-inset-bottom)); background: var(--color-background);
 }
@@ -826,7 +838,7 @@
 }
 .reader-reference-sheet__heading {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding-block: 8px; border-bottom: 1px solid var(--lesson-border);
+  padding-block: 8px calc(9px - var(--divider-width)); border-bottom: var(--divider-width) solid var(--color-divider);
 }
 .reader-reference-sheet__heading h2 { font-size: 20px; font-weight: 900; }
 .reader-reference-sheet__content {
@@ -871,8 +883,6 @@
 .lesson-reader--word-intro .reader-content { min-height: 100%; grid-template-rows: auto 1fr; }
 .lesson-reader--word-intro .reader-content > .reader-panel { grid-row: 2; }
 .word-intro { display: grid; grid-template-rows: auto minmax(220px, 1fr); gap: var(--lesson-space); min-width: 0; }
-.word-intro__question { color: var(--brand-dark); text-transform: uppercase; }
-.reader-panel .word-intro__question { font-size: clamp(15px, 4.3vw, 21px); }
 .word-intro__card {
   display: grid; place-items: center; min-width: 0; padding: var(--lesson-space);
   border: 2px solid var(--lesson-border); border-bottom-width: 5px; border-radius: var(--radius-card);
@@ -895,7 +905,7 @@
 }
 @keyframes word-intro-reveal { from { opacity: 0; } }
 .word-intro__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.word-intro__actions .tactile-button { height: var(--primary-button-height); border-radius: var(--radius-card); border-bottom-width: 4px; }
-.word-intro__actions .tactile-button--green { background: #00cb2c; border-color: #009823; }
-.word-intro__learn { background: #eab500; border-bottom: 4px solid #bd9000; }
-.word-intro__actions .tactile-button:active { transform: translateY(2px); border-bottom-width: 2px; }
+.word-intro__actions .tactile-button { height: var(--primary-button-height); border-radius: var(--radius-card); --tactile-edge-width: 4px; }
+.word-intro__actions .tactile-button--green { background: #00cb2c; --tactile-edge-color: #009823; }
+.word-intro__learn { background: #eab500; --tactile-side-width: 0px; --tactile-edge-color: #bd9000; }
+.word-intro__actions .tactile-button:not(:disabled):active { transform: translateY(2px); border-bottom-width: 2px; }

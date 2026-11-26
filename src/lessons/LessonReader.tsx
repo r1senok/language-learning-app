@@ -112,7 +112,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
           {references.length > 0 && <LessonReferenceSheet key={`reference-${active?.id}`} references={references} />}
           {step.kind === 'theory' ? <>
             {keyPhrasesStep && <div className="reader-phrase-intro">
-              <p>Начнём!</p>
+              <p className="lesson-accent-heading">Начнём!</p>
               <h2>{step.title}</h2>
             </div>}
             {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'explanation') && <h2>{step.title}</h2>}
