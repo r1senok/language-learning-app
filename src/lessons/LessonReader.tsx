@@ -56,7 +56,10 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const translationStep = bookChoice?.book.mode === 'translate'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
-  const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
+  const matchedPairs = showMatching ? foundPronounPairs(progress) : []
+  const stageProgress = result ? undefined : showMatching
+    ? { completed: matchedPairs.length, total: pronounMatching.pairs.length, label: 'Найдено пар' }
+    : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
@@ -97,7 +100,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
     <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
-      onClose={confirmExit} progress={stageProgress} progressBelow={translationStep} />
+      onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
     <div className="reader-scroll" ref={reader}>
       <div className="reader-content">
@@ -118,7 +121,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
             </div>}
             {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'explanation') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
-          </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={foundPronounPairs(progress)}
+          </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={matchedPairs}
             onMatch={(left, right) => {
               const previous = current()
               const nextProgress = recordPronounPair(previous, left, right, exercises, cloud)
@@ -129,6 +132,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
               if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
             }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
             score={progress.attempt[bookChoice.id]} order={selectedOrder}
+            characterSrc={step.id === 'phrase-translation' ? '/lesson-translation-character.svg' : undefined}
             onOrder={(order) => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) {

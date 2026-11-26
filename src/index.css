@@ -722,14 +722,13 @@
 }
 .reader-close:disabled { opacity: 1; cursor: default; }
 .reader-bar h1 { color: var(--lesson-text-tertiary); text-transform: uppercase; text-align: center; font-size: clamp(16px, 4.5vw, 20px); line-height: 1.15; font-weight: 850; }
-.reader-stage { color: var(--lesson-text-secondary); justify-self: end; font-weight: 800; font-size: 13px; font-variant-numeric: tabular-nums; }
 .reader-bar progress {
-  width: 100%; height: 5px; appearance: none;
-  border: 0; border-radius: 999px; overflow: hidden; background: var(--lesson-border); color: var(--color-primary);
+  display: block; width: 100%; height: 12px; appearance: none;
+  border: 0; border-radius: 999px; overflow: hidden; background: var(--lesson-divider); color: #ffc300;
 }
-.reader-bar progress::-webkit-progress-bar { background: var(--lesson-border); }
-.reader-bar progress::-webkit-progress-value { background: var(--color-primary); border-radius: 999px; }
-.reader-bar progress::-moz-progress-bar { background: var(--color-primary); border-radius: 999px; }
+.reader-bar progress::-webkit-progress-bar { background: var(--lesson-divider); }
+.reader-bar progress::-webkit-progress-value { background: #ffc300; border-radius: 999px; }
+.reader-bar progress::-moz-progress-bar { background: #ffc300; border-radius: 999px; }
 .reader-scroll { overflow: auto; overscroll-behavior-y: contain; }
 .reader-content { display: grid; gap: var(--lesson-space); padding-block: var(--lesson-space); overflow-wrap: anywhere; }
 .reader-instruction { color: var(--lesson-text-secondary); font-size: var(--lesson-caption-size); font-weight: 750; }
@@ -806,7 +805,7 @@
 .pronoun-matching {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px;
 }
-.pronoun-matching__count { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pronoun-matching__complete { font-size: 14px; font-weight: 800; }
 .pronoun-matching .lesson-pairs { grid-column: 1 / -1; }
 .pronoun-matching .lesson-option { height: 44px; padding: 4px; text-align: center; }
 .pronoun-matching .lesson-option[data-result="correct"] {
@@ -849,8 +848,7 @@
 .reader-reference-sheet__block h3 { font-weight: 800; }
 
 .reader-header-exit { justify-self: end; }
-.reader-bar__progress { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
-.reader-bar__progress .reader-stage { flex: none; }
+.reader-bar__progress { grid-column: 1 / -1; }
 .reader-result {
   display: grid; justify-items: center; gap: 10px; padding: 12px 0; text-align: center;
 }
@@ -877,9 +875,6 @@
 .reader-exit__actions { display: grid; gap: 8px; }
 .reader-exit__actions button { min-height: 44px; text-align: center; }
 
-.lesson-reader--word-intro .reader-bar progress { height: 12px; }
-.lesson-reader--word-intro .reader-bar progress::-webkit-progress-value { background: #ffc300; }
-.lesson-reader--word-intro .reader-bar progress::-moz-progress-bar { background: #ffc300; }
 .lesson-reader--word-intro .reader-content { min-height: 100%; grid-template-rows: auto 1fr; }
 .lesson-reader--word-intro .reader-content > .reader-panel { grid-row: 2; }
 .word-intro { display: grid; grid-template-rows: auto minmax(220px, 1fr); gap: var(--lesson-space); min-width: 0; }
@@ -916,19 +911,6 @@
   --translation-error: #ff4545;
   --translation-error-soft: #ffe4e4;
 }
-.lesson-reader--translation .reader-bar { border-bottom: 0; }
-.lesson-reader--translation .reader-bar__inner { position: relative; }
-.lesson-reader--translation .reader-bar__inner::after {
-  content: ''; position: absolute; inset: auto 0 0; height: var(--divider-width); background: var(--color-divider);
-}
-.lesson-reader--translation .reader-bar > .reader-bar__progress {
-  width: min(100%, 600px); margin: 0 auto; padding-top: var(--lesson-space);
-  padding-inline: max(var(--lesson-space), env(safe-area-inset-left)) max(var(--lesson-space), env(safe-area-inset-right));
-}
-.lesson-reader--translation .reader-bar progress { height: 14px; background: var(--lesson-divider); }
-.lesson-reader--translation .reader-bar progress::-webkit-progress-bar { background: var(--lesson-divider); }
-.lesson-reader--translation .reader-bar progress::-webkit-progress-value { background: #ffc300; }
-.lesson-reader--translation .reader-bar progress::-moz-progress-bar { background: #ffc300; }
 .translation-choice { display: grid; gap: clamp(12px, 4vw, 18px); min-width: 0; }
 .translation-choice__prompt {
   display: grid; grid-template-columns: clamp(56px, 22vw, 88px) minmax(0, 1fr); align-items: start; gap: clamp(16px, 6vw, 30px);

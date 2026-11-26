@@ -39,9 +39,7 @@ export function PronounMatchingCard({ matched, onMatch, onContinue, actionTarget
 
   return <div className="pronoun-matching">
     <ReaderInstruction>Сопоставьте короткую и полную формы</ReaderInstruction>
-    <p className="pronoun-matching__count" role="status" aria-label="Найдено пар">
-      {matched.length}/{pronounMatching.pairs.length}{done && ' · Все пары найдены'}
-    </p>
+    {done && <p className="pronoun-matching__complete" role="status">Все пары найдены</p>}
     {wrong && <span className="sr-only" role="status">Пара не совпала. Попробуйте ещё раз.</span>}
     <div className="lesson-pairs">
       <div role="group" aria-label="Короткие формы">

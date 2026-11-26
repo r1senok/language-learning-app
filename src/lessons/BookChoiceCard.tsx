@@ -4,8 +4,8 @@ import { useMemo } from 'react'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
 import type { BookExercise } from './engine'
 
-export function BookChoiceCard({ actionTarget, exercise, selected, order, score, onSelect, onOrder, onCheck, onContinue }: {
-  actionTarget: HTMLDivElement | null; exercise: BookExercise; selected?: string; order: string[]; score?: number
+export function BookChoiceCard({ actionTarget, exercise, selected, order, score, characterSrc, onSelect, onOrder, onCheck, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: BookExercise; selected?: string; order: string[]; score?: number; characterSrc?: string
   onSelect: (option: string) => void; onOrder: (order: string[]) => void
   onCheck: () => void; onContinue: () => void
 }) {
@@ -14,7 +14,7 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
     ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : exercise.options, [exercise])
   if (exercise.kind === 'multiple_choice' && book.mode === 'translate') {
     return <TranslationChoiceCard exercise={exercise} actionTarget={actionTarget} selected={selected}
-      score={score} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
+      score={score} characterSrc={characterSrc} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
   }
   const checked = score !== undefined
   const ordered = exercise.kind === 'word_order'
