@@ -212,9 +212,9 @@ test('pronoun matching restores partial pairs and awards one result exactly once
 test('olema theory keeps its grouped content and the reference is scoped to each applicable question', async () => {
   const { lessonSteps, lessonReferences, referencesForExercise } = await import('../src/lessons/readerContent.ts')
   const { panels } = lessonSteps.find(({ id }) => id === 'olema-theory')
-  assert.deepEqual(panels.map(({ kind }) => kind), ['explanation', 'example-group', 'dialogue-group'])
-  assert.equal(panels[0].paragraphs.length, 2)
-  assert.equal(panels[1].items.length, 6)
+  assert.deepEqual(panels.map(({ kind }) => kind), ['heading', 'highlight', 'dialogue-group'])
+  assert.deepEqual(panels[1].panels.map(({ kind }) => kind), ['paragraph', 'paragraph', 'example-group'])
+  assert.equal(panels[1].panels[2].items.length, 6)
   assert.deepEqual(panels[2].dialogues.map(({ length }) => length), [2, 2])
   const questions = lessonSteps.flatMap((step) => step.exercises ?? [])
   for (const { id, book } of questions) {
@@ -302,4 +302,22 @@ test('word introductions preserve the reveal across reload and count completion 
   assert.deepEqual(lessonResult(entries, finished), { correct: 0, total: 1, errors: 1, percent: 0, best: 0 })
   assert.equal(finished.pending[completion], 0)
   assert.equal(moveLessonStage(finished, 'words', true).wordDecisions, undefined)
+})
+
+test('theory keeps highlight boundaries and the six pronoun forms and translations', async () => {
+  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const pronouns = lessonSteps.find(({ id }) => id === 'pronouns-theory').panels
+  assert.deepEqual(pronouns.map(({ kind }) => kind), ['heading', 'highlight'])
+  const [intro, table, note] = pronouns[1].panels
+  assert.equal(intro.kind, 'paragraph')
+  assert.deepEqual(table.headers, ['Местоимение', 'Перевод'])
+  assert.deepEqual(table.rows.map(([forms, translation]) => [forms.map(({ text }) => text).join(''), translation]), [
+    ['Mina / Ma', 'Я'], ['Sina / Sa', 'Ты'], ['Tema / Ta', 'Он / она'],
+    ['Meie / Me', 'Мы'], ['Teie / Te', 'Вы'], ['Nemad / Nad', 'Они'],
+  ])
+  assert.equal(note.text.map(({ text }) => text).join(''),
+    'Местоимения ОН и ОНА переводятся на эстонский язык одним словом tema (ta).')
+  const [negation] = lessonSteps.find(({ id }) => id === 'negation-theory').panels
+  assert.equal(negation.kind, 'highlight')
+  assert.deepEqual(negation.panels.map(({ kind }) => kind), ['paragraph', 'table'])
 })

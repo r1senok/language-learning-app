@@ -19,7 +19,6 @@ import type { Word } from '../types'
 import { studyGrammarRows } from '../domain/grammar'
 
 const stageTitles: Record<string, string> = {
-  'pronouns-theory': 'Местоимения',
   'olema-theory': 'Глагол olema',
   'olema-practice': 'Формы olema',
   'negation-theory': 'Отрицание',
@@ -54,6 +53,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
   const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
   const translationStep = bookChoice?.book.mode === 'translate'
+  const pronounsTheory = !result && step.id === 'pronouns-theory'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
   const matchedPairs = showMatching ? foundPronounPairs(progress) : []
@@ -96,9 +96,9 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
 
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : pronounsTheory ? ' lesson-reader--pronouns' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : pronounsTheory ? 'Урок 1, часть 4' : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
@@ -119,7 +119,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
               <p className="lesson-accent-heading">Начнём!</p>
               <h2>{step.title}</h2>
             </div>}
-            {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'explanation') && <h2>{step.title}</h2>}
+            {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'heading') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={matchedPairs}
             onMatch={(left, right) => {

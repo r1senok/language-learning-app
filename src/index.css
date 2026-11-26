@@ -689,6 +689,9 @@
 .lesson-feedback { padding: 10px; border-radius: var(--radius-card); background: var(--surface-soft); }
 
 .lesson-reader {
+  --lesson-theory-background: #dcf0fc;
+  --lesson-theory-header: #c6e7f9;
+  --lesson-theory-border: #90d2f9;
   --lesson-text-secondary: #6b6b6b;
   --lesson-text-tertiary: #737373;
   --lesson-border: var(--color-divider);
@@ -734,10 +737,9 @@
 .reader-instruction { color: var(--lesson-text-secondary); font-size: var(--lesson-caption-size); font-weight: 750; }
 .reader-panel { display: grid; gap: var(--lesson-space); }
 .reader-panel h2 { font-size: var(--lesson-title-size); font-weight: 900; }
-.reader-tip, .reader-panel .lesson-exercise {
+.reader-panel .lesson-exercise {
   padding: 12px; border-radius: var(--radius-card); background: var(--color-background); border: 1px solid var(--lesson-border);
 }
-.reader-tip { background: var(--surface-soft); }
 .reader-phrases { display: grid; gap: 8px; }
 .reader-scene { font-size: 26px; }
 .reader-table {
@@ -812,12 +814,9 @@
   color: #486147; border-color: #c3ddbb; opacity: 1;
 }
 
-.reader-explanation, .reader-example-group, .reader-dialogue {
+.reader-example-group, .reader-dialogue {
   border: 1px solid var(--lesson-border); border-radius: var(--radius-card); padding: var(--lesson-space); background: var(--color-background);
 }
-.reader-explanation { display: grid; gap: 8px; background: var(--surface-soft); }
-.reader-explanation h2 { font-size: clamp(18px, 5vw, 24px); line-height: 1.2; }
-.reader-explanation__subtitle { font-weight: 750; }
 .reader-example-group li, .reader-dialogue li { padding-block: 6px; }
 .reader-example-group li + li { border-top: 1px solid var(--lesson-divider); }
 .reader-example-group [lang="et"], .reader-dialogue [lang="et"] { font-weight: 800; }
@@ -978,4 +977,34 @@ div.translation-choice__character { border-radius: var(--radius-card); backgroun
 @keyframes translation-footer-in {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+.reader-theory-heading { display: grid; gap: 8px; }
+.reader-theory-heading h2 { font-size: var(--lesson-title-size); line-height: 1.18; }
+.reader-theory-heading__subtitle { font-size: var(--lesson-emphasis-size); font-weight: 850; line-height: 1.3; }
+.reader-theory-highlight {
+  display: grid; gap: 16px; min-width: 0; padding: 16px var(--lesson-space);
+  background: var(--lesson-theory-background); border-radius: var(--radius-card);
+}
+.reader-theory-paragraph { font-size: 1rem; line-height: 1.5; }
+.reader-theory-highlight .reader-table { border: 2px solid var(--lesson-theory-border); }
+.reader-theory-highlight .reader-table :is(th, td) {
+  padding: clamp(8px, 2.5vw, 12px); border-bottom: 2px solid var(--lesson-theory-border);
+  overflow-wrap: anywhere;
+}
+.reader-theory-highlight .reader-table :is(th, td) + :is(th, td) {
+  border-inline-start: 2px solid var(--lesson-theory-border);
+}
+.reader-theory-highlight .reader-table th {
+  background: var(--lesson-theory-header); color: var(--text); font-size: 1rem;
+}
+.reader-theory-highlight .reader-table tbody tr:last-child td { border-bottom: 0; }
+.reader-theory-highlight .reader-accent { background: var(--lesson-theory-background); }
+.lesson-reader--pronouns .reader-content { padding-bottom: 0; }
+.lesson-reader--pronouns .reader-theory-highlight {
+  margin-inline: calc(-1 * var(--lesson-space)); border-radius: 0;
+}
+.lesson-reader--pronouns .reader-table td { padding-block: clamp(12px, 4vw, 20px); font-weight: 750; }
+.lesson-reader--pronouns .reader-action {
+  background: var(--lesson-theory-background); border-top-color: var(--lesson-theory-border);
 }

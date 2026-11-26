@@ -6,13 +6,16 @@ import type { Exercise, Scores } from './engine.ts'
 
 export type BilingualExample = { before: string; accent: string; after: string; ru: string }
 
+export type TheoryText = string | { text: string; emphasis?: 'form' | 'strong'; lang?: string }[]
+
 export type TheoryPanel =
+  | { kind: 'highlight'; panels: TheoryPanel[] }
+  | { kind: 'heading'; label?: string; title: string; subtitle: string }
+  | { kind: 'paragraph'; text: TheoryText }
   | { kind: 'phrases'; items: { et: string; ru: string; icon?: string }[] }
-  | { kind: 'table'; title?: string; headers: string[]; rows: string[][]; accent: number; estonianColumns?: number[] }
-  | { kind: 'explanation'; title: string; subtitle: string; paragraphs: string[] }
+  | { kind: 'table'; title?: string; headers: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[] }
   | { kind: 'example-group'; items: BilingualExample[] }
   | { kind: 'dialogue-group'; dialogues: BilingualExample[][] }
-  | { kind: 'tip'; text: string }
 export type ReaderStep = { id: string; title: string; page: string } & (
   { kind: 'theory'; panels: TheoryPanel[] } | { kind: 'practice'; exercises: Exercise[] }
 )
@@ -21,31 +24,44 @@ function practice(...ids: string[]) {
   return ids.map((id) => exercises.find((exercise) => exercise.id === id)!)
 }
 
+const pronounRows: [string, string, string][] = [
+  ['Mina', 'Ma', 'Я'], ['Sina', 'Sa', 'Ты'], ['Tema', 'Ta', 'Он / она'],
+  ['Meie', 'Me', 'Мы'], ['Teie', 'Te', 'Вы'], ['Nemad', 'Nad', 'Они'],
+]
+
 export const lessonSteps: ReaderStep[] = [
   { id: 'greetings-theory', kind: 'theory', title: 'Знакомство с фразами', page: '13',
     panels: [{ kind: 'phrases', items: keyPhrases }] },
   { id: 'greetings-practice', kind: 'practice', title: 'Изучение новых слов', page: '13', exercises: newWordExercises },
   { id: 'phrase-translation', kind: 'practice', title: 'Перевод фраз', page: '14', exercises: phraseTranslation },
   { id: 'pronouns-theory', kind: 'theory', title: 'MA, SA, TA, ME, TE, NAD — Я, ты, он, она, мы, вы, они', page: '14', panels: [
-    { kind: 'tip', text: 'Личные местоимения в эстонском языке имеют две формы: длинную и короткую.' },
-    { kind: 'table', title: 'Полные и краткие формы', headers: ['Полная форма', 'Краткая', 'Перевод'], accent: 1,
-      rows: [['Mina', 'Ma', 'Я'], ['Sina', 'Sa', 'Ты'], ['Tema', 'Ta', 'Он / она'], ['Meie', 'Me', 'Мы'], ['Teie', 'Te', 'Вы'], ['Nemad', 'Nad', 'Они']] },
-    { kind: 'tip', text: 'Местоимения ОН и ОНА переводятся на эстонский язык одним словом tema (ta).' },
+    { kind: 'heading', label: 'Местоимения', title: 'MA, SA, TA, ME, TE, NAD', subtitle: 'Я, ты, он, она, мы, вы, они' },
+    { kind: 'highlight', panels: [
+      { kind: 'paragraph', text: 'Личные местоимения в эстонском языке имеют две формы: длинную и короткую.' },
+      { kind: 'table', headers: ['Местоимение', 'Перевод'], estonianColumns: [0],
+        rows: pronounRows.map(([long, short, translation]) =>
+          [[{ text: long, emphasis: 'form' }, { text: ' / ' }, { text: short, emphasis: 'form' }], translation]) },
+      { kind: 'paragraph', text: [
+        { text: 'Местоимения ОН и ОНА переводятся на эстонский язык одним словом ' },
+        { text: 'tema', emphasis: 'strong', lang: 'et' }, { text: ' (ta)', lang: 'et' }, { text: '.' },
+      ] },
+    ] },
   ] },
   { id: 'pronouns-practice', kind: 'practice', title: 'Практика местоимений', page: '14–15',
     exercises: pronounPractice },
   { id: 'olema-theory', kind: 'theory', title: 'MA OLEN NAINE, SA OLED MEES… — Я женщина, ты мужчина…', page: '15', panels: [
-    { kind: 'explanation', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…', paragraphs: [
-      'В русском языке глагол быть в настоящем времени опускается. Русские не говорят: Я есть женщина или Он есть мужчина, а просто: Я женщина, Он мужчина.',
-      'В эстонском языке, как и во многих европейских языках, глагол быть (olema) в настоящем времени употребляется. Его надо выучить, как Отче наш!',
-    ] },
-    { kind: 'example-group', items: [
-      { before: 'Ma ', accent: 'olen', after: ' mees.', ru: 'Я (есть) мужчина.' },
-      { before: 'Sa ', accent: 'oled', after: ' mees.', ru: 'Ты (есть) мужчина.' },
-      { before: 'Ta ', accent: 'on', after: ' mees.', ru: 'Он (есть) мужчина.' },
-      { before: 'Me ', accent: 'oleme', after: ' mehed.', ru: 'Мы (есть) мужчины.' },
-      { before: 'Te ', accent: 'olete', after: ' mehed.', ru: 'Вы (есть) мужчины.' },
-      { before: 'Nad ', accent: 'on', after: ' mehed.', ru: 'Они (есть) мужчины.' },
+    { kind: 'heading', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…' },
+    { kind: 'highlight', panels: [
+      { kind: 'paragraph', text: 'В русском языке глагол быть в настоящем времени опускается. Русские не говорят: Я есть женщина или Он есть мужчина, а просто: Я женщина, Он мужчина.' },
+      { kind: 'paragraph', text: 'В эстонском языке, как и во многих европейских языках, глагол быть (olema) в настоящем времени употребляется. Его надо выучить, как Отче наш!' },
+      { kind: 'example-group', items: [
+        { before: 'Ma ', accent: 'olen', after: ' mees.', ru: 'Я (есть) мужчина.' },
+        { before: 'Sa ', accent: 'oled', after: ' mees.', ru: 'Ты (есть) мужчина.' },
+        { before: 'Ta ', accent: 'on', after: ' mees.', ru: 'Он (есть) мужчина.' },
+        { before: 'Me ', accent: 'oleme', after: ' mehed.', ru: 'Мы (есть) мужчины.' },
+        { before: 'Te ', accent: 'olete', after: ' mehed.', ru: 'Вы (есть) мужчины.' },
+        { before: 'Nad ', accent: 'on', after: ' mehed.', ru: 'Они (есть) мужчины.' },
+      ] },
     ] },
     { kind: 'dialogue-group', dialogues: [
       [
@@ -61,12 +77,14 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'olema-practice', kind: 'practice', title: 'Выбираем форму olema', page: '15',
     exercises: olemaPractice },
   { id: 'negation-theory', kind: 'theory', title: 'MA EI OLE NAINE, SA EI OLE MEES…', page: '16', panels: [
-    { kind: 'tip', text: 'Сказать он не мужчина, она не женщина можно двумя способами. Надо всего лишь добавить ei ole или pole.' },
-    { kind: 'table', title: 'EI OLE — НЕ (ЕСТЬ) — POLE', headers: ['EI OLE', 'НЕ (ЕСТЬ)', 'POLE'], accent: 2, estonianColumns: [0, 2],
-      rows: [
-        ['Ma / Sa / Ta → ei ole naine', 'Я / Ты / Он, она → не женщина', 'Mina / Sina / Tema → pole naine'],
-        ['Me / Te / Nad → ei ole naised', 'Мы / Вы / Они → не женщины', 'Meie / Teie / Nemad → pole naised'],
-      ] },
+    { kind: 'highlight', panels: [
+      { kind: 'paragraph', text: 'Сказать он не мужчина, она не женщина можно двумя способами. Надо всего лишь добавить ei ole или pole.' },
+      { kind: 'table', title: 'EI OLE — НЕ (ЕСТЬ) — POLE', headers: ['EI OLE', 'НЕ (ЕСТЬ)', 'POLE'], accent: 2, estonianColumns: [0, 2],
+        rows: [
+          ['Ma / Sa / Ta → ei ole naine', 'Я / Ты / Он, она → не женщина', 'Mina / Sina / Tema → pole naine'],
+          ['Me / Te / Nad → ei ole naised', 'Мы / Вы / Они → не женщины', 'Meie / Teie / Nemad → pole naised'],
+        ] },
+    ] },
   ] },
   { id: 'negation-practice', kind: 'practice', title: 'Отрицание и закрепление', page: '16',
     exercises: negativePractice },

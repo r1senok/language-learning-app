@@ -1,5 +1,5 @@
 import { AudioPhrase } from './AudioPhrase'
-import type { BilingualExample, TheoryPanel } from './readerContent'
+import type { BilingualExample, TheoryPanel, TheoryText } from './readerContent'
 
 function Example({ item: { before, accent, after, ru } }: { item: BilingualExample }) {
   return <>
@@ -8,22 +8,32 @@ function Example({ item: { before, accent, after, ru } }: { item: BilingualExamp
   </>
 }
 
+function InlineTheory({ text }: { text: TheoryText }) {
+  if (typeof text === 'string') return text
+  return text.map(({ text, emphasis, lang }, index) => emphasis
+    ? <strong key={index} lang={lang} className={emphasis === 'form' ? 'reader-accent' : undefined}>{text}</strong>
+    : <span key={index} lang={lang}>{text}</span>)
+}
+
 export function TheoryCard({ panel }: { panel: TheoryPanel }) {
-  if (panel.kind === 'tip') return <aside className="reader-tip">{panel.text}</aside>
+  if (panel.kind === 'highlight') return <div className="reader-theory-highlight">
+    {panel.panels.map((child, index) => <TheoryCard key={index} panel={child} />)}
+  </div>
+  if (panel.kind === 'paragraph') return <p className="reader-theory-paragraph"><InlineTheory text={panel.text} /></p>
+  if (panel.kind === 'heading') return <div className="reader-theory-heading">
+    {panel.label && <p className="lesson-accent-heading">{panel.label}</p>}
+    <h2 lang="et">{panel.title}</h2>
+    <p className="reader-theory-heading__subtitle">{panel.subtitle}</p>
+  </div>
   if (panel.kind === 'table') return <table className="reader-table">
     {panel.title && <caption>{panel.title}</caption>}
     <thead><tr>{panel.headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead>
-    <tbody>{panel.rows.map((row) => <tr key={row[0]}>
+    <tbody>{panel.rows.map((row, rowIndex) => <tr key={rowIndex}>
       {row.map((value, index) => <td key={index} lang={(panel.estonianColumns?.includes(index) ?? index < 2) ? 'et' : undefined}>
-        {index === panel.accent ? <strong className="reader-accent">{value}</strong> : value}
+        {index === panel.accent ? <strong className="reader-accent"><InlineTheory text={value} /></strong> : <InlineTheory text={value} />}
       </td>)}
     </tr>)}</tbody>
   </table>
-  if (panel.kind === 'explanation') return <section className="reader-explanation">
-    <h2 lang="et">{panel.title}</h2>
-    <p className="reader-explanation__subtitle">{panel.subtitle}</p>
-    {panel.paragraphs.map((text, index) => <p key={index}>{text}</p>)}
-  </section>
   if (panel.kind === 'example-group') return <ul className="reader-example-group">
     {panel.items.map((item, index) => <li key={index}><Example item={item} /></li>)}
   </ul>
