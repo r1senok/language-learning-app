@@ -1,5 +1,6 @@
-export function Icon({ name }: { name: 'book' | 'cards' | 'check' | 'search' | 'plus' | 'close' | 'bulb' | 'eye' | 'undo' | 'library' | 'profile' | 'lock' | 'cloud' }) {
+export function Icon({ name }: { name: 'back' | 'book' | 'cards' | 'check' | 'search' | 'plus' | 'close' | 'bulb' | 'eye' | 'undo' | 'library' | 'profile' | 'lock' | 'cloud' }) {
   const paths = {
+    back: <path d="M18 12H6m6-6-6 6 6 6" />,
     book: <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5z" /><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5z" /></>,
     cards: <><rect x="5" y="3" width="14" height="18" rx="3" /><path d="M9 8h6M9 12h4" /><path d="M3 7v10a3 3 0 0 0 3 3" /></>,
     check: <><circle cx="12" cy="12" r="9" /><path d="m8 12 2.7 2.7L16.5 9" /></>,

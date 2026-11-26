@@ -1,5 +1,6 @@
 import { useId, useRef } from 'react'
 import type { LessonReference } from './readerContent'
+import { Icon } from '../Icon'
 import { TheoryCard } from './TheoryCard'
 
 export function LessonReferenceSheet({ references }: { references: LessonReference[] }) {
@@ -13,7 +14,7 @@ export function LessonReferenceSheet({ references }: { references: LessonReferen
       <div className="reader-reference-sheet__heading">
         <h2 id={titleId}>Шпаргалка</h2>
         <button type="button" autoFocus className="lesson-option reader-close" aria-label="Закрыть шпаргалку"
-          onClick={() => dialog.current?.close()}>×</button>
+          onClick={() => dialog.current?.close()}><Icon name="close" /></button>
       </div>
       <div className="reader-reference-sheet__content">
         {references.map(({ id, title, panels }) => <div className="reader-reference-sheet__block" key={id}>
