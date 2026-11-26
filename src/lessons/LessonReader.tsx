@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { hasScore, isBookChoice, lessonResult, markAnswer, moveLessonStage } from './engine'
-import type { Exercise, LessonProgress } from './engine'
+import { finishWordIntro, hasScore, isBookChoice, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
+import type { Exercise, LessonProgress, WordIntro } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
 import type { ReaderStep } from './readerContent'
 import { PronounMatchingCard } from './PronounMatchingCard'
@@ -15,19 +15,19 @@ import { LessonExitDialog } from './LessonExitDialog'
 import { LessonResult } from './LessonResult'
 import { TheoryCard } from './TheoryCard'
 import { LessonReferenceSheet } from './LessonReferenceSheet'
-import { newWordExercises } from './greetingsContent'
+import type { Word } from '../types'
+import { studyGrammarRows } from '../domain/grammar'
 
 const stageTitles: Record<string, string> = {
-  'greetings-practice': 'Новые слова',
   'pronouns-theory': 'Местоимения',
   'olema-theory': 'Глагол olema',
   'olema-practice': 'Формы olema',
   'negation-theory': 'Отрицание',
 }
 
-export function LessonReader({ steps, progress, current, save, onClose, cloud, warnings }: {
+export function LessonReader({ steps, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
   steps: ReaderStep[]; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
-  onClose: () => void; cloud: boolean; warnings: ReactNode
+  onClose: () => void; studyWord: (catalogId: string) => boolean; catalogWords: Word[]; cloud: boolean; warnings: ReactNode
 }) {
   const [answered, setAnswered] = useState<Exercise>()
   const reader = useRef<HTMLDivElement>(null)
@@ -49,7 +49,10 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const selectedOrder = bookChoice && progress.choiceDraft?.exerciseId === bookChoice.id
     ? [...new Set(progress.choiceDraft.order ?? [])].filter((id) => bookChoice.options.some((option) => option.id === id)) : []
   const showMatching = !result && active?.id === pronounMatching.id
-  const newWord = active && newWordExercises.find(({ id }) => id === active.id)
+  const newWord = !result && active?.kind === 'word_intro' ? active : undefined
+  const catalogWord = newWord && catalogWords.find(({ catalogId }) => catalogId === newWord.word.catalogId)
+  const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
+  const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
   const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
@@ -62,6 +65,14 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
     save(moveLessonStage(current(), stepId, replay))
+  }
+
+  function saveWordVisit(previous: LessonProgress, nextProgress: LessonProgress, item: WordIntro) {
+    if (previous === nextProgress) return
+    const nextStage = steps[index + 1]
+    const stageFinished = hasScore(nextProgress.attempt, item.id) &&
+      stepQuestions.every(({ id }) => hasScore(nextProgress.attempt, id))
+    save(stageFinished && nextStage ? moveLessonStage(nextProgress, nextStage.id) : nextProgress)
   }
 
   function next() {
@@ -81,9 +92,9 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
 
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
@@ -143,13 +154,23 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
                 const destination = steps[index + 1] ?? firstIncompleteStep(previous.attempt, steps)
                 navigate(destination?.id ?? '@result')
               } else save({ ...previous, choiceDraft: undefined })
-            }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} exercise={newWord} onAnswer={(answer) => {
-            setAnswered(newWord)
-            save(markAnswer(current(), newWord, answer, exercises, cloud))
-          }} onContinue={() => {
-            if (newWordExercises.every(({ id }) => hasScore(current().attempt, id))) navigate(steps[index + 1].id)
-            else setAnswered(undefined)
-          }} /> : active ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} onAnswer={(answer) => {
+            }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} word={newWord.word}
+            forms={introForms} revealed={progress.wordDecisions?.[newWord.id] === 'learn'}
+            onKnow={() => {
+              const previous = current()
+              saveWordVisit(previous, markWordDecision(previous, newWord, 'known', exercises, cloud), newWord)
+            }}
+            onLearn={() => {
+              const previous = current()
+              if (previous.wordDecisions?.[newWord.id] === 'learn') return true
+              if (hasScore(previous.attempt, newWord.id) || !studyWord(newWord.word.catalogId)) return false
+              save(markWordDecision(previous, newWord, 'learn', exercises, cloud))
+              return true
+            }}
+            onContinue={() => {
+              const previous = current()
+              saveWordVisit(previous, finishWordIntro(previous, newWord, exercises, cloud), newWord)
+            }} /> : active && active.kind !== 'word_intro' ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} onAnswer={(answer) => {
             setAnswered(active)
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { blocks, exercises, lessons } from '../src/lessons/course.ts'
-import { answerIsCorrect, completion, emptyProgress, hasScore, loadLesson, markAnswer, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
+import { answerIsCorrect, completion, emptyProgress, finishWordIntro, hasScore, markWordDecision, loadLesson, markAnswer, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
 
 const correct = (exercise) => exercise.kind === 'matching_pairs' ? exercise.pairs.map(({ id }) => id)
   : exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
@@ -71,9 +71,8 @@ test('page 13 contains thirteen phrases and eight words, and prior users keep th
   assert.equal(keyPhrases.length, 13)
   assert.deepEqual(newWordExercises.map(({ word }) => word.et), ['hommik', 'päev', 'õhtu', 'aeg', 'öö', 'hea', 'kõik', 'kuulama'])
   for (const exercise of newWordExercises) {
-    assert.equal(exercise.options.length, 4)
-    assert.equal(new Set(exercise.options.map(({ id }) => id)).size, 4)
-    assert.equal(answerIsCorrect(exercise, [exercise.correct]), true)
+    assert.equal(exercise.kind, 'word_intro')
+    assert.equal(answerIsCorrect(exercise, [exercise.word.et]), false)
   }
   const legacy = Object.fromEntries(legacyGreetingIds.map((id) => [id, 1]))
   assert.equal(firstIncompleteStep(legacy).id, 'phrase-translation')
@@ -144,6 +143,10 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
   assert.ok(entries.filter((x) => x.book).every((x) => x.book.answerSource === 'vastused-215'))
   let progress = emptyProgress()
   for (const exercise of entries) {
+    if (exercise.kind === 'word_intro') {
+      progress = markWordDecision(progress, exercise, 'known', entries, true)
+      continue
+    }
     const input = correct(exercise)
     assert.equal(answerIsCorrect(exercise, input), true, exercise.id)
     if (exercise.kind === 'word_order') {
@@ -267,4 +270,36 @@ test('result counts unique answered active exercises and handles all right, all 
   assert.deepEqual(result({ [a.id]: 1, ignored: 1 }), { correct: 1, total: 1, errors: 0, percent: 100, best: 86 })
   assert.deepEqual(result({ [a.id]: 0, [b.id]: 0 }), { correct: 0, total: 2, errors: 2, percent: 0, best: 86 })
   assert.deepEqual(result({}), { correct: 0, total: 0, errors: 0, percent: 0, best: 86 })
+})
+
+test('word introductions preserve the reveal across reload and count completion separately from accuracy', async () => {
+  const { lessonResult, moveLessonStage } = await import('../src/lessons/engine.ts')
+  const { newWordExercises } = await import('../src/lessons/greetingsContent.ts')
+  const catalog = (await import('node:fs')).readFileSync(new URL('../supabase/grammar/review/working-647.json', import.meta.url), 'utf8')
+  const byId = new Map(JSON.parse(catalog).map((entry) => [entry.id, entry]))
+  for (const { word } of newWordExercises) {
+    assert.equal(byId.get(word.catalogId).lemma, word.et)
+    assert.ok(byId.get(word.catalogId).russian_glosses.includes(word.ru))
+  }
+  const [learn, known] = newWordExercises
+  const [quiz] = exercises
+  const entries = [learn, known, quiz]
+  const restore = (state) => loadLesson('test', entries.map(({ id }) => id), { getItem: () => JSON.stringify(state) })
+  const first = markWordDecision(emptyProgress(), learn, 'learn', entries, true)
+  assert.deepEqual(first.attempt, {})
+  assert.deepEqual(first.pending, {})
+  assert.deepEqual(restore(first).wordDecisions, { [learn.id]: 'learn' })
+  const parked = moveLessonStage(moveLessonStage({ ...first, stepId: 'words' }, 'theory'), 'words')
+  assert.equal(parked.wordDecisions[learn.id], 'learn')
+  const viewed = finishWordIntro(restore(parked), learn, entries, true)
+  assert.equal(finishWordIntro(viewed, learn, entries, true), viewed)
+  assert.equal(markWordDecision(viewed, learn, 'known', entries, true), viewed)
+  const introDone = markWordDecision(viewed, known, 'known', entries, true)
+  assert.equal(introDone.attempt[known.id], 1)
+  assert.equal(introDone.wordDecisions[known.id], 'known')
+  assert.equal(hasScore(introDone.best, completion), false)
+  const finished = markAnswer(introDone, quiz, [], entries, true)
+  assert.deepEqual(lessonResult(entries, finished), { correct: 0, total: 1, errors: 1, percent: 0, best: 0 })
+  assert.equal(finished.pending[completion], 0)
+  assert.equal(moveLessonStage(finished, 'words', true).wordDecisions, undefined)
 })

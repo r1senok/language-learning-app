@@ -5,12 +5,14 @@ type BookQuestion = {
   bookId?: string; mode?: 'translate' | 'match' | 'gap' | 'order'; answerSource?: 'vastused-215'
 }
 type Question = { id: string; prompt: string; explanation: string; exampleAudio?: string; scene?: { icon: string; label: string } }
-export type Exercise = Question & (
+export type IntroWord = { catalogId: string; et: string; ru: string; forms?: string; note?: string }
+export type WordIntro = Question & { kind: 'word_intro'; word: IntroWord }
+export type Exercise = WordIntro | (Question & (
   | { kind: 'multiple_choice'; options: Option[]; correct: string; accepted?: string[]; book?: BookQuestion }
   | { kind: 'fill_blank'; options: Option[]; correct: string }
   | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
   | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
-)
+))
 
 export type BookChoice = Extract<Exercise, { kind: 'multiple_choice' }> & { book: BookQuestion }
 export type BookOrder = Extract<Exercise, { kind: 'word_order' }> & { book: BookQuestion }
@@ -19,6 +21,7 @@ export const isBookChoice = (exercise?: Exercise): exercise is BookExercise =>
   (exercise?.kind === 'multiple_choice' || exercise?.kind === 'word_order') && exercise.book !== undefined
 
 export function answerIsCorrect(exercise: Exercise, selected: string[]) {
+  if (exercise.kind === 'word_intro') return false
   if (exercise.kind === 'matching_pairs') {
     return selected.length === exercise.pairs.length &&
       exercise.pairs.every(({ id }, index) => selected[index] === id)
@@ -34,8 +37,9 @@ export function answerIsCorrect(exercise: Exercise, selected: string[]) {
 export const completion = '@completed'
 export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
+export type WordDecision = 'known' | 'learn'
 type ChoiceDraft = { exerciseId: string; optionId: string; order?: string[] }
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft> }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft>; wordDecisions?: Record<string, WordDecision> }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -43,12 +47,29 @@ export function nextExercise(exercises: Exercise[], answers: Scores) {
 }
 
 export function markAnswer(progress: LessonProgress, exercise: Exercise, answer: string[], exercises: Exercise[], cloud: boolean) {
+  if (exercise.kind === 'word_intro') return progress
+  return recordCompletion(progress, exercise, Number(answerIsCorrect(exercise, answer)), exercises, cloud)
+}
+
+// Keep the existing completion marker for saved checkpoints. Word introductions are excluded from lesson accuracy.
+export function markWordDecision(progress: LessonProgress, exercise: WordIntro, decision: WordDecision,
+  exercises: Exercise[], cloud: boolean) {
+  if (hasScore(progress.attempt, exercise.id) || progress.wordDecisions?.[exercise.id]) return progress
+  const next = { ...progress, wordDecisions: { ...progress.wordDecisions, [exercise.id]: decision } }
+  return decision === 'known' ? recordCompletion(next, exercise, 1, exercises, cloud) : next
+}
+
+export function finishWordIntro(progress: LessonProgress, exercise: WordIntro, exercises: Exercise[], cloud: boolean) {
+  return progress.wordDecisions?.[exercise.id] === 'learn'
+    ? recordCompletion(progress, exercise, 1, exercises, cloud) : progress
+}
+
+function recordCompletion(progress: LessonProgress, exercise: Exercise, score: number, exercises: Exercise[], cloud: boolean) {
   if (hasScore(progress.attempt, exercise.id)) return progress
-  const score = Number(answerIsCorrect(exercise, answer))
   const attempt = { ...progress.attempt, [exercise.id]: score }
   const entries: Scores = { [exercise.id]: score }
   if (!nextExercise(exercises, attempt)) {
-    entries[completion] = Math.round(100 * exercises.reduce((sum, { id }) => sum + (attempt[id] ?? 0), 0) / exercises.length)
+    entries[completion] = lessonResult(exercises, { ...progress, attempt }).percent
   }
   const best = mergeScores(progress.best, entries)
   const pending = cloud ? mergeScores(progress.pending, entries) : progress.pending
@@ -73,7 +94,7 @@ export function resumeFromCloud(progress: LessonProgress, remote: Scores) {
 }
 
 export function moveLessonStage(progress: LessonProgress, stepId: string, replay = false): LessonProgress {
-  if (replay) return { ...progress, stepId, attempt: {}, choiceDraft: undefined, stageDrafts: undefined }
+  if (replay) return { ...progress, stepId, attempt: {}, choiceDraft: undefined, stageDrafts: undefined, wordDecisions: undefined }
   const stageDrafts = { ...progress.stageDrafts }
   if (progress.stepId && progress.choiceDraft) stageDrafts[progress.stepId] = progress.choiceDraft
   const choiceDraft = Object.prototype.hasOwnProperty.call(stageDrafts, stepId) ? stageDrafts[stepId] : undefined
@@ -82,7 +103,7 @@ export function moveLessonStage(progress: LessonProgress, stepId: string, replay
 }
 
 export function lessonResult(exercises: Exercise[], progress: LessonProgress) {
-  const ids = [...new Set(exercises.map(({ id }) => id))].filter((id) => hasScore(progress.attempt, id))
+  const ids = [...new Set(exercises.filter(({ kind }) => kind !== 'word_intro').map(({ id }) => id))].filter((id) => hasScore(progress.attempt, id))
   const correct = ids.filter((id) => progress.attempt[id] === 1).length
   return { correct, total: ids.length, errors: ids.length - correct,
     percent: ids.length ? Math.round(100 * correct / ids.length) : 0, best: progress.best[completion] ?? 0 }
@@ -108,9 +129,12 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
       const draft = readDraft(value)
       return /^[a-z0-9-]+$/.test(step) && draft ? [[step, draft]] : []
     }))
+    const wordDecisions = Object.fromEntries(Object.entries(parsed.wordDecisions ?? {}).filter(([id, value]) =>
+      ids.includes(id) && (value === 'known' || value === 'learn'))) as Record<string, WordDecision>
     return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
       ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }),
       ...(choiceDraft && { choiceDraft }),
+      ...(Object.keys(wordDecisions).length > 0 && { wordDecisions }),
       ...(Object.keys(stageDrafts).length > 0 && { stageDrafts }) }
   } catch {
     return emptyProgress()

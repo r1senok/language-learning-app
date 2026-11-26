@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Word } from '../types'
 import { Icon } from '../Icon'
 import { lessons } from './course'
-import { completion, hasScore } from './engine'
+import { completion, hasScore, moveLessonStage } from './engine'
 import { firstIncompleteStep, lessonSteps } from './readerContent'
 import { LessonReader } from './LessonReader'
 import { useLessonProgress } from './useLessonProgress'
 
-export function Lessons({ client, userId, onReaderChange }: {
-  client?: SupabaseClient | null; userId?: string; onReaderChange: (active: boolean) => void
+export function Lessons({ client, userId, onReaderChange, studyWord, catalogWords }: {
+  client?: SupabaseClient | null; userId?: string; onReaderChange: (active: boolean) => void; studyWord: (catalogId: string) => boolean; catalogWords: Word[]
 }) {
   const { progress, save, syncError, storageError, current } = useLessonProgress(client, userId)
   const [screen, setScreen] = useState<'course' | 'lesson'>('course')
@@ -21,7 +22,7 @@ export function Lessons({ client, userId, onReaderChange }: {
     const saved = current()
     const step = lessonSteps.find((item) => item.id === saved.stepId) ?? firstIncompleteStep(saved.attempt)
     const replay = !step && saved.stepId !== '@result'
-    save({ ...saved, attempt: replay ? {} : saved.attempt, stepId: saved.stepId === '@result' ? '@result' : step?.id ?? lessonSteps[0].id })
+    save(replay ? moveLessonStage(saved, lessonSteps[0].id, true) : { ...saved, stepId: saved.stepId === '@result' ? '@result' : step?.id ?? lessonSteps[0].id })
     setScreen('lesson')
     onReaderChange(true)
   }
@@ -36,7 +37,7 @@ export function Lessons({ client, userId, onReaderChange }: {
     {syncError && !storageError && <p role="status" className="lesson-feedback">Облако пока недоступно. Урок сохраняется на этом устройстве.</p>}
   </>
   if (screen === 'lesson') return <LessonReader steps={lessonSteps} progress={progress}
-    current={current} save={save} onClose={close} cloud={Boolean(userId)} warnings={warnings} />
+    current={current} save={save} onClose={close} studyWord={studyWord} catalogWords={catalogWords} cloud={Boolean(userId)} warnings={warnings} />
 
   return <section className="screen lessons" aria-labelledby="lessons-heading">
     {warnings}

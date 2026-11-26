@@ -183,6 +183,13 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     setSessionCompleted(false)
   }
 
+  function studyLessonWord(catalogId: string) {
+    const word = currentProgress().words.find((entry) => entry.catalogId === catalogId && !entry.personalId)
+    if (!word) return false
+    addToStudy([word.id])
+    return true
+  }
+
   const answer = (known: boolean) => {
     if (!study || !currentWord || answerTimer.current !== null || feedback) return
     const before = currentProgress()
@@ -269,7 +276,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       </header>}
 
       <div className="content">
-        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} />}
+        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} studyWord={studyLessonWord} catalogWords={words} />}
 
         {primaryTab === 'vocabulary' && <section className="screen screen--dictionary my-words" aria-labelledby="my-words-heading">
           <div className="section-row my-words__heading"><h1 id="my-words-heading">Словарь</h1></div>

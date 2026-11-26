@@ -5,7 +5,7 @@ import { answerIsCorrect } from './engine'
 import type { Exercise } from './engine'
 
 export function ExerciseCard({ actionTarget, exercise, onAnswer, onContinue }: {
-  actionTarget: HTMLDivElement | null; exercise: Exercise; onAnswer: (answer: string[]) => void; onContinue: () => void
+  actionTarget: HTMLDivElement | null; exercise: Exclude<Exercise, { kind: 'word_intro' }>; onAnswer: (answer: string[]) => void; onContinue: () => void
 }) {
   const choices = useMemo(() => exercise.kind === 'word_order'
     ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : 'options' in exercise ? exercise.options : [], [exercise])

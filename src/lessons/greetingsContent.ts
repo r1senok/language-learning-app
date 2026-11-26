@@ -16,23 +16,18 @@ export const keyPhrases = [
 ]
 
 const words = [
-  { key: 'hommik', et: 'hommik', ru: 'утро', forms: 'hommik, -u, -ut' },
-  { key: 'paev', et: 'päev', ru: 'день', forms: 'päev, päeva, päeva', note: 'Произносим удлинённо.' },
-  { key: 'ohtu', et: 'õhtu', ru: 'вечер', forms: 'õhtu, -, -t' },
-  { key: 'aeg', et: 'aeg', ru: 'время', forms: 'aeg, aja, -a' },
-  { key: 'oo', et: 'öö', ru: 'ночь', forms: 'öö, -, -d' },
-  { key: 'hea', et: 'hea', ru: 'хороший', forms: 'hea, -, -d' },
-  { key: 'koik', et: 'kõik', ru: 'всё', forms: 'kõik, kõige, -e' },
-  { key: 'kuulama', et: 'kuulama', ru: 'слушать', forms: 'kuula/ma, -ta, -n' },
+  { key: 'hommik', et: 'hommik', catalogId: '7e9e6fde-75ff-4fff-94fb-54ced7bbaa43', ru: 'утро', forms: 'hommik, -u, -ut' },
+  { key: 'paev', et: 'päev', catalogId: '21cdbbaf-48b7-4562-b948-1f6b8b908702', ru: 'день', forms: 'päev, päeva, päeva', note: 'Произносим удлинённо.' },
+  { key: 'ohtu', et: 'õhtu', catalogId: '8ced276b-e680-4c97-8f7d-aa8333b0c8e7', ru: 'вечер', forms: 'õhtu, -, -t' },
+  { key: 'aeg', et: 'aeg', catalogId: '0d36be86-ba0e-415f-ae0d-b4e5c777415a', ru: 'время', forms: 'aeg, aja, -a' },
+  { key: 'oo', et: 'öö', catalogId: 'b46d3e0b-f035-43cf-b6fb-1d9d60ffe6cc', ru: 'ночь', forms: 'öö, -, -d' },
+  { key: 'hea', et: 'hea', catalogId: '385a452b-701f-429b-95ab-b8f476646778', ru: 'хороший', forms: 'hea, -, -d' },
+  { key: 'koik', et: 'kõik', catalogId: 'b567d610-b5d9-43df-96d9-803d400c7d12', ru: 'всё', forms: 'kõik, kõige, -e' },
+  { key: 'kuulama', et: 'kuulama', catalogId: '088ee8bb-61cf-45bd-aeed-dc32ae7e5577', ru: 'слушать', forms: 'kuula/ma, -ta, -n' },
 ] as const
 
-export const newWordExercises = words.map((word, index) => {
-  const options = Array.from({ length: 4 }, (_, offset) => {
-    const item = words[(index + offset - (index % 4) + words.length) % words.length]
-    return { id: item.et, text: item.ru }
-  })
-  return { id: `new-word-${word.key}`, kind: 'multiple_choice' as const, prompt: word.et, word,
-    options, correct: word.et, explanation: word.ru }
-})
+export const newWordExercises = words.map((word) => ({
+  id: `new-word-${word.key}`, kind: 'word_intro' as const, prompt: word.et, word, explanation: word.ru,
+}))
 
 export const legacyGreetingIds = ['greeting-listen', 'greeting-morning', 'greeting-meaning', 'greeting-reply']
