@@ -259,7 +259,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }
 
   return <div className="app-shell">
-    <div className="ambient ambient--one" /><div className="ambient ambient--two" />
     {study ? <StudyScreen
       word={currentWord} feedback={feedback?.kind} round={study.round}
       completed={sessionCompleted} onClose={closeStudy} onAnswer={answer}

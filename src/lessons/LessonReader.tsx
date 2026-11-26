@@ -83,7 +83,7 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
   const confirmExit = () => exitDialog.current?.showModal()
   return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
@@ -100,6 +100,10 @@ export function LessonReader({ steps, progress, current, save, onClose, cloud, w
         <div className="reader-panel">
           {references.length > 0 && <LessonReferenceSheet key={`reference-${active?.id}`} references={references} />}
           {step.kind === 'theory' ? <>
+            {keyPhrasesStep && <div className="reader-phrase-intro">
+              <p>Начнём!</p>
+              <h2>{step.title}</h2>
+            </div>}
             {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'explanation') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={foundPronounPairs(progress)}

@@ -1,3 +1,4 @@
+import { AudioPhrase } from './AudioPhrase'
 import type { BilingualExample, TheoryPanel } from './readerContent'
 
 function Example({ item: { before, accent, after, ru } }: { item: BilingualExample }) {
@@ -31,9 +32,7 @@ export function TheoryCard({ panel }: { panel: TheoryPanel }) {
       {dialogue.map((item, line) => <li key={line}><Example item={item} /></li>)}
     </ol>)}
   </div>
-  return <div className="reader-phrases">{panel.items.map(({ et, ru, icon }) => <article className="reader-phrase" key={et}>
-    {icon && <span className="reader-phrase__scene" aria-hidden="true">{icon}</span>}
-    <div><h3 lang="et">{et}</h3><p>{ru}</p></div>
-  </article>)}</div>
+  return <div className="reader-phrases">
+    {panel.items.map(({ et, ru }) => <AudioPhrase key={et} et={et} ru={ru} />)}
+  </div>
 }
-
