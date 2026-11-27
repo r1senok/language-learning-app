@@ -16,8 +16,9 @@ export function LearningPath({ lessons, onOpen }: { lessons: readonly PathLesson
 
       return <li key={number} className="learning-path__lesson" data-status={status}
         aria-current={current ? 'step' : undefined}>
-        {next && <span className="learning-path__connector" data-status={next.status} aria-hidden="true" />}
-        {index === firstLocked && index > 0 && <span className="learning-path__lock" aria-hidden="true"><Icon name="lock" /></span>}
+        {next && <span className="learning-path__connector" data-status={next.status} aria-hidden="true">
+          {index + 1 === firstLocked && <span className="learning-path__lock"><Icon name="lock" /></span>}
+        </span>}
         <div className="learning-path__rail">
           {current && <svg className="learning-path__ring" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="46" />

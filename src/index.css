@@ -358,7 +358,8 @@
 .tactile-button {
   border: var(--tactile-side-width, 2px) solid transparent;
   border-bottom: var(--tactile-edge-width, 6px) solid var(--tactile-edge-color, transparent);
-  min-height: 61px; border-radius: 17px; color: #fff; text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .1s, border-width .1s, filter .15s; }
+  min-height: 61px; border-radius: 17px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .1s, border-width .1s, filter .15s; }
+.tactile-button, .learning-path__cta { text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; }
 .tactile-button small { font-size: 9px; opacity: .75; margin-top: 1px; }
 .tactile-button--primary { min-height: var(--primary-button-height); border-radius: var(--radius-card); background: var(--brand); --tactile-edge-color: var(--brand-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
 .tactile-button--green { background: var(--success); --tactile-edge-color: var(--success-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
@@ -1059,22 +1060,24 @@
 
 
 .topbar--learning-path {
-  height: calc(60px + var(--safe-top)); padding: var(--safe-top) 14px 0; border: 0;
+  height: calc(56px + var(--safe-top)); padding: var(--safe-top) 14px 0; border: 0;
   background: var(--color-background);
 }
-.topbar--learning-path .brand { color: var(--color-primary); font-size: 34px; letter-spacing: -2px; font-weight: 1000; }
+.topbar--learning-path .brand { color: var(--color-primary); font-size: 32px; letter-spacing: -2px; font-weight: 1000; }
 .bottom-nav--learning-path {
   position: fixed; inset-inline: 0; bottom: 0; margin-inline: auto; width: min(100%, 656px);
   background: var(--color-background); padding-inline: max(12px, env(safe-area-inset-left), env(safe-area-inset-right)); box-shadow: none;
 }
+.bottom-nav--learning-path b { font-size: 13px; }
+.bottom-nav--learning-path img { width: 27px; height: 27px; }
 .learning-path-screen {
   max-width: 506px; margin-inline: auto;
-  padding: 14px max(16px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px, env(safe-area-inset-left));
+  padding: 13px max(16px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px, env(safe-area-inset-left));
 }
 .learning-path {
-  --path-rail: clamp(96px, 29vw, 116px);
-  --path-node: clamp(60px, 18vw, 72px);
-  --path-row: clamp(124px, 36.4vw, 146px);
+  --path-rail: clamp(90px, 27.5vw, 110px);
+  --path-node: clamp(56px, 17vw, 68px);
+  --path-row: clamp(124px, 34vw, 138px);
   --path-done: #57c84d;
   --path-done-edge: #408f38;
   --path-locked: #e3e3e3;
@@ -1091,11 +1094,11 @@
 }
 .learning-path__node {
   z-index: 1; display: grid; place-items: center; width: var(--path-node); aspect-ratio: 1;
-  border-radius: 50%; border-bottom: 6px solid #b1b1b1;
-  background: var(--path-locked); color: #777; font-size: 30px; font-weight: 1000; line-height: 1;
+  border-radius: 50%; border-bottom: 5px solid #b1b1b1;
+  background: var(--path-locked); color: #777; font-size: 28px; font-weight: 1000; line-height: 1;
 }
 .learning-path__node svg {
-  width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 4;
+  width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 4;
   stroke-linecap: round; stroke-linejoin: round;
 }
 [data-status="completed"] > .learning-path__rail .learning-path__node {
@@ -1105,7 +1108,7 @@
   color: #fff; background: var(--path-blue); border-color: var(--brand-dark);
 }
 .learning-path__ring {
-  position: absolute; width: calc(var(--path-node) + 22px); aspect-ratio: 1;
+  position: absolute; width: calc(var(--path-node) + 20px); aspect-ratio: 1;
   border-radius: 50%; background: var(--color-background);
   fill: none; stroke: var(--path-locked); stroke-width: 6;
 }
@@ -1113,33 +1116,33 @@
 .learning-path__connector {
   position: absolute; inset-inline-start: calc(var(--path-rail) / 2); transform: translateX(-50%);
   top: calc(var(--path-node) / 2); bottom: calc(var(--path-node) / -2);
-  width: 6px; background: var(--path-locked);
+  width: 5px; background: var(--path-locked);
 }
 .learning-path__connector[data-status="completed"] { background: var(--path-done); }
 .learning-path__connector[data-status="current"] { background: var(--path-blue); }
 .learning-path__lock {
-  z-index: 1; position: absolute; inset-inline-start: calc(var(--path-rail) / 2);
-  top: -47px; transform: translateX(-50%); display: grid; place-items: center;
-  width: 31px; aspect-ratio: 1; border-radius: 50%; background: var(--path-locked); color: #aaa;
+  z-index: 1; position: absolute; inset-inline-start: 50%;
+  top: 50%; transform: translate(-50%, -50%); display: grid; place-items: center;
+  width: 28px; aspect-ratio: 1; border-radius: 50%; background: var(--path-locked); color: #aaa;
 }
-.learning-path__lock svg { width: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+.learning-path__lock svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 .learning-path__label, .learning-path__active {
   position: relative; text-align: start; overflow-wrap: anywhere; line-height: 1.35;
-  font-size: clamp(16px, 4.55vw, 19px); font-weight: 800;
+  font-size: clamp(15px, 4.2vw, 18px); font-weight: 800;
 }
 .learning-path__label {
-  justify-self: start; width: fit-content; max-width: min(100%, 170px); padding: 15px 13px;
-  border-radius: 16px; background: var(--path-locked); color: #777; margin-bottom: 24px;
+  justify-self: start; width: fit-content; max-width: min(100%, 170px); padding: 13px 12px;
+  border-radius: 15px; background: var(--path-locked); color: #777; margin-bottom: 24px;
 }
 [data-status="completed"] > .learning-path__label { color: var(--path-done-edge); background: #e7f7e9; }
 .learning-path__active {
-  display: grid; gap: 14px; width: 100%; padding: 15px 13px; margin-bottom: 28px;
-  border-radius: 16px; background: var(--path-blue); color: #fff;
+  display: grid; gap: 10px; width: 100%; padding: 13px 12px; margin-bottom: 20px;
+  border-radius: 15px; background: var(--path-blue); color: #fff;
 }
 .learning-path__cta {
-  display: grid; place-items: center; min-height: 46px; padding: 5px;
+  display: grid; place-items: center; min-height: 44px; padding: 5px;
   border-bottom: 3px solid var(--brand-border); border-radius: 12px; background: var(--color-background);
-  color: var(--path-blue); font-size: 16px; font-weight: 1000; text-transform: uppercase; text-align: center;
+  color: var(--path-blue); text-align: center;
 }
 .learning-path button::before {
   content: ''; position: absolute; inset-inline-end: 100%; top: 0;
