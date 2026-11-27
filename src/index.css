@@ -1077,6 +1077,7 @@
 .learning-path {
   --path-rail: clamp(90px, 27.5vw, 110px);
   --path-node: clamp(56px, 17vw, 68px);
+  --path-title-size: clamp(15px, 4.2vw, 18px);
   --path-row: clamp(124px, 34vw, 138px);
   --path-done: #57c84d;
   --path-done-edge: #408f38;
@@ -1095,7 +1096,7 @@
 .learning-path__node {
   position: relative; z-index: 1; display: grid; place-items: center; width: var(--path-node); aspect-ratio: 1;
   border-radius: 50%; border-bottom: 5px solid #b1b1b1;
-  background: var(--path-locked); color: #777; font-size: 28px; font-weight: 1000; line-height: 1;
+  background: var(--path-locked); color: #777; font-size: 28px; font-weight: 900; line-height: 1;
 }
 .learning-path__node > svg {
   width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 4;
@@ -1128,9 +1129,10 @@
 .learning-path__lock svg { width: 17px; fill: none; stroke: currentColor; stroke-width: 2; }
 .learning-path__label, .learning-path__active {
   position: relative; text-align: start; overflow-wrap: anywhere; line-height: 1.35;
-  font-size: clamp(15px, 4.2vw, 18px); font-weight: 800;
+  font-size: var(--path-title-size); font-weight: 800;
 }
 .learning-path__label {
+  font-size: calc(var(--path-title-size) - 2px); font-weight: 700;
   justify-self: start; width: fit-content; max-width: min(100%, 170px); padding: 13px 12px;
   border-radius: 15px; background: var(--path-locked); color: #777; margin-bottom: 24px;
 }
