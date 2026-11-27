@@ -1,9 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { finishWordIntro, hasScore, isBookChoice, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
+import { finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
 import type { Exercise, LessonProgress, WordIntro } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
 import type { ReaderStep } from './readerContent'
+import { exerciseTemplate, isMultipleChoice, lessonPart, usesChoiceDraft } from './lessonTemplates'
 import { MatchingCard } from './MatchingCard'
 import { pronounMatching } from './tereLessonContent'
 import { foundPronounPairs, recordPronounPair } from './matchingProgress'
@@ -24,8 +25,8 @@ const stageTitles: Record<string, string> = {
   'negation-theory': 'Отрицание',
 }
 
-export function LessonReader({ steps, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
-  steps: ReaderStep[]; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
+export function LessonReader({ lessonNumber, steps, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
+  lessonNumber: number; steps: ReaderStep[]; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
   onClose: () => void; studyWord: (catalogId: string) => boolean; catalogWords: Word[]; cloud: boolean; warnings: ReactNode
 }) {
   const [answered, setAnswered] = useState<Exercise>()
@@ -40,9 +41,9 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const index = steps.indexOf(step)
   const stepQuestions = stepExercises(step, progress.attempt)
   const draftQuestion = stepQuestions.find(({ id }) => id === progress.choiceDraft?.exerciseId)
-  const active = answered ?? ((isBookChoice(draftQuestion) || draftQuestion?.id === pronounMatching.id) ? draftQuestion : undefined)
+  const active = answered ?? ((usesChoiceDraft(draftQuestion) || draftQuestion?.id === pronounMatching.id) ? draftQuestion : undefined)
     ?? stepQuestions.find(({ id }) => !hasScore(progress.attempt, id))
-  const bookChoice = !result && isBookChoice(active) ? active : undefined
+  const bookChoice = !result && usesChoiceDraft(active) ? active : undefined
   const selectedOption = bookChoice?.options.find(({ id }) => progress.choiceDraft?.exerciseId === bookChoice.id &&
     progress.choiceDraft.optionId === id)?.id
   const selectedOrder = bookChoice && progress.choiceDraft?.exerciseId === bookChoice.id
@@ -52,7 +53,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const catalogWord = newWord && catalogWords.find(({ catalogId }) => catalogId === newWord.word.catalogId)
   const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
   const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
-  const translationStep = bookChoice?.book.mode === 'translate'
+  const multipleChoiceStep = isMultipleChoice(bookChoice)
   const pronounsTheory = !result && step.id === 'pronouns-theory'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
@@ -92,11 +93,15 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
     onClose()
   }
 
+  const numbered = keyPhrasesStep || step.id === 'greetings-practice' ||
+    step.id === 'phrase-translation' || pronounsTheory || showMatching || multipleChoiceStep
+  const headerTitle = result ? 'Результат' : numbered
+    ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : stageTitles[step.id] ?? step.title
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep ? ' lesson-reader--multiple-choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : pronounsTheory ? 'Урок 1, часть 4' : showMatching ? `Урок 1, часть ${index + 1}` : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={headerTitle}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
@@ -132,7 +137,6 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
               if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
             }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
             score={progress.attempt[bookChoice.id]} order={selectedOrder}
-            characterSrc={step.id === 'phrase-translation' ? '/lesson-translation-character.svg' : undefined}
             onOrder={(order) => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) {
@@ -175,7 +179,9 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
             onContinue={() => {
               const previous = current()
               saveWordVisit(previous, finishWordIntro(previous, newWord, exercises, cloud), newWord)
-            }} /> : active && active.kind !== 'word_intro' ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} onAnswer={(answer) => {
+            }} /> : active && exerciseTemplate(active) === 'unsupported' ?
+            <p role="status">Этот тип задания пока не поддерживается.</p>
+          : active && active.kind !== 'word_intro' ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} onAnswer={(answer) => {
             setAnswered(active)
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}

@@ -17,7 +17,7 @@ export type TheoryPanel =
   | { kind: 'example-group'; items: BilingualExample[] }
   | { kind: 'dialogue-group'; dialogues: BilingualExample[][] }
 export type ReaderStep = { id: string; title: string; page: string } & (
-  { kind: 'theory'; panels: TheoryPanel[] } | { kind: 'practice'; exercises: Exercise[] }
+  { kind: 'theory'; panels: TheoryPanel[] } | { kind: 'practice'; exercises: Exercise[]; partStarts?: string[] }
 )
 
 function practice(...ids: string[]) {
@@ -48,7 +48,7 @@ export const lessonSteps: ReaderStep[] = [
     ] },
   ] },
   { id: 'pronouns-practice', kind: 'practice', title: 'Практика местоимений', page: '14–15',
-    exercises: pronounPractice },
+    exercises: pronounPractice, partStarts: ['exercise-8-1'] },
   { id: 'olema-theory', kind: 'theory', title: 'MA OLEN NAINE, SA OLED MEES… — Я женщина, ты мужчина…', page: '15', panels: [
     { kind: 'heading', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…' },
     { kind: 'highlight', panels: [

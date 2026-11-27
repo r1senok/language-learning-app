@@ -321,3 +321,34 @@ test('theory keeps highlight boundaries and the six pronoun forms and translatio
   assert.equal(negation.kind, 'highlight')
   assert.deepEqual(negation.panels.map(({ kind }) => kind), ['paragraph', 'table'])
 })
+
+test('lesson templates route choices, gaps, matching and unsupported content explicitly', async () => {
+  const { exerciseTemplate, lessonPart, multipleChoiceView, multipleChoiceState } = await import('../src/lessons/lessonTemplates.ts')
+  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { phraseTranslation } = await import('../src/lessons/tereLessonContent.ts')
+  const { pronounBookExercises } = await import('../src/lessons/pronounExercises.ts')
+  const phrase = phraseTranslation[8]
+  const word = pronounBookExercises[0]
+  assert.equal(exerciseTemplate(phrase), 'multiple_choice')
+  assert.equal(exerciseTemplate(word), 'multiple_choice')
+  assert.equal(exerciseTemplate(lessonSteps[6].exercises[0]), 'fill_blank')
+  assert.equal(exerciseTemplate(lessonSteps[4].exercises[0]), 'matching_pairs')
+  assert.equal(exerciseTemplate({ kind: 'future-audio-task' }), 'unsupported')
+  assert.equal(exerciseTemplate({ kind: 'multiple_choice', book: { mode: 'match' } }), 'unsupported')
+  assert.equal(lessonPart(lessonSteps, 2, phrase.id), 3)
+  assert.equal(lessonPart(lessonSteps, 4, lessonSteps[4].exercises[0].id), 5)
+  assert.equal(lessonPart(lessonSteps, 4, word.id), 6)
+  assert.equal(multipleChoiceView(phrase).presentation.kind, 'speech')
+  assert.equal(multipleChoiceView(phrase).answerText, undefined)
+  assert.equal(multipleChoiceView(word).presentation.kind, 'text')
+  assert.equal(multipleChoiceView(word).answerText, 'mina')
+  for (const exercise of [phrase, word]) {
+    const wrong = exercise.options.find(({ id }) => !(exercise.accepted ?? [exercise.correct]).includes(id)).id
+    assert.equal(multipleChoiceState(exercise, wrong), undefined)
+    assert.equal(multipleChoiceState(exercise, wrong, wrong), 'selected')
+    assert.equal(multipleChoiceState(exercise, wrong, wrong, 0), 'incorrect')
+    assert.equal(multipleChoiceState(exercise, exercise.correct, wrong, 0), 'correct')
+    assert.equal(multipleChoiceState(exercise, exercise.correct, exercise.correct, 1), 'correct')
+    assert.equal(multipleChoiceState(exercise, wrong, exercise.correct, 1), undefined)
+  }
+})

@@ -1,21 +1,23 @@
-import { TranslationChoiceCard } from './TranslationChoiceCard'
+import { MultipleChoiceCard } from './MultipleChoiceCard'
+import { exerciseTemplate } from './lessonTemplates'
 import { shuffledWordBank } from './wordBank'
 import { useMemo } from 'react'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
-import type { BookExercise } from './engine'
+import type { BookExercise, MultipleChoice } from './engine'
 
-export function BookChoiceCard({ actionTarget, exercise, selected, order, score, characterSrc, onSelect, onOrder, onCheck, onContinue }: {
-  actionTarget: HTMLDivElement | null; exercise: BookExercise; selected?: string; order: string[]; score?: number; characterSrc?: string
+export function BookChoiceCard({ actionTarget, exercise, selected, order, score, onSelect, onOrder, onCheck, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: BookExercise | MultipleChoice; selected?: string; order: string[]; score?: number
   onSelect: (option: string) => void; onOrder: (order: string[]) => void
   onCheck: () => void; onContinue: () => void
 }) {
   const { book, options } = exercise
   const choices = useMemo(() => exercise.kind === 'word_order'
     ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : exercise.options, [exercise])
-  if (exercise.kind === 'multiple_choice' && book.mode === 'translate') {
-    return <TranslationChoiceCard exercise={exercise} actionTarget={actionTarget} selected={selected}
-      score={score} characterSrc={characterSrc} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
+  if (exercise.kind === 'multiple_choice' && exerciseTemplate(exercise) === 'multiple_choice') {
+    return <MultipleChoiceCard exercise={exercise} actionTarget={actionTarget} selected={selected}
+      score={score} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
   }
+  if (!book) return <p>Этот тип задания пока не поддерживается.</p>
   const checked = score !== undefined
   const ordered = exercise.kind === 'word_order'
   const correct = ordered ? [] : exercise.accepted ?? [exercise.correct]

@@ -14,7 +14,8 @@ export function Lessons({ client, userId, onReaderChange, studyWord, catalogWord
   const { progress, save, syncError, storageError, current } = useLessonProgress(client, userId)
   const [screen, setScreen] = useState<'course' | 'lesson'>('course')
   const completed = hasScore(progress.best, completion)
-  const heading = lessons[0]!
+  const lessonIndex = 0
+  const heading = lessons[lessonIndex]!
   const canResume = Boolean(progress.stepId || Object.keys(progress.attempt).length && firstIncompleteStep(progress.attempt))
   const action = canResume ? 'Продолжить урок' : completed ? 'Повторить урок' : 'Начать'
 
@@ -36,7 +37,7 @@ export function Lessons({ client, userId, onReaderChange, studyWord, catalogWord
     {storageError && <p role="status" className="lesson-feedback">Хранилище устройства недоступно. Обновление страницы может сбросить текущую попытку.</p>}
     {syncError && !storageError && <p role="status" className="lesson-feedback">Облако пока недоступно. Урок сохраняется на этом устройстве.</p>}
   </>
-  if (screen === 'lesson') return <LessonReader steps={lessonSteps} progress={progress}
+  if (screen === 'lesson') return <LessonReader lessonNumber={lessonIndex + 1} steps={lessonSteps} progress={progress}
     current={current} save={save} onClose={close} studyWord={studyWord} catalogWords={catalogWords} cloud={Boolean(userId)} warnings={warnings} />
 
   return <section className="screen lessons" aria-labelledby="lessons-heading">
@@ -55,7 +56,7 @@ export function Lessons({ client, userId, onReaderChange, studyWord, catalogWord
       {action}
     </button>
     <ol className="course-lessons">{lessons.map((lesson, index) => <li key={index}>
-      {index === 0 ? <button className="course-lesson course-lesson--available" onClick={open}>
+      {index === lessonIndex ? <button className="course-lesson course-lesson--available" onClick={open}>
         <span className="course-lesson__index">1</span>
         <span><strong lang="et">{heading[0]}</strong><small>{heading[1]} · {completed ? 'Пройден' : 'Текущий урок'}</small></span>
         <Icon name={completed ? 'check' : 'book'} />

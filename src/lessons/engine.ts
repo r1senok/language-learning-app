@@ -7,8 +7,13 @@ type BookQuestion = {
 type Question = { id: string; prompt: string; explanation: string; exampleAudio?: string; scene?: { icon: string; label: string } }
 export type IntroWord = { catalogId: string; et: string; ru: string; forms?: string; note?: string }
 export type WordIntro = Question & { kind: 'word_intro'; word: IntroWord }
-export type Exercise = WordIntro | (Question & (
-  | { kind: 'multiple_choice'; options: Option[]; correct: string; accepted?: string[]; book?: BookQuestion }
+export type MultipleChoice = Question & {
+  kind: 'multiple_choice'; options: Option[]; correct: string; accepted?: string[]; book?: BookQuestion
+  instruction?: string; promptLanguage?: 'et' | 'ru'; optionLanguage?: 'et' | 'ru'
+  presentation?: { kind: 'text' } | { kind: 'speech'; characterSrc?: string }
+  showCorrectAnswer?: boolean
+}
+export type Exercise = WordIntro | MultipleChoice | (Question & (
   | { kind: 'fill_blank'; options: Option[]; correct: string }
   | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
   | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }

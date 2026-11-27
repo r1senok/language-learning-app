@@ -28,6 +28,7 @@ function questions(number: number, rows: readonly (readonly [string, string])[],
       [{ id: correct, text: correct }, ...shuffleForQuestion(options.filter((option) => option.id !== correct), id)
         .slice(0, optionCount - 1)], `${id}-options`)
     return { id, kind: 'multiple_choice', prompt, correct, options: variants, explanation: '',
+      ...(number === 8 && { instruction: 'Выберите перевод' }),
       book: { bookId: 'tere-a1', answerSource: 'vastused-215', lessonId, number, question: index + 1, total: rows.length, page: 15, heading, language } }
   })
 }

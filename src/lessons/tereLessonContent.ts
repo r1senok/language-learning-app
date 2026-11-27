@@ -44,6 +44,8 @@ export const phraseTranslation: BookChoice[] = translationRows.map(([prompt, cor
   const offset = index % choices.length
   return { id: `exercise-5-${index + 1}`, kind: 'multiple_choice', prompt, correct, accepted,
     options: [...choices.slice(offset), ...choices.slice(0, offset)].map((text) => ({ id: text, text })), explanation: '',
+    instruction: 'Выберите перевод', presentation: { kind: 'speech', characterSrc: '/lesson-translation-character.svg' },
+    showCorrectAnswer: false,
     book: metadata(14, 5, index + 1, translationRows.length, 'Переведите', 'ru', 'translate') }
 })
 
