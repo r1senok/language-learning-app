@@ -412,7 +412,7 @@
 .bottom-nav button { position: relative; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 18px; transition: .18s; }
 .bottom-nav button > span { width: 44px; height: 44px; border: 2px solid transparent; border-radius: 11px; display: grid; place-items: center; }
 .bottom-nav img { width: 29px; height: 29px; }
-.bottom-nav b { font-size: 14px; font-weight: 800; }
+.bottom-nav b { font-size: 13px; font-weight: 800; }
 .bottom-nav button.active { color: var(--color-primary); }
 .bottom-nav button.active > span { background: var(--brand-light); border-color: var(--info-border); }
 .bottom-nav button i { position: absolute; top: 1px; right: calc(50% - 29px); width: 18px; height: 18px; border-radius: 50%; background: var(--error); border: 2px solid white; color: white; font-size: 9px; font-style: normal; font-weight: 900; display: grid; place-items: center; }
@@ -1043,7 +1043,6 @@
   position: fixed; inset-inline: 0; bottom: 0; margin-inline: auto; width: min(100%, 656px);
   background: var(--color-background); padding-inline: max(12px, env(safe-area-inset-left), env(safe-area-inset-right)); box-shadow: none;
 }
-.bottom-nav--learning-path b { font-size: 13px; }
 .bottom-nav--learning-path img { width: 27px; height: 27px; }
 .learning-path-screen {
   max-width: 506px; margin-inline: auto;
