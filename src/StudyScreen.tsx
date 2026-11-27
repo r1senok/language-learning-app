@@ -97,32 +97,27 @@ function StudyCard({ word, feedback, isLocked, onAnswer }: {
   </>
 }
 
-export function StudyScreen({ word, feedback, round, completed, onClose, onAnswer, isLocked }: {
+export function StudyScreen({ word, feedback, round, completed, loading, onOpenCatalog, onAnswer, isLocked }: {
   word: Word | undefined
   feedback: AnswerFeedback
   round: number
   completed: boolean
-  onClose: () => void
+  loading: boolean
+  onOpenCatalog: () => void
   onAnswer: (known: boolean) => void
   isLocked: () => boolean
 }) {
-  const close = useRef<HTMLButtonElement>(null)
-  useEffect(() => { close.current?.focus() }, [])
-
-  return <main className="study-session" onKeyDown={(event) => {
-    if (event.key === 'Escape') onClose()
-  }}>
-    <section className="screen--study study-session__layout" aria-labelledby="study-session-heading">
-      <header className="study-session__header">
-        <button type="button" ref={close} aria-label="Закрыть изучение" onClick={onClose}><Icon name="close" /></button>
-        <h1 id="study-session-heading">Изучение</h1>
-      </header>
-      {word ? <StudyCard key={`${round}:${word.id}:${word.progress}`} word={word} feedback={feedback} isLocked={isLocked} onAnswer={onAnswer} />
-        : <div className="complete-state">
-          <h2>{completed ? 'Отличная работа!' : 'Очередь пуста'}</h2>
-          <p>{completed ? 'Все слова текущей тренировки выучены.' : 'Добавь слова, чтобы начать изучение.'}</p>
-          <button className="tactile-button tactile-button--primary" onClick={onClose}>К моим словам</button>
-        </div>}
-    </section>
-  </main>
+  return <section className="study-session screen--study study-session__layout" aria-labelledby="study-session-heading">
+    <header className="study-session__header">
+      <h1 id="study-session-heading">Изучение</h1>
+      {(word || loading) && <button type="button" className="profile-secondary" onClick={onOpenCatalog}>Общий словарь</button>}
+    </header>
+    {word ? <StudyCard key={`${round}:${word.id}:${word.progress}`} word={word} feedback={feedback} isLocked={isLocked} onAnswer={onAnswer} />
+      : loading ? <p role="status">Загружаем слова для изучения…</p>
+      : <div className="complete-state">
+        <h2>{completed ? 'Тренировка завершена!' : 'Пока нечего изучать'}</h2>
+        <p>Добавьте слова из общего словаря, чтобы начать изучение.</p>
+        <button type="button" className="tactile-button tactile-button--primary" onClick={onOpenCatalog}>Выбрать слова</button>
+      </div>}
+  </section>
 }
