@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { blocks, exercises, lessons } from '../src/lessons/course.ts'
-import { answerIsCorrect, completion, emptyProgress, finishWordIntro, hasScore, markWordDecision, loadLesson, markAnswer, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
+import { answerIsCorrect, completion, emptyProgress, finishWordIntro, hasScore, markWordDecision, loadLesson, markAnswer, moveLessonStage, nextExercise, resumeFromCloud } from '../src/lessons/engine.ts'
 
 const correct = (exercise) => exercise.kind === 'matching_pairs' ? exercise.pairs.map(({ id }) => id)
   : exercise.kind === 'word_order' ? exercise.order : [exercise.correct]
@@ -253,6 +253,28 @@ test('all ten sentence banks are stable, non-linear permutations of the original
   assert.equal(answerIsCorrect(repeated, ['1', '0', '2']), true)
   assert.equal(answerIsCorrect(repeated, ['0', '0', '2']), false)
   assert.equal(answerIsCorrect(repeated, ['1', '2', '0']), false)
+  const withDistractor = { ...repeated, options: [...repeated.options, { id: 'extra', text: 'on' }] }
+  assert.equal(answerIsCorrect(withDistractor, ['1', '0', '2']), true)
+  assert.equal(answerIsCorrect(withDistractor, ['1', 'extra', '2']), false)
+  assert.equal(answerIsCorrect(withDistractor, ['1', '0', '2', 'extra']), false)
+})
+
+test('randomized choices use a stored attempt seed and keep source data and saved tokens intact', async () => {
+  const { shuffledOptions } = await import('../src/lessons/wordBank.ts')
+  const items = ['ma', 'sa', 'ta', 'me', 'te', 'nad']
+  const saved = { best: {}, pending: {}, attempt: {}, attemptSeed: 'sample-session',
+    choiceDraft: { exerciseId: 'question', optionId: '', order: ['1'] } }
+  const restored = loadLesson('test', ['question'], { getItem: () => JSON.stringify(saved) })
+  assert.deepEqual(restored, saved)
+  const order = (seed, side) => shuffledOptions(items, `${seed}:question:${side}`)
+  const first = order(saved.attemptSeed, 'left')
+  assert.deepEqual(order(restored.attemptSeed, 'left'), first)
+  assert.notDeepEqual(order(saved.attemptSeed, 'right'), first)
+  assert.ok(['new-1', 'new-2', 'new-3'].some((seed) => first.join(',') !== order(seed, 'left').join(',')))
+  assert.deepEqual([...first].sort(), [...items].sort())
+  assert.deepEqual(items, ['ma', 'sa', 'ta', 'me', 'te', 'nad'])
+  assert.equal(moveLessonStage(restored, 'next').attemptSeed, saved.attemptSeed)
+  assert.equal(moveLessonStage(restored, 'replay', true).attemptSeed, undefined)
 })
 
 test('moving between stages parks persistent drafts and replay keeps the best result', async () => {
@@ -327,7 +349,8 @@ test('theory keeps highlight boundaries and the six pronoun forms and translatio
   assert.equal(note.kind, 'note')
   assert.equal(note.text.map(({ text }) => text).join(''),
     'Местоимения ОН и ОНА переводятся на эстонский язык одним словом tema (ta).')
-  const [negation] = lessonSteps.find(({ id }) => id === 'negation-theory').panels
+  const [heading, negation] = lessonSteps.find(({ id }) => id === 'negation-theory').panels
+  assert.equal(heading.label, 'Отрицание')
   assert.equal(negation.kind, 'content-group')
   assert.deepEqual(negation.panels.map(({ kind }) => kind), ['paragraph', 'table'])
 })

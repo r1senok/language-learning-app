@@ -1,11 +1,12 @@
-import { PhraseAudioButton } from './AudioPhrase'
+import { QuestionPrompt } from './QuestionPrompt'
+import { shuffledOptions } from './wordBank'
 import { ChoiceActionPanel } from './ExerciseActionPanel'
 import { multipleChoiceState, multipleChoiceView } from './lessonTemplates'
 import { AnswerGrid } from './AnswerGrid'
 import type { MultipleChoice } from './engine'
 
-export function MultipleChoiceCard({ actionTarget, exercise, selected, score, onSelect, onCheck, onContinue, onPlayAudio }: {
-  actionTarget: HTMLDivElement | null; exercise: MultipleChoice; selected?: string; score?: number
+export function MultipleChoiceCard({ actionTarget, exercise, attemptSeed, selected, score, onSelect, onCheck, onContinue, onPlayAudio }: {
+  actionTarget: HTMLDivElement | null; exercise: MultipleChoice; attemptSeed: string; selected?: string; score?: number
   onSelect: (option: string) => void; onCheck: () => void; onContinue: () => void
   onPlayAudio?: (text: string) => void
 }) {
@@ -14,16 +15,12 @@ export function MultipleChoiceCard({ actionTarget, exercise, selected, score, on
 
   return <div className="multiple-choice">
     <h2 className="lesson-accent-heading">{view.instruction}</h2>
-    {speech ? <div className="multiple-choice__prompt">
-      <img className="multiple-choice__character" src={speech.characterSrc} alt="" />
-      <div className="reader-phrase" lang={view.language}>
-        <div className="reader-phrase__body"><PhraseAudioButton text={exercise.prompt} onPlayAudio={onPlayAudio} /></div>
-      </div>
-    </div> : <p className="book-choice-prompt" lang={view.language}>{exercise.prompt}</p>}
-    <AnswerGrid className="multiple-choice__options" options={exercise.options} language={view.optionLanguage}
+    {speech ? <QuestionPrompt text={exercise.prompt} language={view.language}
+      characterSrc={speech.characterSrc} onPlayAudio={onPlayAudio} /> : <p className="book-choice-prompt" lang={view.language}>{exercise.prompt}</p>}
+    <AnswerGrid className="multiple-choice__options" options={shuffledOptions(exercise.options, `${attemptSeed}:${exercise.id}`)} language={view.optionLanguage}
       selected={selected} checked={score !== undefined} onSelect={onSelect}
       result={(id) => multipleChoiceState(exercise, id, selected, score)} />
-    <ChoiceActionPanel target={actionTarget} selected={selected} score={score} correctAnswer={view.answerText}
+    <ChoiceActionPanel target={actionTarget} ready={Boolean(selected)} score={score} correctAnswer={view.answerText}
       onCheck={onCheck} onContinue={onContinue} />
   </div>
 }

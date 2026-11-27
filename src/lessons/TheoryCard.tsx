@@ -17,7 +17,7 @@ function InlineTheory({ text }: { text: TheoryText }) {
 }
 
 function TheoryTable(panel: Omit<Extract<TheoryPanel, { kind: 'table' }>, 'kind'>) {
-  return <table className="reader-table" data-roomy={panel.roomy || undefined}>
+  const table = <table className="reader-table" data-roomy={panel.roomy || undefined}>
     {panel.title && <caption>{panel.title}</caption>}
     {panel.headers?.length ? <thead><tr>{panel.headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead> : null}
     <tbody>{panel.rows.map((row, rowIndex) => <tr key={rowIndex}>
@@ -26,6 +26,9 @@ function TheoryTable(panel: Omit<Extract<TheoryPanel, { kind: 'table' }>, 'kind'
       </td>)}
     </tr>)}</tbody>
   </table>
+  return panel.scrollable
+    ? <div className="reader-table-scroll" role="region" aria-label={panel.title ?? 'Таблица'} tabIndex={0}>{table}</div>
+    : table
 }
 
 function DialogueGroup({ dialogues, onPlayAudio }: {
@@ -57,7 +60,7 @@ export function TheoryCard({ panel, onPlayDialogueAudio }: { panel: TheoryPanel;
   if (panel.kind === 'heading') return <div className="reader-theory-heading">
     {panel.label && <p className="lesson-accent-heading">{panel.label}</p>}
     <h2 lang="et">{panel.title}</h2>
-    <p className="reader-theory-heading__subtitle">{panel.subtitle}</p>
+    {panel.subtitle && <p className="reader-theory-heading__subtitle">{panel.subtitle}</p>}
   </div>
   if (panel.kind === 'table') return <TheoryTable {...panel} />
   if (panel.kind === 'example') return <div className="reader-example-group"><Example item={panel.item} /></div>

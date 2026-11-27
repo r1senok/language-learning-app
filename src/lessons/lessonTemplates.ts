@@ -1,5 +1,4 @@
-import { isBookChoice } from './engine.ts'
-import type { BookChoice, BookExercise, Exercise, FillBlank, MultipleChoice } from './engine.ts'
+import type { BookChoice, Exercise, FillBlank, MultipleChoice, WordOrderExercise } from './engine.ts'
 import type { ReaderStep } from './readerContent.ts'
 
 export function exerciseTemplate(exercise: { kind: string; book?: { mode?: string } }) {
@@ -26,8 +25,8 @@ export function isFillBlank(exercise?: Exercise): exercise is FillBlank | (BookC
   return !!exercise && exerciseTemplate(exercise) === 'fill_blank'
 }
 
-export function usesChoiceDraft(exercise?: Exercise): exercise is MultipleChoice | BookExercise | FillBlank {
-  return isFillBlank(exercise) || isMultipleChoice(exercise) || (isBookChoice(exercise) && exerciseTemplate(exercise) !== 'unsupported')
+export function usesChoiceDraft(exercise?: Exercise): exercise is MultipleChoice | WordOrderExercise | FillBlank {
+  return isFillBlank(exercise) || isMultipleChoice(exercise) || exercise?.kind === 'word_order'
 }
 
 export function multipleChoiceView(exercise: MultipleChoice) {

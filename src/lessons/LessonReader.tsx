@@ -19,10 +19,6 @@ import { LessonReferenceSheet } from './LessonReferenceSheet'
 import type { Word } from '../types'
 import { studyGrammarRows } from '../domain/grammar'
 
-const stageTitles: Record<string, string> = {
-  'negation-theory': 'Отрицание',
-}
-
 export function LessonReader({ lessonNumber, steps, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
   lessonNumber: number; steps: ReaderStep[]; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
   onClose: () => void; studyWord: (catalogId: string) => boolean; catalogWords: Word[]; cloud: boolean; warnings: ReactNode
@@ -53,6 +49,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
   const fillBlankStep = isFillBlank(bookChoice)
   const multipleChoiceStep = isMultipleChoice(bookChoice)
+  const wordOrderStep = bookChoice?.kind === 'word_order'
   const pronounsTheory = !result && step.id === 'pronouns-theory'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
@@ -66,6 +63,12 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
     reader.current?.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
   }, [step.id, result, active?.id])
+
+  useLayoutEffect(() => {
+    if (!bookChoice && active?.kind !== 'matching_pairs') return
+    const latest = current()
+    if (!latest.attemptSeed) save({ ...latest, attemptSeed: crypto.getRandomValues(new Uint32Array(1))[0].toString(36) })
+  }, [bookChoice, active, current, save, progress.attemptSeed])
 
   function navigate(stepId: string, replay = false) {
     setAnswered(undefined)
@@ -96,13 +99,13 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   }
 
   const numbered = keyPhrasesStep || step.id === 'greetings-practice' ||
-    step.id === 'phrase-translation' || showMatching || multipleChoiceStep || fillBlankStep ||
+    step.id === 'phrase-translation' || showMatching || multipleChoiceStep || fillBlankStep || wordOrderStep ||
     (step.kind === 'theory' && step.panels.some((panel) => panel.kind === 'heading' && panel.label))
   const headerTitle = result ? 'Результат' : numbered
-    ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : stageTitles[step.id] ?? step.title
+    ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : step.title
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep ? ' lesson-reader--choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep || wordOrderStep ? ' lesson-reader--choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
     <ReaderHeader headingRef={heading} title={headerTitle}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
@@ -125,10 +128,9 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
               <p className="lesson-accent-heading">Начнём!</p>
               <h2>{step.title}</h2>
             </div>}
-            {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'heading') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
           </> : showMatching ? <MatchingCard key={active?.id} actionTarget={actionTarget} matched={matchedPairs}
-            pairs={pronounMatching.pairs} prompt="Сопоставьте короткую и полную формы"
+            pairs={pronounMatching.pairs} shuffleKey={`${progress.attemptSeed ?? ''}:${pronounMatching.id}`} prompt="Сопоставьте короткую и полную формы"
             leftLabel="Короткие формы" rightLabel="Полные формы"
             onMatch={(left, right) => {
               const previous = current()
@@ -138,7 +140,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
             onContinue={() => {
               const previous = current()
               if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
-            }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
+            }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} attemptSeed={progress.attemptSeed ?? ''} selected={selectedOption}
             score={progress.attempt[bookChoice.id]} order={selectedOrder} reference={fillBlankStep ? reference : undefined}
             onOrder={(order) => {
               const previous = current()
@@ -156,7 +158,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
               if (draft?.exerciseId !== bookChoice.id || hasScore(previous.attempt, bookChoice.id)) return
               const inputs = bookChoice.kind === 'word_order' ? selectedOrder : [draft.optionId]
               if (inputs.length && inputs.every((id) => bookChoice.options.some((option) => option.id === id)) &&
-                  (bookChoice.kind !== 'word_order' || inputs.length === bookChoice.options.length)) {
+                  (bookChoice.kind !== 'word_order' || inputs.length === bookChoice.order.length)) {
                 save(markAnswer(previous, bookChoice, inputs, exercises, cloud))
               }
             }} onContinue={() => {
@@ -184,7 +186,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
               saveWordVisit(previous, finishWordIntro(previous, newWord, exercises, cloud), newWord)
             }} /> : active && exerciseTemplate(active) === 'unsupported' ?
             <p role="status">Этот тип задания пока не поддерживается.</p>
-          : active && active.kind !== 'word_intro' ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} onAnswer={(answer) => {
+          : active?.kind === 'matching_pairs' ? <ExerciseCard key={active.id} actionTarget={actionTarget} exercise={active} attemptSeed={progress.attemptSeed ?? ''} onAnswer={(answer) => {
             setAnswered(active)
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}

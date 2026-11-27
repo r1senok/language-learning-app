@@ -1,3 +1,4 @@
+import { shuffledOptions } from './wordBank'
 import { useEffect, useRef, useState } from 'react'
 import { ExerciseActionPanel } from './ExerciseActionPanel'
 
@@ -6,25 +7,14 @@ type Side = 'left' | 'right'
 type Pick = { side: Side; id: string }
 type Feedback = Record<Side, string> & { result: 'correct' | 'incorrect' }
 
-export function MatchingCard({ pairs, prompt, leftLabel, rightLabel, matched, onMatch, onContinue, actionTarget }: {
-  pairs: Pair[]; prompt: string; leftLabel: string; rightLabel: string
+export function MatchingCard({ pairs, shuffleKey, prompt, leftLabel, rightLabel, matched, onMatch, onContinue, actionTarget }: {
+  pairs: Pair[]; shuffleKey: string; prompt: string; leftLabel: string; rightLabel: string
   matched: string[]; onMatch: (left: string, right: string) => void
   onContinue: () => void; actionTarget: HTMLDivElement | null
 }) {
   const [selected, setSelected] = useState<Pick>()
   const [feedback, setFeedback] = useState<Feedback>()
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const [right] = useState(() => {
-    const shuffled = [...pairs]
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const item = shuffled[i]
-      shuffled[i] = shuffled[j]
-      shuffled[j] = item
-    }
-    if (shuffled.length > 1 && shuffled.every(({ id }, i) => id === pairs[i].id)) shuffled.push(shuffled.shift()!)
-    return shuffled
-  })
   const done = matched.length === pairs.length
   useEffect(() => () => clearTimeout(timer.current), [])
 
@@ -52,7 +42,7 @@ export function MatchingCard({ pairs, prompt, leftLabel, rightLabel, matched, on
     {feedback?.result === 'incorrect' && <span className="sr-only" role="status">Пара не совпала. Попробуйте ещё раз.</span>}
     <div className="lesson-pairs">
       {(['left', 'right'] as const).map((side) => <div key={side} role="group" aria-label={side === 'left' ? leftLabel : rightLabel}>
-        {(side === 'left' ? pairs : right).map((pair) => {
+        {shuffledOptions(pairs, `${shuffleKey}:${side}`).map((pair) => {
           const completed = matched.includes(pair.id)
           const state = feedback && feedback[side] === pair.id ? feedback.result : completed ? 'completed' : undefined
           return <button className="lesson-option" type="button" lang="et" key={pair.id}

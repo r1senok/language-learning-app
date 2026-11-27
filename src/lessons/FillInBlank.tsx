@@ -1,10 +1,11 @@
+import { shuffledOptions } from './wordBank'
 import type { ReactNode } from 'react'
 import { AnswerGrid } from './AnswerGrid'
 import { ChoiceActionPanel } from './ExerciseActionPanel'
 import type { FillBlank, MultipleChoice } from './engine'
 
-export function FillInBlank({ exercise, reference, actionTarget, selected, score, onSelect, onCheck, onContinue }: {
-  exercise: FillBlank | MultipleChoice; reference?: ReactNode; actionTarget: HTMLDivElement | null
+export function FillInBlank({ exercise, attemptSeed, reference, actionTarget, selected, score, onSelect, onCheck, onContinue }: {
+  exercise: FillBlank | MultipleChoice; attemptSeed: string; reference?: ReactNode; actionTarget: HTMLDivElement | null
   selected?: string; score?: number; onSelect: (id: string) => void; onCheck: () => void; onContinue: () => void
 }) {
   const sentence = (exercise.kind === 'fill_blank' ? exercise.sentence : undefined) ?? (() => {
@@ -25,10 +26,10 @@ export function FillInBlank({ exercise, reference, actionTarget, selected, score
       lang={exercise.kind === 'multiple_choice' ? exercise.book?.language : exercise.sentence ? 'et' : undefined}>
       {sentence.before}<strong className="reader-accent" lang="et">{selectedText ?? '...'}</strong>{sentence.after}
     </p>
-    <AnswerGrid options={exercise.options} language="et" selected={selected} checked={score !== undefined}
+    <AnswerGrid options={shuffledOptions(exercise.options, `${attemptSeed}:${exercise.id}`)} language="et" selected={selected} checked={score !== undefined}
       result={(id) => score !== undefined && id === selected ? (score ? 'correct' : 'incorrect') : undefined}
       onSelect={onSelect} />
-    <ChoiceActionPanel target={actionTarget} selected={selected} score={score} correctAnswer={correctAnswer}
+    <ChoiceActionPanel target={actionTarget} ready={Boolean(selected)} score={score} correctAnswer={correctAnswer}
       idleContinue onCheck={onCheck} onContinue={onContinue} />
   </div>
 }

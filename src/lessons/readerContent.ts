@@ -12,11 +12,11 @@ export type TheoryText = string | { text: string; emphasis?: 'form' | 'strong'; 
 
 export type TheoryPanel =
   | { kind: 'content-group'; panels: TheoryPanel[]; tone?: 'theory'; padding?: 'none' | 'compact' | 'default'; edgeToEdge?: boolean }
-  | { kind: 'heading'; label?: string; title: string; subtitle: string }
+  | { kind: 'heading'; label?: string; title: string; subtitle?: string }
   | { kind: 'paragraph'; text: TheoryText }
   | { kind: 'note'; text: TheoryText }
   | { kind: 'phrases'; items: { et: string; ru: string; icon?: string }[] }
-  | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[]; roomy?: boolean }
+  | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[]; roomy?: boolean; scrollable?: boolean }
   | { kind: 'example'; item: BilingualExample }
   | { kind: 'example-group'; items: BilingualExample[]; tableHeaders?: [string, string] }
   | { kind: 'dialogue-group'; dialogues: DialogueLine[][] }
@@ -86,12 +86,17 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'olema-practice', kind: 'practice', title: 'Выбираем форму olema', page: '15',
     exercises: olemaPractice },
   { id: 'negation-theory', kind: 'theory', title: 'MA EI OLE NAINE, SA EI OLE MEES…', page: '16', panels: [
-    { kind: 'content-group', tone: 'theory', panels: [
+    { kind: 'heading', label: 'Отрицание', title: 'MA EI OLE NAINE, SA EI OLE MEES…' },
+    { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'Сказать он не мужчина, она не женщина можно двумя способами. Надо всего лишь добавить ei ole или pole.' },
-      { kind: 'table', title: 'EI OLE — НЕ (ЕСТЬ) — POLE', headers: ['EI OLE', 'НЕ (ЕСТЬ)', 'POLE'], accent: 2, estonianColumns: [0, 2],
+      { kind: 'table', title: 'EI OLE — НЕ (ЕСТЬ) — POLE', headers: ['EI OLE', 'НЕ (ЕСТЬ)', 'POLE'], estonianColumns: [0, 2], scrollable: true,
         rows: [
-          ['Ma / Sa / Ta → ei ole naine', 'Я / Ты / Он, она → не женщина', 'Mina / Sina / Tema → pole naine'],
-          ['Me / Te / Nad → ei ole naised', 'Мы / Вы / Они → не женщины', 'Meie / Teie / Nemad → pole naised'],
+          [[{ text: 'Ma / Sa / Ta → ' }, { text: 'ei ole', emphasis: 'form' }, { text: ' naine' }],
+            'Я / Ты / Он, она → не женщина',
+            [{ text: 'Mina / Sina / Tema → ' }, { text: 'pole', emphasis: 'form' }, { text: ' naine' }]],
+          [[{ text: 'Me / Te / Nad → ' }, { text: 'ei ole', emphasis: 'form' }, { text: ' naised' }],
+            'Мы / Вы / Они → не женщины',
+            [{ text: 'Meie / Teie / Nemad → ' }, { text: 'pole', emphasis: 'form' }, { text: ' naised' }]],
         ] },
     ] },
   ] },

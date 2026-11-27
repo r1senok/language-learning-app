@@ -14,9 +14,9 @@ export type MultipleChoice = Question & {
   showCorrectAnswer?: boolean
 }
 export type FillBlank = Question & { kind: 'fill_blank'; options: Option[]; correct: string; sentence?: { before: string; after: string } }
-export type Exercise = WordIntro | MultipleChoice | FillBlank | (Question & (
+export type WordOrderExercise = Question & { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
+export type Exercise = WordIntro | MultipleChoice | FillBlank | WordOrderExercise | (Question & (
   | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
-  | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
 ))
 
 export type BookChoice = Extract<Exercise, { kind: 'multiple_choice' }> & { book: BookQuestion }
@@ -44,7 +44,7 @@ export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
 export type WordDecision = 'known' | 'learn'
 type ChoiceDraft = { exerciseId: string; optionId: string; order?: string[] }
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft>; wordDecisions?: Record<string, WordDecision> }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; attemptSeed?: string; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft>; wordDecisions?: Record<string, WordDecision> }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -99,7 +99,7 @@ export function resumeFromCloud(progress: LessonProgress, remote: Scores) {
 }
 
 export function moveLessonStage(progress: LessonProgress, stepId: string, replay = false): LessonProgress {
-  if (replay) return { ...progress, stepId, attempt: {}, choiceDraft: undefined, stageDrafts: undefined, wordDecisions: undefined }
+  if (replay) return { ...progress, stepId, attempt: {}, attemptSeed: undefined, choiceDraft: undefined, stageDrafts: undefined, wordDecisions: undefined }
   const stageDrafts = { ...progress.stageDrafts }
   if (progress.stepId && progress.choiceDraft) stageDrafts[progress.stepId] = progress.choiceDraft
   const choiceDraft = Object.prototype.hasOwnProperty.call(stageDrafts, stepId) ? stageDrafts[stepId] : undefined
@@ -137,6 +137,7 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
     const wordDecisions = Object.fromEntries(Object.entries(parsed.wordDecisions ?? {}).filter(([id, value]) =>
       ids.includes(id) && (value === 'known' || value === 'learn'))) as Record<string, WordDecision>
     return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
+      ...(typeof parsed.attemptSeed === 'string' && { attemptSeed: parsed.attemptSeed }),
       ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }),
       ...(choiceDraft && { choiceDraft }),
       ...(Object.keys(wordDecisions).length > 0 && { wordDecisions }),

@@ -1,4 +1,5 @@
 import { lessonId } from './course.ts'
+import { shuffledOptions } from './wordBank.ts'
 import type { BookChoice, Option } from './engine.ts'
 
 const translations = [
@@ -9,14 +10,8 @@ const forms = [
 ] as const
 
 function shuffleForQuestion(options: Option[], id: string) {
-  let seed = [...id].reduce((hash, char) => Math.imul(hash ^ char.charCodeAt(0), 16777619), 2166136261)
-  const shuffled = [...options]
-  for (let position = shuffled.length - 1; position > 0; position--) {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
-    const swap = seed % (position + 1)
-    ;[shuffled[position], shuffled[swap]] = [shuffled[swap], shuffled[position]]
-  }
-  return shuffled
+  // Keep the original distractor sets while learners see a per-attempt display order.
+  return shuffledOptions(options, id, (value, size) => value % size)
 }
 
 function questions(number: number, rows: readonly (readonly [string, string])[], choices: readonly string[],
