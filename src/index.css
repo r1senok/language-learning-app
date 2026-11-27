@@ -1093,11 +1093,11 @@
   position: relative; display: grid; place-items: center; height: var(--path-node); pointer-events: none;
 }
 .learning-path__node {
-  z-index: 1; display: grid; place-items: center; width: var(--path-node); aspect-ratio: 1;
+  position: relative; z-index: 1; display: grid; place-items: center; width: var(--path-node); aspect-ratio: 1;
   border-radius: 50%; border-bottom: 5px solid #b1b1b1;
   background: var(--path-locked); color: #777; font-size: 28px; font-weight: 1000; line-height: 1;
 }
-.learning-path__node svg {
+.learning-path__node > svg {
   width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 4;
   stroke-linecap: round; stroke-linejoin: round;
 }
@@ -1121,11 +1121,11 @@
 .learning-path__connector[data-status="completed"] { background: var(--path-done); }
 .learning-path__connector[data-status="current"] { background: var(--path-blue); }
 .learning-path__lock {
-  z-index: 1; position: absolute; inset-inline-start: 50%;
-  top: 50%; transform: translate(-50%, -50%); display: grid; place-items: center;
-  width: 28px; aspect-ratio: 1; border-radius: 50%; background: var(--path-locked); color: #aaa;
+  position: absolute; inset-inline-end: -3px; inset-block-end: -4px; display: grid; place-items: center;
+  width: 24px; aspect-ratio: 1; border: 2px solid var(--color-background); border-radius: 50%;
+  background: var(--path-locked); color: #777;
 }
-.learning-path__lock svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+.learning-path__lock svg { width: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
 .learning-path__label, .learning-path__active {
   position: relative; text-align: start; overflow-wrap: anywhere; line-height: 1.35;
   font-size: clamp(15px, 4.2vw, 18px); font-weight: 800;

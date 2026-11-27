@@ -4,7 +4,6 @@ import type { PathLesson } from './learningPath'
 
 export function LearningPath({ lessons, onOpen }: { lessons: readonly PathLesson[]; onOpen: (number: number) => void }) {
   const path = learningPath(lessons)
-  const firstLocked = path.findIndex(({ status }) => status === 'locked')
 
   return <ol className="learning-path" aria-label="Уроки">
     {path.map(({ number, title, status, available, progress, started }, index) => {
@@ -16,9 +15,7 @@ export function LearningPath({ lessons, onOpen }: { lessons: readonly PathLesson
 
       return <li key={number} className="learning-path__lesson" data-status={status}
         aria-current={current ? 'step' : undefined}>
-        {next && <span className="learning-path__connector" data-status={next.status} aria-hidden="true">
-          {index + 1 === firstLocked && <span className="learning-path__lock"><Icon name="lock" /></span>}
-        </span>}
+        {next && <span className="learning-path__connector" data-status={next.status} aria-hidden="true" />}
         <div className="learning-path__rail">
           {current && <svg className="learning-path__ring" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="46" />
@@ -27,6 +24,7 @@ export function LearningPath({ lessons, onOpen }: { lessons: readonly PathLesson
           </svg>}
           <span className="learning-path__node" aria-hidden="true">
             {completed ? <svg viewBox="0 0 24 24"><path d="m4 12 5 5L20 6" /></svg> : number}
+            {locked && <span className="learning-path__lock"><Icon name="lock" /></span>}
           </span>
         </div>
         {current ? <button type="button" className="learning-path__active" onClick={() => onOpen(number)}
