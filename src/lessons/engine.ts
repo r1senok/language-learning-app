@@ -13,8 +13,8 @@ export type MultipleChoice = Question & {
   presentation?: { kind: 'text' } | { kind: 'speech'; characterSrc?: string }
   showCorrectAnswer?: boolean
 }
-export type Exercise = WordIntro | MultipleChoice | (Question & (
-  | { kind: 'fill_blank'; options: Option[]; correct: string }
+export type FillBlank = Question & { kind: 'fill_blank'; options: Option[]; correct: string; sentence?: { before: string; after: string } }
+export type Exercise = WordIntro | MultipleChoice | FillBlank | (Question & (
   | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
   | { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
 ))

@@ -1,18 +1,25 @@
 import { MultipleChoiceCard } from './MultipleChoiceCard'
-import { exerciseTemplate } from './lessonTemplates'
+import { FillInBlank } from './FillInBlank'
+import type { ReactNode } from 'react'
+import { exerciseTemplate, isFillBlank } from './lessonTemplates'
 import { shuffledWordBank } from './wordBank'
 import { useMemo } from 'react'
 import { ReaderAction, ReaderInstruction } from './ReaderLayout'
-import type { BookExercise, MultipleChoice } from './engine'
+import type { BookExercise, FillBlank, MultipleChoice } from './engine'
 
-export function BookChoiceCard({ actionTarget, exercise, selected, order, score, onSelect, onOrder, onCheck, onContinue }: {
-  actionTarget: HTMLDivElement | null; exercise: BookExercise | MultipleChoice; selected?: string; order: string[]; score?: number
+export function BookChoiceCard({ actionTarget, exercise, selected, order, score, reference, onSelect, onOrder, onCheck, onContinue }: {
+  actionTarget: HTMLDivElement | null; exercise: BookExercise | MultipleChoice | FillBlank; reference?: ReactNode; selected?: string; order: string[]; score?: number
   onSelect: (option: string) => void; onOrder: (order: string[]) => void
   onCheck: () => void; onContinue: () => void
 }) {
-  const { book, options } = exercise
+  const { options } = exercise
   const choices = useMemo(() => exercise.kind === 'word_order'
     ? shuffledWordBank(exercise.id, exercise.options, exercise.order) : exercise.options, [exercise])
+  if (isFillBlank(exercise)) {
+    return <FillInBlank exercise={exercise} reference={reference} actionTarget={actionTarget} selected={selected}
+      score={score} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
+  }
+  const { book } = exercise
   if (exercise.kind === 'multiple_choice' && exerciseTemplate(exercise) === 'multiple_choice') {
     return <MultipleChoiceCard exercise={exercise} actionTarget={actionTarget} selected={selected}
       score={score} onSelect={onSelect} onCheck={onCheck} onContinue={onContinue} />
@@ -24,17 +31,14 @@ export function BookChoiceCard({ actionTarget, exercise, selected, order, score,
   const valid = ordered ? order.length === options.length : Boolean(selected)
   const answer = ordered ? exercise.explanation : correct.join(' / ')
   const optionText = (id: string) => options.find((option) => option.id === id)?.text
-  const gap = book.mode === 'gap' ? exercise.prompt.split('…') : undefined
 
   return <div className="new-word-card book-choice-card">
     {book.mode !== 'translate' && <ReaderInstruction>
-      {ordered ? 'Соберите предложение' : gap ? 'Заполните пропуск' : book.heading}
+      {ordered ? 'Соберите предложение' : book.heading}
     </ReaderInstruction>}
-    {gap ? <p className="book-choice-prompt" lang="et">
-      {gap[0]}<strong className="reader-accent">{selected || '…'}</strong>{gap[1]}
-    </p> : <p className="book-choice-prompt" lang={book.language}>
+    <p className="book-choice-prompt" lang={book.language}>
       {exercise.prompt}{book.language === 'et' && ' → ?'}
-    </p>}
+    </p>
     {ordered && <div className="lesson-bank" aria-label="Собранное предложение">
       {order.map((id) => <button className="lesson-option" type="button" key={id} lang="et" disabled={checked}
         onClick={() => onOrder(order.filter((part) => part !== id))}>{optionText(id)}</button>)}

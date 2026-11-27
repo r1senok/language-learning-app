@@ -16,7 +16,7 @@ export type TheoryPanel =
   | { kind: 'paragraph'; text: TheoryText }
   | { kind: 'note'; text: TheoryText }
   | { kind: 'phrases'; items: { et: string; ru: string; icon?: string }[] }
-  | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[] }
+  | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[]; roomy?: boolean }
   | { kind: 'example'; item: BilingualExample }
   | { kind: 'example-group'; items: BilingualExample[]; tableHeaders?: [string, string] }
   | { kind: 'dialogue-group'; dialogues: DialogueLine[][] }
@@ -31,6 +31,15 @@ function practice(...ids: string[]) {
 const pronounRows: [string, string, string][] = [
   ['Mina', 'Ma', 'Я'], ['Sina', 'Sa', 'Ты'], ['Tema', 'Ta', 'Он / она'],
   ['Meie', 'Me', 'Мы'], ['Teie', 'Te', 'Вы'], ['Nemad', 'Nad', 'Они'],
+]
+
+const olemaForms = [
+  { subject: 'Ma', verb: 'olen', russian: 'Я', role: 'mees', russianRole: 'мужчина' },
+  { subject: 'Sa', verb: 'oled', russian: 'Ты', role: 'mees', russianRole: 'мужчина' },
+  { subject: 'Ta', verb: 'on', russian: 'Он', role: 'mees', russianRole: 'мужчина' },
+  { subject: 'Me', verb: 'oleme', russian: 'Мы', role: 'mehed', russianRole: 'мужчины' },
+  { subject: 'Te', verb: 'olete', russian: 'Вы', role: 'mehed', russianRole: 'мужчины' },
+  { subject: 'Nad', verb: 'on', russian: 'Они', role: 'mehed', russianRole: 'мужчины' },
 ]
 
 export const lessonSteps: ReaderStep[] = [
@@ -58,14 +67,10 @@ export const lessonSteps: ReaderStep[] = [
     { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'В русском языке глагол быть в настоящем времени опускается. Русские не говорят: Я есть женщина или Он есть мужчина, а просто: Я женщина, Он мужчина.' },
       { kind: 'paragraph', text: 'В эстонском языке, как и во многих европейских языках, глагол быть (olema) в настоящем времени употребляется. Его надо выучить, как Отче наш!' },
-      { kind: 'example-group', tableHeaders: ['Местоимение', 'Перевод'], items: [
-        { before: 'Ma ', accent: 'olen', after: ' mees.', ru: 'Я (есть) мужчина.' },
-        { before: 'Sa ', accent: 'oled', after: ' mees.', ru: 'Ты (есть) мужчина.' },
-        { before: 'Ta ', accent: 'on', after: ' mees.', ru: 'Он (есть) мужчина.' },
-        { before: 'Me ', accent: 'oleme', after: ' mehed.', ru: 'Мы (есть) мужчины.' },
-        { before: 'Te ', accent: 'olete', after: ' mehed.', ru: 'Вы (есть) мужчины.' },
-        { before: 'Nad ', accent: 'on', after: ' mehed.', ru: 'Они (есть) мужчины.' },
-      ] },
+      { kind: 'example-group', tableHeaders: ['Местоимение', 'Перевод'],
+        items: olemaForms.map(({ subject, verb, russian, role, russianRole }) => ({
+          before: subject + ' ', accent: verb, after: ` ${role}.`, ru: `${russian} (есть) ${russianRole}.`,
+        })) },
     ] },
     { kind: 'dialogue-group', dialogues: [
       [
@@ -95,25 +100,25 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'sentence-translation', kind: 'practice', title: 'Перевод предложений', page: '16', exercises: sentenceTranslation },
 ]
 
-export type LessonReference = {
+export type ReferenceContent = {
   id: string
   title: string
   exerciseIds: string[]
   panels: TheoryPanel[]
 }
 
-export const lessonReferences: LessonReference[] = [{
+export const lessonReferences: ReferenceContent[] = [{
   id: 'tere-a1-01-olema-spikker',
   title: 'SPIKKER — ШПАРГАЛКА',
   exerciseIds: olemaPractice.filter(({ book }) => book.number === 11 || book.number === 12).map(({ id }) => id),
-  panels: [
-    { kind: 'table', headers: ['Местоимение', 'Форма', 'Перевод'], accent: 1,
-      rows: [['Ma', 'OLEN', 'Я (есть)'], ['Sa', 'OLED', 'Ты (есть)'], ['Ta', 'ON', 'Он, она (есть)'],
-        ['Me', 'OLEME', 'Мы (есть)'], ['Te', 'OLETE', 'Вы (есть)'], ['Nad', 'ON', 'Они (есть)']] },
-  ],
+  panels: [{ kind: 'content-group', tone: 'theory', padding: 'none', panels: [
+    { kind: 'table', roomy: true, estonianColumns: [0],
+      rows: olemaForms.map(({ subject, verb, russian }) =>
+        [[{ text: subject + ' ' }, { text: verb, emphasis: 'form' }], `${russian} (есть)`]) },
+  ] }],
 }]
 
-export function referencesForExercise(references: LessonReference[], exerciseId: string) {
+export function referencesForExercise(references: ReferenceContent[], exerciseId: string) {
   return references.filter(({ exerciseIds }) => exerciseIds.includes(exerciseId))
 }
 

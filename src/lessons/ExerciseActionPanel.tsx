@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ReaderAction } from './ReaderLayout'
 
 export function ExerciseActionPanel({ target, outcome, animate, onAnimationEnd, correctAnswer, label, disabled, onAction }: {
@@ -19,4 +20,30 @@ export function ExerciseActionPanel({ target, outcome, animate, onAnimationEnd, 
       </div>
     </div>
   </ReaderAction>
+}
+
+export function ChoiceActionPanel({ target, selected, score, correctAnswer, idleContinue, onCheck, onContinue }: {
+  target: HTMLDivElement | null; selected?: string; score?: number; correctAnswer?: string; idleContinue?: boolean
+  onCheck: () => void; onContinue: () => void
+}) {
+  const [animating, setAnimating] = useState(false)
+  const checked = score !== undefined
+  const outcome = checked ? (score ? 'correct' : 'incorrect') : undefined
+
+  useEffect(() => {
+    if (!animating) return
+    const fallback = window.setTimeout(() => setAnimating(false), 400)
+    return () => window.clearTimeout(fallback)
+  }, [animating])
+
+  function check() {
+    if (!selected || checked) return
+    setAnimating(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    onCheck()
+  }
+
+  return <ExerciseActionPanel target={target} outcome={outcome}
+    correctAnswer={outcome === 'incorrect' ? correctAnswer : undefined} animate={checked && animating}
+    onAnimationEnd={() => setAnimating(false)} disabled={checked ? animating : !selected}
+    label={checked || (idleContinue && !selected) ? 'Продолжить' : 'Проверить'} onAction={checked ? onContinue : check} />
 }

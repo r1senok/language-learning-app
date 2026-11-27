@@ -4,7 +4,7 @@ import { finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, 
 import type { Exercise, LessonProgress, WordIntro } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
 import type { ReaderStep } from './readerContent'
-import { exerciseTemplate, isMultipleChoice, lessonPart, usesChoiceDraft } from './lessonTemplates'
+import { exerciseTemplate, isFillBlank, isMultipleChoice, lessonPart, usesChoiceDraft } from './lessonTemplates'
 import { MatchingCard } from './MatchingCard'
 import { pronounMatching } from './tereLessonContent'
 import { foundPronounPairs, recordPronounPair } from './matchingProgress'
@@ -20,7 +20,6 @@ import type { Word } from '../types'
 import { studyGrammarRows } from '../domain/grammar'
 
 const stageTitles: Record<string, string> = {
-  'olema-practice': 'Формы olema',
   'negation-theory': 'Отрицание',
 }
 
@@ -52,10 +51,14 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   const catalogWord = newWord && catalogWords.find(({ catalogId }) => catalogId === newWord.word.catalogId)
   const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
   const introForms = catalogForms.length ? catalogForms : newWord?.word.forms?.split(', ') ?? []
+  const fillBlankStep = isFillBlank(bookChoice)
   const multipleChoiceStep = isMultipleChoice(bookChoice)
   const pronounsTheory = !result && step.id === 'pronouns-theory'
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
+  const reference = references.length > 0
+    ? <LessonReferenceSheet key={active?.id} references={references} compactTrigger={fillBlankStep} />
+    : undefined
   const matchedPairs = showMatching ? foundPronounPairs(progress) : []
   const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
@@ -93,13 +96,13 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   }
 
   const numbered = keyPhrasesStep || step.id === 'greetings-practice' ||
-    step.id === 'phrase-translation' || showMatching || multipleChoiceStep ||
+    step.id === 'phrase-translation' || showMatching || multipleChoiceStep || fillBlankStep ||
     (step.kind === 'theory' && step.panels.some((panel) => panel.kind === 'heading' && panel.label))
   const headerTitle = result ? 'Результат' : numbered
     ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : stageTitles[step.id] ?? step.title
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep ? ' lesson-reader--multiple-choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep ? ' lesson-reader--choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
     <ReaderHeader headingRef={heading} title={headerTitle}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
@@ -116,7 +119,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
         </ReaderAction>
       </div> : <>
         <div className="reader-panel">
-          {references.length > 0 && <LessonReferenceSheet key={`reference-${active?.id}`} references={references} />}
+          {!fillBlankStep && reference}
           {step.kind === 'theory' ? <>
             {keyPhrasesStep && <div className="reader-phrase-intro">
               <p className="lesson-accent-heading">Начнём!</p>
@@ -136,7 +139,7 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
               const previous = current()
               if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
             }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} selected={selectedOption}
-            score={progress.attempt[bookChoice.id]} order={selectedOrder}
+            score={progress.attempt[bookChoice.id]} order={selectedOrder} reference={fillBlankStep ? reference : undefined}
             onOrder={(order) => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) {

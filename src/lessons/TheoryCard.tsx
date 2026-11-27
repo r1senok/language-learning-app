@@ -17,7 +17,7 @@ function InlineTheory({ text }: { text: TheoryText }) {
 }
 
 function TheoryTable(panel: Omit<Extract<TheoryPanel, { kind: 'table' }>, 'kind'>) {
-  return <table className="reader-table">
+  return <table className="reader-table" data-roomy={panel.roomy || undefined}>
     {panel.title && <caption>{panel.title}</caption>}
     {panel.headers?.length ? <thead><tr>{panel.headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead> : null}
     <tbody>{panel.rows.map((row, rowIndex) => <tr key={rowIndex}>

@@ -225,7 +225,13 @@ test('olema theory keeps its grouped content and the reference is scoped to each
     assert.deepEqual(result, [11, 12].includes(book?.number) ? lessonReferences : [], id)
   }
   assert.equal(lessonReferences[0].exerciseIds.length, 12)
-  assert.equal(lessonReferences[0].panels[0].rows.length, 6)
+  const table = lessonReferences[0].panels[0].panels[0]
+  assert.equal(table.headers, undefined)
+  assert.deepEqual(table.rows.map(([forms, translation]) => [forms.map(({ text }) => text).join(''), translation]), [
+    ['Ma olen', 'Я (есть)'], ['Sa oled', 'Ты (есть)'], ['Ta on', 'Он (есть)'],
+    ['Me oleme', 'Мы (есть)'], ['Te olete', 'Вы (есть)'], ['Nad on', 'Они (есть)'],
+  ])
+  assert.deepEqual(table.rows.map(([forms]) => forms[1].text), panels[1].panels[2].items.map(({ accent }) => accent))
 })
 
 test('all ten sentence banks are stable, non-linear permutations of the original words', async () => {

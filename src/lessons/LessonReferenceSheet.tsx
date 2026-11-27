@@ -1,14 +1,14 @@
 import { useId, useRef } from 'react'
-import type { LessonReference } from './readerContent'
+import type { ReferenceContent } from './readerContent'
 import { Icon } from '../Icon'
 import { TheoryCard } from './TheoryCard'
 
-export function LessonReferenceSheet({ references }: { references: LessonReference[] }) {
+export function LessonReferenceSheet({ references, compactTrigger }: { references: ReferenceContent[]; compactTrigger?: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   return <>
-    <button type="button" className="lesson-option reader-reference-trigger" onClick={() => dialog.current?.showModal()}
-      aria-haspopup="dialog"><span aria-hidden="true">💡</span> Шпаргалка</button>
+    <button type="button" className={compactTrigger ? "reader-reference-trigger reader-reference-trigger--text" : "lesson-option reader-reference-trigger"} onClick={() => dialog.current?.showModal()}
+      aria-haspopup="dialog">{!compactTrigger && <span aria-hidden="true">💡 </span>}Шпаргалка</button>
     <dialog ref={dialog} className="reader-reference-sheet" aria-labelledby={titleId}
       onKeyDown={(event) => { if (event.key === 'Escape') event.stopPropagation() }}>
       <div className="reader-reference-sheet__heading">
