@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PhraseAudioButton } from './AudioPhrase'
-import { ReaderAction } from './ReaderLayout'
+import { ExerciseActionPanel } from './ExerciseActionPanel'
 import type { BookChoice } from './engine'
 
 export function TranslationChoiceCard({ actionTarget, exercise, selected, score, onSelect, onCheck, onContinue, onPlayAudio, characterSrc }: {
@@ -46,19 +46,8 @@ export function TranslationChoiceCard({ actionTarget, exercise, selected, score,
         </button>
       })}
     </div>
-    <ReaderAction target={actionTarget}>
-      <div className="translation-choice__footer" data-outcome={outcome} data-animate={checked && animating || undefined}
-        onAnimationEnd={(event) => { if (event.target === event.currentTarget) setAnimating(false) }}>
-        <div className="translation-choice__footer-inner">
-          {checked && <p className="translation-choice__feedback" role="status">
-            <span aria-hidden="true">{score ? '✓' : '×'}</span>{score ? 'Верно!' : 'Неверно!'}
-          </p>}
-          <button type="button" className={`tactile-button tactile-button--${checked ? (score ? 'green' : 'red') : 'primary'}`}
-            disabled={checked ? animating : !selected} onClick={checked ? onContinue : check}>
-            {checked ? 'Продолжить' : 'Проверить'}
-          </button>
-        </div>
-      </div>
-    </ReaderAction>
+    <ExerciseActionPanel target={actionTarget} outcome={outcome} animate={checked && animating}
+      onAnimationEnd={() => setAnimating(false)} disabled={checked ? animating : !selected}
+      label={checked ? 'Продолжить' : 'Проверить'} onAction={checked ? onContinue : check} />
   </div>
 }

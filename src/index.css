@@ -689,6 +689,10 @@
 .lesson-feedback { padding: 10px; border-radius: var(--radius-card); background: var(--surface-soft); }
 
 .lesson-reader {
+  --exercise-success: #00cb2c;
+  --exercise-success-soft: #d6f5e2;
+  --exercise-error: #ff4545;
+  --exercise-error-soft: #ffe4e4;
   --lesson-theory-background: #dcf0fc;
   --lesson-theory-header: #c6e7f9;
   --lesson-theory-border: #90d2f9;
@@ -806,16 +810,6 @@
 .book-choice-options .lesson-option { min-height: var(--primary-button-height); text-align: center; }
 
 .reader-action:empty { display: none; }
-.pronoun-matching {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px;
-}
-.pronoun-matching__complete { font-size: 14px; font-weight: 800; }
-.pronoun-matching .lesson-pairs { grid-column: 1 / -1; }
-.pronoun-matching .lesson-option { height: 44px; padding: 4px; text-align: center; }
-.pronoun-matching .lesson-option[data-result="correct"] {
-  border-color: #c3ddbb;
-}
-
 .reader-example-group, .reader-dialogue {
   border: 1px solid var(--lesson-border); border-radius: var(--radius-card); padding: var(--lesson-space); background: var(--color-background);
 }
@@ -906,12 +900,6 @@
 .word-intro__learn { background: #eab500; --tactile-side-width: 0px; --tactile-edge-color: #bd9000; }
 .word-intro__actions .tactile-button:not(:disabled):active { transform: translateY(2px); border-bottom-width: 2px; }
 
-.lesson-reader--translation {
-  --translation-success: #00cb2c;
-  --translation-success-soft: #d6f5e2;
-  --translation-error: #ff4545;
-  --translation-error-soft: #ffe4e4;
-}
 .translation-choice { display: grid; gap: clamp(12px, 4vw, 18px); min-width: 0; }
 .translation-choice__prompt {
   display: grid; grid-template-columns: clamp(56px, 22vw, 88px) minmax(0, 1fr); align-items: start; gap: clamp(16px, 6vw, 30px);
@@ -933,54 +921,54 @@ div.translation-choice__character { border-radius: var(--radius-card); backgroun
   background: #d6f2ff; border-color: var(--color-primary);
 }
 .translation-choice__options .lesson-option[data-result="correct"] {
-  background: var(--translation-success-soft); border-color: var(--translation-success);
+  background: var(--exercise-success-soft); border-color: var(--exercise-success);
 }
 .translation-choice__options .lesson-option[data-result="incorrect"] {
-  background: var(--translation-error-soft); border-color: var(--translation-error);
+  background: var(--exercise-error-soft); border-color: var(--exercise-error);
 }
-.lesson-reader--translation .reader-action { width: 100%; padding: 0; border: 0; overflow: clip; }
-.translation-choice__footer {
+:is(.lesson-reader--translation, .lesson-reader--matching) .reader-action { width: 100%; padding: 0; border: 0; overflow: clip; }
+.exercise-action-panel {
   border-top: var(--divider-width) solid var(--color-divider); background: var(--color-background);
 }
-.translation-choice__footer-inner {
+.exercise-action-panel__inner {
   display: grid; gap: 8px; width: min(100%, 600px); margin-inline: auto;
   padding: 10px max(var(--lesson-space), env(safe-area-inset-right))
     max(12px, env(safe-area-inset-bottom)) max(var(--lesson-space), env(safe-area-inset-left));
 }
-.translation-choice__footer[data-outcome] { border-top: 0; }
-.translation-choice__footer[data-outcome] .translation-choice__footer-inner {
+.exercise-action-panel[data-outcome] { border-top: 0; }
+.exercise-action-panel[data-outcome] .exercise-action-panel__inner {
   padding-top: calc(10px + var(--divider-width));
 }
-.translation-choice__footer[data-outcome="correct"] {
-  background: var(--translation-success-soft);
-  --translation-feedback-text: var(--lesson-text-correct);
+.exercise-action-panel[data-outcome="correct"] {
+  background: var(--exercise-success-soft);
+  --exercise-feedback-text: var(--lesson-text-correct);
 }
-.translation-choice__footer[data-outcome="incorrect"] {
-  background: var(--translation-error-soft);
-  --translation-feedback-text: var(--lesson-text-incorrect);
+.exercise-action-panel[data-outcome="incorrect"] {
+  background: var(--exercise-error-soft);
+  --exercise-feedback-text: var(--lesson-text-incorrect);
 }
-.translation-choice__feedback {
-  display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--translation-feedback-text);
+.exercise-action-panel__feedback {
+  display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--exercise-feedback-text);
   font-weight: 900;
 }
-.translation-choice__feedback span {
+.exercise-action-panel__feedback span {
   display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
-  color: #fff; background: var(--translation-feedback-text); line-height: 1;
+  color: #fff; background: var(--exercise-feedback-text); line-height: 1;
 }
-.translation-choice__footer .tactile-button {
+.exercise-action-panel .tactile-button {
   height: var(--primary-button-height); border-radius: var(--radius-card);
   --tactile-side-width: 0px; --tactile-edge-width: 4px;
 }
-.translation-choice__footer .tactile-button--green { background: var(--translation-success); --tactile-edge-color: #009823; }
-.translation-choice__footer .tactile-button--red { background: var(--translation-error); }
-.translation-choice__footer .tactile-button--primary:disabled {
+.exercise-action-panel .tactile-button--green { background: var(--exercise-success); --tactile-edge-color: #009823; }
+.exercise-action-panel .tactile-button--red { background: var(--exercise-error); }
+.exercise-action-panel .tactile-button--primary:disabled {
   background: #d8d8d8; color: var(--lesson-text-secondary); border-bottom-color: transparent; opacity: 1; text-shadow: none;
 }
 @media (prefers-reduced-motion: no-preference) {
   .translation-choice__options .lesson-option { transition: background-color .18s ease-out, border-color .18s ease-out, color .18s ease-out; }
-  .translation-choice__footer[data-animate="true"] { animation: translation-footer-in .25s ease-out .1s both; }
+  .exercise-action-panel[data-animate="true"] { animation: exercise-action-panel-in .25s ease-out .1s both; }
 }
-@keyframes translation-footer-in {
+@keyframes exercise-action-panel-in {
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
@@ -1013,4 +1001,21 @@ div.translation-choice__character { border-radius: var(--radius-card); backgroun
 .lesson-reader--pronouns .reader-table td { padding-block: clamp(12px, 4vw, 20px); font-weight: 750; }
 .lesson-reader--pronouns .reader-action {
   background: var(--lesson-theory-background); border-top-color: var(--lesson-theory-border);
+}
+
+.matching-card { display: grid; gap: var(--lesson-space); }
+.matching-card .lesson-pairs, .matching-card .lesson-pairs > div { gap: 12px; }
+.matching-card .lesson-option {
+  min-height: clamp(48px, 16vw, 72px); padding: 8px; text-align: center;
+}
+.matching-card .lesson-option[aria-pressed="true"] { border-color: var(--color-primary); background: #d6f2ff; }
+.matching-card .lesson-option[data-result="correct"] {
+  border-color: var(--exercise-success); background: var(--exercise-success-soft);
+}
+.matching-card .lesson-option[data-result="incorrect"] {
+  border-color: var(--exercise-error); background: var(--exercise-error-soft);
+}
+.matching-card .lesson-option[data-result="completed"] { color: var(--lesson-text-tertiary); opacity: .6; }
+@media (prefers-reduced-motion: no-preference) {
+  .matching-card .lesson-option { transition: color .18s ease-out, background-color .18s ease-out, border-color .18s ease-out, opacity .18s ease-out; }
 }

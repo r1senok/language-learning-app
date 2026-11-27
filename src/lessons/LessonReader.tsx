@@ -4,7 +4,7 @@ import { finishWordIntro, hasScore, isBookChoice, lessonResult, markAnswer, mark
 import type { Exercise, LessonProgress, WordIntro } from './engine'
 import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
 import type { ReaderStep } from './readerContent'
-import { PronounMatchingCard } from './PronounMatchingCard'
+import { MatchingCard } from './MatchingCard'
 import { pronounMatching } from './tereLessonContent'
 import { foundPronounPairs, recordPronounPair } from './matchingProgress'
 import { BookChoiceCard } from './BookChoiceCard'
@@ -57,9 +57,7 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
   const keyPhrasesStep = !result && step.id === 'greetings-theory'
   const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
   const matchedPairs = showMatching ? foundPronounPairs(progress) : []
-  const stageProgress = result ? undefined : showMatching
-    ? { completed: matchedPairs.length, total: pronounMatching.pairs.length, label: 'Найдено пар' }
-    : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
+  const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
@@ -96,9 +94,9 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
 
   const previousStage = result ? steps[last - 1] : steps[index - 1]
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : pronounsTheory ? ' lesson-reader--pronouns' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : translationStep ? ' lesson-reader--translation' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
-    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : pronounsTheory ? 'Урок 1, часть 4' : stageTitles[step.id] ?? step.title}
+    <ReaderHeader headingRef={heading} title={result ? 'Результат' : keyPhrasesStep ? 'Урок 1, часть 1' : step.id === 'greetings-practice' ? 'Урок 1, часть 2' : step.id === 'phrase-translation' ? 'Урок 1, часть 3' : pronounsTheory ? 'Урок 1, часть 4' : showMatching ? `Урок 1, часть ${index + 1}` : stageTitles[step.id] ?? step.title}
       onBack={previousStage ? () => navigate(previousStage.id) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
@@ -121,7 +119,9 @@ export function LessonReader({ steps, progress, current, save, onClose, studyWor
             </div>}
             {stageTitles[step.id] && !step.panels.some(({ kind }) => kind === 'heading') && <h2>{step.title}</h2>}
             {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
-          </> : showMatching ? <PronounMatchingCard actionTarget={actionTarget} matched={matchedPairs}
+          </> : showMatching ? <MatchingCard key={active?.id} actionTarget={actionTarget} matched={matchedPairs}
+            pairs={pronounMatching.pairs} prompt="Сопоставьте короткую и полную формы"
+            leftLabel="Короткие формы" rightLabel="Полные формы"
             onMatch={(left, right) => {
               const previous = current()
               const nextProgress = recordPronounPair(previous, left, right, exercises, cloud)
