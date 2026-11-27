@@ -1006,8 +1006,12 @@
 }
 
 .matching-card { display: grid; gap: var(--lesson-space); }
-.matching-card .lesson-pairs, .matching-card .lesson-pairs > div { gap: 12px; }
-.matching-card .lesson-option {
+.matching-card .lesson-pairs, .matching-card .lesson-pairs > div,
+.multiple-choice__options[data-size="compact"] { gap: var(--lesson-space); }
+.multiple-choice__options[data-size="compact"] .lesson-option {
+  border-width: 2px; font-weight: 750; line-height: inherit;
+}
+.matching-card .lesson-option, .multiple-choice__options[data-size="compact"] .lesson-option {
   min-height: clamp(48px, 16vw, 72px); padding: 8px; text-align: center;
 }
 .matching-card .lesson-option[aria-pressed="true"] { border-color: var(--color-primary); background: #d6f2ff; }

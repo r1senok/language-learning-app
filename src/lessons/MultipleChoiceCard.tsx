@@ -35,7 +35,7 @@ export function MultipleChoiceCard({ actionTarget, exercise, selected, score, on
         <div className="reader-phrase__body"><PhraseAudioButton text={exercise.prompt} onPlayAudio={onPlayAudio} /></div>
       </div>
     </div> : <p className="book-choice-prompt" lang={view.language}>{exercise.prompt}</p>}
-    <div className="book-choice-options multiple-choice__options" aria-label="Варианты ответа">
+    <div className="book-choice-options multiple-choice__options" data-size={view.optionSize} aria-label="Варианты ответа">
       {exercise.options.map(({ id, text }) => {
         const state = multipleChoiceState(exercise, id, selected, score)
         return <button key={id} className="lesson-option" type="button" lang={view.optionLanguage} disabled={checked}

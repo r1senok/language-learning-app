@@ -29,6 +29,7 @@ export function usesChoiceDraft(exercise?: Exercise): exercise is MultipleChoice
 export function multipleChoiceView(exercise: MultipleChoice) {
   const presentation = exercise.presentation ?? (exercise.book?.mode === 'translate' ? { kind: 'speech' as const } : { kind: 'text' as const })
   return {
+    optionSize: exercise.options.length > 4 ? 'compact' : 'large',
     instruction: exercise.instruction ?? exercise.book?.heading ?? 'Выберите ответ',
     language: exercise.promptLanguage ?? exercise.book?.language,
     optionLanguage: exercise.optionLanguage ?? (exercise.book ? 'et' : undefined),
