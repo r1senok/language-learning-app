@@ -43,7 +43,7 @@ function Mascot({ small = false, className = '' }: { small?: boolean; className?
 export default function App() {
   const auth = useAuth(supabaseClient, returningFromAuth)
   const { catalog, reload } = usePublishedCatalog()
-  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'vocabulary')
+  const [primaryTab, setPrimaryTab] = useState<PrimaryTab>(returningFromAuth ? 'profile' : 'library')
   return <Takku key={auth.session?.user.id ?? 'guest'} auth={auth}
     primaryTab={primaryTab} setPrimaryTab={setPrimaryTab} catalog={catalog} reloadCatalog={reload} />
 }
@@ -271,8 +271,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       completed={sessionCompleted} onClose={closeStudy} onAnswer={answer}
       isLocked={() => answerTimer.current !== null}
     /> : <main className="phone-frame">
-      {!lessonReader && <header className="topbar">
-        <button className="brand" onClick={() => { setPrimaryTab('vocabulary'); setSessionCompleted(false) }} aria-label="На главную"><span>Takku</span></button>
+      {!lessonReader && <header className={primaryTab === 'library' ? 'topbar topbar--learning-path' : 'topbar'}>
+        <button className="brand" onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }} aria-label="На главную"><span>{primaryTab === 'library' ? 'takku' : 'Takku'}</span></button>
       </header>}
 
       <div className="content">
@@ -355,10 +355,10 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         </section>}
       </div>
 
-      {!lessonReader && <nav className="bottom-nav" aria-label="Основная навигация">
-        <button className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><Icon name="library" /></span><b>Уроки</b></button>
-        <button className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><Icon name="cards" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
-        <button className={primaryTab === 'profile' ? 'active' : ''} onClick={() => { setPrimaryTab('profile'); setSessionCompleted(false) }}><span><Icon name="profile" /></span><b>Профиль</b></button>
+      {!lessonReader && <nav className={primaryTab === 'library' ? 'bottom-nav bottom-nav--learning-path' : 'bottom-nav'} aria-label="Основная навигация">
+        <button aria-current={primaryTab === 'library' ? 'page' : undefined} className={primaryTab === 'library' ? 'active' : ''} onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }}><span><img src="/navigation/home.svg" alt="" /></span><b>Главная</b></button>
+        <button aria-current={primaryTab === 'vocabulary' ? 'page' : undefined} className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => setPrimaryTab('vocabulary')}><span><img src="/navigation/dictionary.svg" alt="" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
+        <button aria-current={primaryTab === 'profile' ? 'page' : undefined} className={primaryTab === 'profile' ? 'active' : ''} onClick={() => { setPrimaryTab('profile'); setSessionCompleted(false) }}><span><img src="/navigation/profile.svg" alt="" /></span><b>Профиль</b></button>
       </nav>}
     </main>}
 

@@ -392,3 +392,19 @@ test('lesson templates route choices, gaps, matching and unsupported content exp
     assert.equal(multipleChoiceState(exercise, wrong, exercise.correct, 1), undefined)
   }
 })
+
+test('learning path follows saved completion and only opens the next published lesson', async () => {
+  const { learningPath } = await import('../src/lessons/learningPath.ts')
+  const lessons = [1, 2, 3, 4, 5, 6].map((number) => ({
+    number, title: `Урок ${number}`, available: number !== 5, completed: number < 4,
+    progress: number === 4 ? 25 : 0, started: number === 4,
+  }))
+  const path = learningPath(lessons)
+  assert.deepEqual(path.map(({ status }) => status), ['completed', 'completed', 'completed', 'current', 'locked', 'locked'])
+  assert.equal(path[3].progress, 25)
+  assert.equal(path[3].started, true)
+  assert.equal(learningPath([{ ...lessons[0], completed: false }])[0].status, 'current')
+  assert.deepEqual(learningPath([]), [])
+  const next = learningPath(lessons.map((lesson) => ({ ...lesson, completed: lesson.number <= 4 })))
+  assert.deepEqual(next.map(({ status }) => status), ['completed', 'completed', 'completed', 'completed', 'locked', 'locked'])
+})
