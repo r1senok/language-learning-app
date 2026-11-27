@@ -810,15 +810,21 @@
 .book-choice-options .lesson-option { min-height: var(--primary-button-height); text-align: center; }
 
 .reader-action:empty { display: none; }
-.reader-example-group, .reader-dialogue {
+.reader-example-group {
   border: 1px solid var(--lesson-border); border-radius: var(--radius-card); padding: var(--lesson-space); background: var(--color-background);
 }
-.reader-example-group li, .reader-dialogue li { padding-block: 6px; }
+.reader-example-group li { padding-block: 6px; }
 .reader-example-group li + li { border-top: 1px solid var(--lesson-divider); }
-.reader-example-group [lang="et"], .reader-dialogue [lang="et"] { font-weight: 800; }
-.reader-example-group p + p, .reader-dialogue p + p { font-size: var(--lesson-caption-size); color: var(--lesson-text-secondary); }
-.reader-dialogue-group { display: grid; gap: 8px; }
-.reader-dialogue li + li { margin-inline-start: 10px; padding-inline-start: 10px; border-inline-start: 2px solid var(--lesson-border); }
+.reader-example-group [lang="et"] { font-weight: 800; }
+.reader-example-group p + p { font-size: var(--lesson-caption-size); color: var(--lesson-text-secondary); }
+.reader-dialogue-group { display: grid; gap: 16px; }
+.reader-dialogue { display: grid; gap: 8px; padding-inline: var(--lesson-space); }
+.reader-dialogue > li { width: fit-content; max-width: 100%; min-width: 0; }
+.reader-dialogue > li[data-side="right"] { justify-self: end; }
+.reader-phrase[data-side="right"], .reader-phrase[data-side="right"]::before { background: var(--surface-soft); }
+.reader-phrase[data-side="right"]::before {
+  inset-inline-start: auto; inset-inline-end: -8px; transform: rotate(225deg);
+}
 .reader-reference-trigger { justify-self: end; min-height: 44px; }
 .reader-reference-sheet {
   position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%, 600px); max-width: none;
@@ -978,29 +984,32 @@
 .reader-theory-heading { display: grid; gap: 8px; }
 .reader-theory-heading h2 { font-size: var(--lesson-title-size); line-height: 1.18; }
 .reader-theory-heading__subtitle { font-size: var(--lesson-emphasis-size); font-weight: 850; line-height: 1.3; }
-.reader-theory-highlight {
+.reader-content-group {
   display: grid; gap: 16px; min-width: 0; padding: 16px var(--lesson-space);
-  background: var(--lesson-theory-background); border-radius: var(--radius-card);
+  border-radius: var(--radius-card);
 }
+.reader-content-group[data-padding="none"] { padding: 0; }
+.reader-content-group[data-padding="compact"] { padding: var(--lesson-space); }
+.reader-content-group[data-tone="theory"] { background: var(--lesson-theory-background); }
 .reader-theory-paragraph { font-size: 1rem; line-height: 1.5; }
-.reader-theory-highlight .reader-table { border: 2px solid var(--lesson-theory-border); }
-.reader-theory-highlight .reader-table :is(th, td) {
+.reader-content-group[data-tone="theory"] .reader-table { border: 2px solid var(--lesson-theory-border); }
+.reader-content-group[data-tone="theory"] .reader-table :is(th, td) {
   padding: clamp(8px, 2.5vw, 12px); border-bottom: 2px solid var(--lesson-theory-border);
   overflow-wrap: anywhere;
 }
-.reader-theory-highlight .reader-table :is(th, td) + :is(th, td) {
+.reader-content-group[data-tone="theory"] .reader-table :is(th, td) + :is(th, td) {
   border-inline-start: 2px solid var(--lesson-theory-border);
 }
-.reader-theory-highlight .reader-table th {
+.reader-content-group[data-tone="theory"] .reader-table th {
   background: var(--lesson-theory-header); color: var(--text); font-size: 1rem;
 }
-.reader-theory-highlight .reader-table tbody tr:last-child td { border-bottom: 0; }
-.reader-theory-highlight .reader-accent { background: var(--lesson-theory-background); }
+.reader-content-group[data-tone="theory"] .reader-table tbody tr:last-child td { border-bottom: 0; }
+.reader-content-group[data-tone="theory"] .reader-accent { background: var(--lesson-theory-background); }
 .lesson-reader--pronouns .reader-content { padding-bottom: 0; }
-.lesson-reader--pronouns .reader-theory-highlight {
+.reader-content-group[data-edge-to-edge] {
   margin-inline: calc(-1 * var(--lesson-space)); border-radius: 0;
 }
-.lesson-reader--pronouns .reader-table td { padding-block: clamp(12px, 4vw, 20px); font-weight: 750; }
+.reader-content-group[data-tone="theory"][data-edge-to-edge] .reader-table td { padding-block: clamp(12px, 4vw, 20px); font-weight: 750; }
 .lesson-reader--pronouns .reader-action {
   background: var(--lesson-theory-background); border-top-color: var(--lesson-theory-border);
 }

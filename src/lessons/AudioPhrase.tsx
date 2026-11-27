@@ -15,10 +15,10 @@ export function PhraseAudioButton({ text, onPlayAudio }: {
   </>
 }
 
-export function AudioPhrase({ et, ru, onPlayAudio }: {
-  et: string; ru: string; onPlayAudio?: (text: string) => void
+export function AudioPhrase({ et, ru, side, onPlayAudio }: {
+  et: string; ru: string; side?: 'left' | 'right'; onPlayAudio?: (text: string) => void
 }) {
-  return <article className="reader-phrase">
+  return <article className="reader-phrase" data-side={side}>
     <div className="reader-phrase__body">
       <h3 lang="et"><PhraseAudioButton text={et} onPlayAudio={onPlayAudio} /></h3>
       <p>{ru}</p>

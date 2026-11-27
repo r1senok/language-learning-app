@@ -2,9 +2,9 @@ import { lessonSteps } from './readerContent.ts'
 import type { TheoryPanel } from './readerContent.ts'
 
 function panelAudioTexts(panel: TheoryPanel): string[] {
-  if (panel.kind === 'highlight') return panel.panels.flatMap(panelAudioTexts)
+  if (panel.kind === 'content-group') return panel.panels.flatMap(panelAudioTexts)
   if (panel.kind === 'phrases') return panel.items.map(({ et }) => et.split(' / ').join(' '))
-  const examples = panel.kind === 'example-group' ? panel.items : panel.kind === 'dialogue-group' ? panel.dialogues.flat() : []
+  const examples = panel.kind === 'example' ? [panel.item] : panel.kind === 'example-group' ? panel.items : panel.kind === 'dialogue-group' ? panel.dialogues.flat() : []
   return examples.map(({ before, accent, after }) => before + accent + after)
 }
 

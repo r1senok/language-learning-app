@@ -20,7 +20,6 @@ import type { Word } from '../types'
 import { studyGrammarRows } from '../domain/grammar'
 
 const stageTitles: Record<string, string> = {
-  'olema-theory': 'Глагол olema',
   'olema-practice': 'Формы olema',
   'negation-theory': 'Отрицание',
 }
@@ -94,7 +93,8 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   }
 
   const numbered = keyPhrasesStep || step.id === 'greetings-practice' ||
-    step.id === 'phrase-translation' || pronounsTheory || showMatching || multipleChoiceStep
+    step.id === 'phrase-translation' || showMatching || multipleChoiceStep ||
+    (step.kind === 'theory' && step.panels.some((panel) => panel.kind === 'heading' && panel.label))
   const headerTitle = result ? 'Результат' : numbered
     ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : stageTitles[step.id] ?? step.title
   const previousStage = result ? steps[last - 1] : steps[index - 1]

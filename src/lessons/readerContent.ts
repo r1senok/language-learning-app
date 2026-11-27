@@ -6,16 +6,20 @@ import type { Exercise, Scores } from './engine.ts'
 
 export type BilingualExample = { before: string; accent: string; after: string; ru: string }
 
+export type DialogueLine = BilingualExample & { side: 'left' | 'right'; audioSrc?: string }
+
 export type TheoryText = string | { text: string; emphasis?: 'form' | 'strong'; lang?: string }[]
 
 export type TheoryPanel =
-  | { kind: 'highlight'; panels: TheoryPanel[] }
+  | { kind: 'content-group'; panels: TheoryPanel[]; tone?: 'theory'; padding?: 'none' | 'compact' | 'default'; edgeToEdge?: boolean }
   | { kind: 'heading'; label?: string; title: string; subtitle: string }
   | { kind: 'paragraph'; text: TheoryText }
+  | { kind: 'note'; text: TheoryText }
   | { kind: 'phrases'; items: { et: string; ru: string; icon?: string }[] }
-  | { kind: 'table'; title?: string; headers: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[] }
-  | { kind: 'example-group'; items: BilingualExample[] }
-  | { kind: 'dialogue-group'; dialogues: BilingualExample[][] }
+  | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[] }
+  | { kind: 'example'; item: BilingualExample }
+  | { kind: 'example-group'; items: BilingualExample[]; tableHeaders?: [string, string] }
+  | { kind: 'dialogue-group'; dialogues: DialogueLine[][] }
 export type ReaderStep = { id: string; title: string; page: string } & (
   { kind: 'theory'; panels: TheoryPanel[] } | { kind: 'practice'; exercises: Exercise[]; partStarts?: string[] }
 )
@@ -36,12 +40,12 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'phrase-translation', kind: 'practice', title: 'Перевод фраз', page: '14', exercises: phraseTranslation },
   { id: 'pronouns-theory', kind: 'theory', title: 'MA, SA, TA, ME, TE, NAD — Я, ты, он, она, мы, вы, они', page: '14', panels: [
     { kind: 'heading', label: 'Местоимения', title: 'MA, SA, TA, ME, TE, NAD', subtitle: 'Я, ты, он, она, мы, вы, они' },
-    { kind: 'highlight', panels: [
+    { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'Личные местоимения в эстонском языке имеют две формы: длинную и короткую.' },
       { kind: 'table', headers: ['Местоимение', 'Перевод'], estonianColumns: [0],
         rows: pronounRows.map(([long, short, translation]) =>
           [[{ text: long, emphasis: 'form' }, { text: ' / ' }, { text: short, emphasis: 'form' }], translation]) },
-      { kind: 'paragraph', text: [
+      { kind: 'note', text: [
         { text: 'Местоимения ОН и ОНА переводятся на эстонский язык одним словом ' },
         { text: 'tema', emphasis: 'strong', lang: 'et' }, { text: ' (ta)', lang: 'et' }, { text: '.' },
       ] },
@@ -50,11 +54,11 @@ export const lessonSteps: ReaderStep[] = [
   { id: 'pronouns-practice', kind: 'practice', title: 'Практика местоимений', page: '14–15',
     exercises: pronounPractice, partStarts: ['exercise-8-1'] },
   { id: 'olema-theory', kind: 'theory', title: 'MA OLEN NAINE, SA OLED MEES… — Я женщина, ты мужчина…', page: '15', panels: [
-    { kind: 'heading', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…' },
-    { kind: 'highlight', panels: [
+    { kind: 'heading', label: 'Глагол olema', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…' },
+    { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'В русском языке глагол быть в настоящем времени опускается. Русские не говорят: Я есть женщина или Он есть мужчина, а просто: Я женщина, Он мужчина.' },
       { kind: 'paragraph', text: 'В эстонском языке, как и во многих европейских языках, глагол быть (olema) в настоящем времени употребляется. Его надо выучить, как Отче наш!' },
-      { kind: 'example-group', items: [
+      { kind: 'example-group', tableHeaders: ['Местоимение', 'Перевод'], items: [
         { before: 'Ma ', accent: 'olen', after: ' mees.', ru: 'Я (есть) мужчина.' },
         { before: 'Sa ', accent: 'oled', after: ' mees.', ru: 'Ты (есть) мужчина.' },
         { before: 'Ta ', accent: 'on', after: ' mees.', ru: 'Он (есть) мужчина.' },
@@ -65,19 +69,19 @@ export const lessonSteps: ReaderStep[] = [
     ] },
     { kind: 'dialogue-group', dialogues: [
       [
-        { before: 'Kes ta ', accent: 'on', after: '?', ru: 'Кто он (она)?' },
-        { before: 'Ta ', accent: 'on', after: ' õpetaja.', ru: 'Он (она) учитель.' },
+        { side: 'left', before: 'Kes ta ', accent: 'on', after: '?', ru: 'Кто он (она)?' },
+        { side: 'right', before: 'Ta ', accent: 'on', after: ' õpetaja.', ru: 'Он (она) учитель.' },
       ],
       [
-        { before: 'Kes sa ', accent: 'oled', after: '?', ru: 'Кто ты?' },
-        { before: 'Ma ', accent: 'olen', after: ' õpilane.', ru: 'Я ученик.' },
+        { side: 'left', before: 'Kes sa ', accent: 'oled', after: '?', ru: 'Кто ты?' },
+        { side: 'right', before: 'Ma ', accent: 'olen', after: ' õpilane.', ru: 'Я ученик.' },
       ],
     ] },
   ] },
   { id: 'olema-practice', kind: 'practice', title: 'Выбираем форму olema', page: '15',
     exercises: olemaPractice },
   { id: 'negation-theory', kind: 'theory', title: 'MA EI OLE NAINE, SA EI OLE MEES…', page: '16', panels: [
-    { kind: 'highlight', panels: [
+    { kind: 'content-group', tone: 'theory', panels: [
       { kind: 'paragraph', text: 'Сказать он не мужчина, она не женщина можно двумя способами. Надо всего лишь добавить ei ole или pole.' },
       { kind: 'table', title: 'EI OLE — НЕ (ЕСТЬ) — POLE', headers: ['EI OLE', 'НЕ (ЕСТЬ)', 'POLE'], accent: 2, estonianColumns: [0, 2],
         rows: [
