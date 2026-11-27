@@ -764,14 +764,14 @@
 .reader-phrase__body { position: relative; min-width: 0; }
 .reader-phrase__audio {
   display: flex; align-items: baseline; gap: 6px; text-align: start;
-  font-size: 20px; font-weight: 700;
+  font-size: 16px; font-weight: 700;
 }
 .reader-phrase__audio:disabled { cursor: default; }
 .reader-phrase__audio svg { align-self: center; width: 23px; flex: none; color: var(--color-secondary); }
 .reader-phrase__audio > span { overflow-wrap: anywhere; text-decoration: underline dotted #a4a4a4 2px; text-underline-offset: 5px; }
 .reader-phrase__body > p {
   margin: 5px 0 0 29px; color: var(--lesson-text-secondary);
-  font-size: 18px; font-weight: 600; overflow-wrap: anywhere;
+  font-size: 16px; font-weight: 600; overflow-wrap: anywhere;
 }
 .lesson-reader .tactile-button--primary {
   height: var(--primary-button-height); --tactile-side-width: 0px; --tactile-edge-width: 4px;
@@ -901,7 +901,7 @@
 }
 .answer-grid .lesson-option {
   display: grid; place-items: center; min-width: 0; min-height: clamp(108px, 39vw, 158px);
-  border-width: 3px; padding-block-end: 11px; text-decoration: none; line-height: 1.24; font-weight: 850;
+  border-width: 3px; padding-block-end: 11px; text-decoration: none; line-height: 1.24; font-size: 16px; font-weight: 700;
 }
 .answer-grid .lesson-option:disabled { opacity: 1; }
 .answer-grid .lesson-option[aria-pressed="true"] {
@@ -1001,7 +1001,7 @@
 .matching-card .lesson-pairs, .matching-card .lesson-pairs > div,
 .answer-grid[data-size="compact"] { gap: var(--lesson-space); }
 .answer-grid[data-size="compact"] .lesson-option {
-  border-width: 2px; font-weight: 750; line-height: inherit;
+  border-width: 2px; line-height: inherit;
 }
 .matching-card .lesson-option, .answer-grid[data-size="compact"] .lesson-option {
   min-height: clamp(48px, 16vw, 72px); padding: 8px; text-align: center;
