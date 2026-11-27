@@ -117,7 +117,7 @@
   top: 0;
 }
 
-.brand { display: flex; align-items: center; gap: 9px; color: var(--brand-dark); font-size: 22px; font-weight: 900; letter-spacing: -.5px; }
+.brand { display: flex; align-items: center; gap: 9px; color: var(--color-primary); font-size: 32px; font-weight: 1000; letter-spacing: -2px; }
 
 .content { padding-bottom: 104px; min-height: calc(100vh - 128px); }
 .content--study { padding-bottom: 0; }
@@ -1063,7 +1063,6 @@
   height: calc(56px + var(--safe-top)); padding: var(--safe-top) 14px 0; border: 0;
   background: var(--color-background);
 }
-.topbar--learning-path .brand { color: var(--color-primary); font-size: 32px; letter-spacing: -2px; font-weight: 1000; }
 .bottom-nav--learning-path {
   position: fixed; inset-inline: 0; bottom: 0; margin-inline: auto; width: min(100%, 656px);
   background: var(--color-background); padding-inline: max(12px, env(safe-area-inset-left), env(safe-area-inset-right)); box-shadow: none;
@@ -1132,7 +1131,7 @@
   font-size: var(--path-title-size); font-weight: 800;
 }
 .learning-path__label {
-  font-size: calc(var(--path-title-size) - 2px); font-weight: 700;
+  font-weight: 700;
   justify-self: start; width: fit-content; max-width: min(100%, 170px); padding: 13px 12px;
   border-radius: 15px; background: var(--path-locked); color: #777; margin-bottom: 24px;
 }

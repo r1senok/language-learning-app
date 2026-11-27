@@ -272,7 +272,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       isLocked={() => answerTimer.current !== null}
     /> : <main className="phone-frame">
       {!lessonReader && <header className={primaryTab === 'library' ? 'topbar topbar--learning-path' : 'topbar'}>
-        <button className="brand" onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }} aria-label="На главную"><span>{primaryTab === 'library' ? 'takku' : 'Takku'}</span></button>
+        <button className="brand" onClick={() => { setPrimaryTab('library'); setSessionCompleted(false) }} aria-label="На главную"><span>takku</span></button>
       </header>}
 
       <div className="content">
