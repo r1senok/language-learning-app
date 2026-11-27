@@ -8,8 +8,8 @@ export function ReaderHeader({ title, headingRef, onBack, onClose, progress }: {
 }) {
   return <header className="reader-bar">
     <div className="reader-bar__inner">
-      <button className="lesson-option reader-close reader-header-back" onClick={onBack}
-        disabled={!onBack} aria-label="К предыдущему этапу"><Icon name="back" /></button>
+      {onBack && <button className="lesson-option reader-close reader-header-back" onClick={onBack}
+        aria-label="К предыдущему этапу"><Icon name="back" /></button>}
       <h1 id="reader-heading" ref={headingRef} tabIndex={-1}>{title}</h1>
       <button className="lesson-option reader-close reader-header-exit" onClick={onClose} aria-label="Закрыть урок"><Icon name="close" /></button>
       {progress && <div className="reader-bar__progress">

@@ -709,7 +709,7 @@
   fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .reader-close:disabled { opacity: 1; cursor: default; }
-.reader-bar h1 { color: var(--lesson-text-tertiary); text-transform: uppercase; text-align: center; font-size: clamp(16px, 4.5vw, 20px); line-height: 1.15; font-weight: 850; }
+.reader-bar h1 { grid-column: 2; color: var(--lesson-text-tertiary); text-transform: uppercase; text-align: center; font-size: clamp(14px, calc(4.5vw - 2px), 18px); line-height: 1.15; font-weight: 850; }
 .reader-bar progress {
   display: block; width: 100%; height: 12px; appearance: none;
   border: 0; border-radius: 999px; overflow: hidden; background: var(--lesson-divider); color: #ffc300;
@@ -831,7 +831,7 @@
 .reader-reference-sheet__block { display: grid; gap: 8px; min-width: 0; }
 .reader-reference-sheet__block h3 { font-weight: 800; }
 
-.reader-header-exit { justify-self: end; }
+.reader-header-exit { grid-column: 3; justify-self: end; }
 .reader-bar__progress { grid-column: 1 / -1; }
 .reader-result {
   display: grid; justify-items: center; gap: 10px; padding: 12px 0; text-align: center;
@@ -973,7 +973,7 @@
 .reader-content-group[data-padding="none"] { padding: 0; }
 .reader-content-group[data-padding="compact"] { padding: var(--lesson-space); }
 .reader-content-group[data-tone="theory"] { background: var(--lesson-theory-background); }
-.reader-theory-paragraph { font-size: 1rem; line-height: 1.5; }
+.reader-theory-paragraph { font-size: 1.125rem; line-height: 1.5; }
 .reader-content-group[data-tone="theory"] .reader-table { border: 2px solid var(--lesson-theory-border); }
 .reader-content-group[data-tone="theory"] .reader-table :is(th, td) {
   padding: clamp(8px, 2.5vw, 12px); border-bottom: 2px solid var(--lesson-theory-border);
