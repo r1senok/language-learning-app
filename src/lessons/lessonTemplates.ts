@@ -27,11 +27,14 @@ export function usesChoiceDraft(exercise?: Exercise): exercise is MultipleChoice
 }
 
 export function multipleChoiceView(exercise: MultipleChoice) {
+  const presentation = exercise.presentation ?? (exercise.book?.mode === 'translate' ? { kind: 'speech' as const } : { kind: 'text' as const })
   return {
     instruction: exercise.instruction ?? exercise.book?.heading ?? 'Выберите ответ',
     language: exercise.promptLanguage ?? exercise.book?.language,
     optionLanguage: exercise.optionLanguage ?? (exercise.book ? 'et' : undefined),
-    presentation: exercise.presentation ?? { kind: 'text' as const },
+    presentation: presentation.kind === 'speech'
+      ? { kind: 'speech' as const, characterSrc: presentation.characterSrc ?? '/lesson-translation-character.svg' }
+      : { kind: 'text' as const },
     answerText: exercise.showCorrectAnswer === false ? undefined :
       (exercise.accepted ?? [exercise.correct]).map((id) => exercise.options.find((option) => option.id === id)?.text)
         .filter(Boolean).join(' / '),

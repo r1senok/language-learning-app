@@ -29,7 +29,7 @@ function questions(number: number, rows: readonly (readonly [string, string])[],
         .slice(0, optionCount - 1)], `${id}-options`)
     return { id, kind: 'multiple_choice', prompt, correct, options: variants, explanation: '',
       ...(number === 8 && { instruction: 'Выберите перевод' }),
-      book: { bookId: 'tere-a1', answerSource: 'vastused-215', lessonId, number, question: index + 1, total: rows.length, page: 15, heading, language } }
+      book: { bookId: 'tere-a1', answerSource: 'vastused-215', lessonId, number, question: index + 1, total: rows.length, page: 15, heading, language, ...(number === 8 && { mode: 'translate' as const }) } }
   })
 }
 

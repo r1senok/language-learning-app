@@ -340,7 +340,9 @@ test('lesson templates route choices, gaps, matching and unsupported content exp
   assert.equal(lessonPart(lessonSteps, 4, word.id), 6)
   assert.equal(multipleChoiceView(phrase).presentation.kind, 'speech')
   assert.equal(multipleChoiceView(phrase).answerText, undefined)
-  assert.equal(multipleChoiceView(word).presentation.kind, 'text')
+  assert.deepEqual(multipleChoiceView(word).presentation, multipleChoiceView(phrase).presentation)
+  assert.equal(multipleChoiceView({ ...word, presentation: { kind: 'text' } }).presentation.kind, 'text')
+  assert.equal(multipleChoiceView(pronounBookExercises[6]).presentation.kind, 'text')
   assert.equal(multipleChoiceView(word).answerText, 'mina')
   for (const exercise of [phrase, word]) {
     const wrong = exercise.options.find(({ id }) => !(exercise.accepted ?? [exercise.correct]).includes(id)).id

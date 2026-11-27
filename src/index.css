@@ -905,7 +905,6 @@
   display: grid; grid-template-columns: clamp(56px, 22vw, 88px) minmax(0, 1fr); align-items: start; gap: clamp(16px, 6vw, 30px);
 }
 .multiple-choice__character { width: 100%; aspect-ratio: 1; object-fit: contain; }
-div.multiple-choice__character { border-radius: var(--radius-card); background: var(--surface-soft); }
 .multiple-choice__prompt .reader-phrase { padding: 8px 12px; }
 .multiple-choice__prompt .reader-phrase::before { top: 19px; }
 .multiple-choice__prompt .reader-phrase__audio { font-size: clamp(16px, 4.5vw, 20px); }

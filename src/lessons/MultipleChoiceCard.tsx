@@ -30,8 +30,7 @@ export function MultipleChoiceCard({ actionTarget, exercise, selected, score, on
   return <div className="multiple-choice">
     <h2 className="lesson-accent-heading">{view.instruction}</h2>
     {speech ? <div className="multiple-choice__prompt">
-      {speech.characterSrc ? <img className="multiple-choice__character" src={speech.characterSrc} alt="" /> :
-        <div className="multiple-choice__character" aria-hidden="true" />}
+      <img className="multiple-choice__character" src={speech.characterSrc} alt="" />
       <div className="reader-phrase" lang={view.language}>
         <div className="reader-phrase__body"><PhraseAudioButton text={exercise.prompt} onPlayAudio={onPlayAudio} /></div>
       </div>
