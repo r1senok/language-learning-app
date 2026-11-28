@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
+import { QuestionPrompt } from './lessons/QuestionPrompt'
 import { ReaderHeader } from './lessons/ReaderLayout'
 import { StudyCount, TrainingHome } from './TrainingHome'
 import { WordTraining, wordForms } from './WordTraining'
@@ -41,10 +42,6 @@ const catalogErrorMessages = {
 const statusLabels = { new: 'Новое', learning: 'Изучаю', pending_reverse: 'Обратная проверка', learned: 'Выучено' }
 type TrainingMode = 'new' | 'review'
 type TrainingSession = { mode: TrainingMode; ids: WordId[]; total: number; introduced?: WordId }
-
-function Mascot({ small = false, className = '' }: { small?: boolean; className?: string }) {
-  return <img className={`mascot ${small ? 'mascot--small' : ''} ${className}`.trim()} src="/takku-dachshund.png" alt="" aria-hidden="true" />
-}
 
 export default function App() {
   const auth = useAuth(supabaseClient, returningFromAuth)
@@ -177,7 +174,9 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       ids: [...trainingIds.slice(1), ...(repeat ? [trainingWord.id] : [])] })
   }
 
-  const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
+  const metadata = session?.user.user_metadata
+  const accountName = [metadata?.full_name, metadata?.name, metadata?.display_name]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0)?.trim() ?? 'Ваш аккаунт'
 
   const addToStudy = (ids: WordId[]) => {
     const { words, queue } = currentProgress()
@@ -353,22 +352,20 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
           onStart={startTraining} onOpenCatalog={openCatalog} />}
 
         {primaryTab === 'profile' && <section className="screen screen--profile">
-          <div className="profile-hero">
-            <div className="profile-illustration"><div className="profile-cloud"><Icon name="cloud" /><span>✓</span></div><Mascot /></div>
-            <span className="eyebrow">ТВОЙ ПРОГРЕСС</span>
-            <h1>{session ? 'Твой аккаунт' : 'Сохрани свой прогресс'}</h1>
-            <p>{session ? session.user.email ?? 'Вы вошли в Takku' : 'Войдите по электронной почте или через Google'}</p>
-          </div>
-          <div className="guest-progress-card"><div className="guest-progress-card__icon">📱</div><div><b>{session ? 'Облачный прогресс' : 'Прогресс на этом устройстве'}</b><p role="status">{session
-            ? cloud?.status === 'synced' ? 'Синхронизировано' : cloud?.status === 'offline' ? 'Нет подключения' : 'Синхронизация…'
-            : 'Доступен в этом браузере'}</p></div><span>{learnedWords.length}/{words.length}</span></div>
-          {session ? (
-            <button className="profile-secondary" disabled={signingOut} onClick={() => void logout()}>
-              {signingOut ? 'Выходим…' : 'Выйти'}
-            </button>
-          ) : authReady ? <>
-            <button className="tactile-button tactile-button--primary tactile-button--wide profile-primary" onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
-            <button className="profile-secondary" onClick={() => setAuthIntent('signin')}>Войти</button>
+          {session ? <>
+            <div className="profile-identity">
+              <img src="/takku-profile-avatar.svg" alt="" width="88" height="88" />
+              <h1>{accountName}</h1>
+              {session.user.email && <p>{session.user.email}</p>}
+            </div>
+            <button type="button" className="tactile-button tactile-button--primary tactile-button--wide"
+              disabled={signingOut} onClick={() => void logout()}>{signingOut ? 'Выходим…' : 'Выйти'}</button>
+          </> : authReady ? <>
+            <QuestionPrompt text="Хочешь сохранить свой прогресс?" language="ru" plain />
+            <button type="button" className="tactile-button tactile-button--primary tactile-button--orange tactile-button--wide"
+              onClick={() => setAuthIntent('signup')}>Создать аккаунт</button>
+            <button type="button" className="tactile-button tactile-button--primary tactile-button--wide"
+              onClick={() => setAuthIntent('signin')}>Войти</button>
           </> : <p role="status">Проверяем вход…</p>}
           {cloud?.dormant && <p>Действия для снятых с публикации слов сохранены на этом устройстве.</p>}
           {cloud?.storageFailed && <p role="alert">Локальное сохранение ограничено. Оставьте Takku открытым до синхронизации.</p>}
@@ -379,11 +376,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             </span></div>}
           {signOutError && <p role="alert">{signOutError}</p>}
           {returnError && !session && <p role="alert">{returnError}</p>}
-          <div className="profile-stats">
-            <div><strong>{learnedWords.length}</strong><span>выучено</span></div>
-            <div><strong>{studyingCount}</strong><span>изучается</span></div>
-            <div><strong>{progress}%</strong><span>словаря</span></div>
-          </div>
         </section>}
       </div>
 
