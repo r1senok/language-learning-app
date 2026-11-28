@@ -60,6 +60,8 @@ export const legacyPronounExercises = [...matching(6), ...legacyMatchingSeven]
 
 export const pronounMatching = {
   id: 'exercise-7-matching', kind: 'matching_pairs', prompt: 'Сопоставьте пары', explanation: '',
+  instruction: 'Сопоставьте короткую и полную формы',
+  columnLabels: { left: 'Короткие формы', right: 'Полные формы' },
   book: metadata(14, 7, 1, 1, 'Соедините', 'et', 'match'),
   pairs: legacyMatchingSeven.map(({ id, prompt, correct }) => ({ id, left: prompt, right: correct })),
 } satisfies Exercise

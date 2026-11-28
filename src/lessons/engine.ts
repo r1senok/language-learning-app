@@ -16,7 +16,7 @@ export type MultipleChoice = Question & {
 export type FillBlank = Question & { kind: 'fill_blank'; options: Option[]; correct: string; sentence?: { before: string; after: string } }
 export type WordOrderExercise = Question & { kind: 'word_order'; options: Option[]; order: string[]; book?: BookQuestion }
 export type Exercise = WordIntro | MultipleChoice | FillBlank | WordOrderExercise | (Question & (
-  | { kind: 'matching_pairs'; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
+  | { kind: 'matching_pairs'; matchingMode?: 'submit'; instruction?: string; columnLabels?: { left: string; right: string }; book?: BookQuestion; pairs: { id: string; left: string; right: string }[] }
 ))
 
 export type BookChoice = Extract<Exercise, { kind: 'multiple_choice' }> & { book: BookQuestion }
@@ -44,7 +44,7 @@ export type Scores = Record<string, number>
 export const hasScore = (scores: Scores, id: string) => Object.prototype.hasOwnProperty.call(scores, id)
 export type WordDecision = 'known' | 'learn'
 type ChoiceDraft = { exerciseId: string; optionId: string; order?: string[] }
-export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; attemptSeed?: string; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft>; wordDecisions?: Record<string, WordDecision> }
+export type LessonProgress = { best: Scores; attempt: Scores; pending: Scores; partsVersion?: 1; attemptSeed?: string; stepId?: string; choiceDraft?: ChoiceDraft; stageDrafts?: Record<string, ChoiceDraft>; wordDecisions?: Record<string, WordDecision> }
 export const emptyProgress = (): LessonProgress => ({ best: {}, attempt: {}, pending: {} })
 
 export function nextExercise(exercises: Exercise[], answers: Scores) {
@@ -79,6 +79,14 @@ function recordCompletion(progress: LessonProgress, exercise: Exercise, score: n
   const best = mergeScores(progress.best, entries)
   const pending = cloud ? mergeScores(progress.pending, entries) : progress.pending
   return { ...progress, best, attempt, pending }
+}
+
+export function completeLesson(progress: LessonProgress, exercises: Exercise[], cloud: boolean) {
+  const score = lessonResult(exercises, progress).percent
+  if (hasScore(progress.best, completion) && progress.best[completion] >= score) return progress
+  const entries = { [completion]: score }
+  return { ...progress, best: mergeScores(progress.best, entries),
+    pending: cloud ? mergeScores(progress.pending, entries) : progress.pending }
 }
 
 export function mergeScores(existing: Scores, incoming: Scores): Scores {
@@ -137,6 +145,7 @@ export function loadLesson(key: string, ids: string[], storage: Pick<Storage, 'g
     const wordDecisions = Object.fromEntries(Object.entries(parsed.wordDecisions ?? {}).filter(([id, value]) =>
       ids.includes(id) && (value === 'known' || value === 'learn'))) as Record<string, WordDecision>
     return { best: read(parsed.best, true), attempt: read(parsed.attempt, false), pending: read(parsed.pending, true),
+      ...(parsed.partsVersion === 1 && { partsVersion: 1 as const }),
       ...(typeof parsed.attemptSeed === 'string' && { attemptSeed: parsed.attemptSeed }),
       ...(typeof parsed.stepId === 'string' && { stepId: parsed.stepId }),
       ...(choiceDraft && { choiceDraft }),

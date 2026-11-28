@@ -1,5 +1,4 @@
 import type { BookChoice, Exercise, FillBlank, MultipleChoice, WordOrderExercise } from './engine.ts'
-import type { ReaderStep } from './readerContent.ts'
 
 export function exerciseTemplate(exercise: { kind: string; book?: { mode?: string } }) {
   switch (exercise.kind) {
@@ -50,17 +49,4 @@ export function multipleChoiceState(exercise: MultipleChoice, id: string, select
   if (score === 1) return id === selected ? 'correct' : undefined
   if (id === selected) return 'incorrect'
   return (exercise.accepted ?? [exercise.correct]).includes(id) ? 'correct' : undefined
-}
-
-export function lessonPart(steps: ReaderStep[], index: number, exerciseId?: string) {
-  const count = steps.slice(0, index).reduce((total, step) =>
-    total + (step.kind === 'practice' ? step.partStarts?.length ?? 0 : 0), 0)
-  const step = steps[index]
-  if (step.kind !== 'practice') return index + 1 + count
-  const questionIndex = step.exercises.findIndex(({ id }) => id === exerciseId)
-  const reached = step.partStarts?.filter((id) => {
-    const start = step.exercises.findIndex((exercise) => exercise.id === id)
-    return start >= 0 && start <= questionIndex
-  }).length ?? 0
-  return index + 1 + count + reached
 }

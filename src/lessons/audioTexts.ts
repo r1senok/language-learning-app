@@ -1,4 +1,4 @@
-import { lessonSteps } from './readerContent.ts'
+import { publishedLessons } from './readerContent.ts'
 import type { TheoryPanel } from './readerContent.ts'
 
 function panelAudioTexts(panel: TheoryPanel): string[] {
@@ -9,7 +9,7 @@ function panelAudioTexts(panel: TheoryPanel): string[] {
 }
 
 export function lessonAudioTexts() {
-  return lessonSteps.flatMap((step) => step.kind === 'practice'
+  return publishedLessons.flatMap(({ parts }) => parts).flatMap((step) => step.kind === 'practice'
     ? step.exercises.flatMap((exercise) => exercise.exampleAudio ? [exercise.exampleAudio] : [])
     : step.panels.flatMap(panelAudioTexts))
 }

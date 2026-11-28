@@ -1,5 +1,7 @@
-import { exercises } from './course.ts'
-import { phraseTranslation, pronounPractice, olemaPractice, negativePractice, sentenceTranslation } from './tereLessonContent.ts'
+import { exercises, lessonId } from './course.ts'
+import { defineLesson } from './lessonModel.ts'
+import { restoreFirstLessonProgress } from './tereLessonCompatibility.ts'
+import { bookId, legacyPronounExercises, phraseTranslation, pronounPractice, olemaPractice, negativePractice, sentenceTranslation } from './tereLessonContent.ts'
 import { hasScore } from './engine.ts'
 import { keyPhrases, legacyGreetingIds, newWordExercises } from './greetingsContent.ts'
 import type { Exercise, Scores } from './engine.ts'
@@ -20,10 +22,6 @@ export type TheoryPanel =
   | { kind: 'example'; item: BilingualExample }
   | { kind: 'example-group'; items: BilingualExample[]; tableHeaders?: [string, string] }
   | { kind: 'dialogue-group'; dialogues: DialogueLine[][] }
-export type ReaderStep = { id: string; title: string; page: string } & (
-  { kind: 'theory'; panels: TheoryPanel[] } | { kind: 'practice'; exercises: Exercise[]; partStarts?: string[] }
-)
-
 function practice(...ids: string[]) {
   return ids.map((id) => exercises.find((exercise) => exercise.id === id)!)
 }
@@ -42,12 +40,12 @@ const olemaForms = [
   { subject: 'Nad', verb: 'on', russian: 'Они', role: 'mehed', russianRole: 'мужчины' },
 ]
 
-export const lessonSteps: ReaderStep[] = [
-  { id: 'greetings-theory', kind: 'theory', title: 'Знакомство с фразами', page: '13',
-    panels: [{ kind: 'phrases', items: keyPhrases }] },
-  { id: 'greetings-practice', kind: 'practice', title: 'Изучение новых слов', page: '13', exercises: newWordExercises },
-  { id: 'phrase-translation', kind: 'practice', title: 'Перевод фраз', page: '14', exercises: phraseTranslation },
-  { id: 'pronouns-theory', kind: 'theory', title: 'MA, SA, TA, ME, TE, NAD — Я, ты, он, она, мы, вы, они', page: '14', panels: [
+const parts = [
+  { partId: 'greetings-theory', kind: 'theory', templateType: 'phrases', title: 'Знакомство с фразами', page: '13',
+    presentation: { introLabel: 'Начнём!' }, panels: [{ kind: 'phrases', items: keyPhrases }] },
+  { partId: 'greetings-practice', kind: 'practice', templateType: 'word_intro', title: 'Изучение новых слов', page: '13', exercises: newWordExercises, legacyExercises: practice(...legacyGreetingIds) },
+  { partId: 'phrase-translation', kind: 'practice', templateType: 'multiple_choice', title: 'Перевод фраз', page: '14', exercises: phraseTranslation },
+  { partId: 'pronouns-theory', kind: 'theory', templateType: 'theory', title: 'MA, SA, TA, ME, TE, NAD — Я, ты, он, она, мы, вы, они', page: '14', presentation: { tone: 'theory' }, panels: [
     { kind: 'heading', label: 'Местоимения', title: 'MA, SA, TA, ME, TE, NAD', subtitle: 'Я, ты, он, она, мы, вы, они' },
     { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'Личные местоимения в эстонском языке имеют две формы: длинную и короткую.' },
@@ -60,9 +58,11 @@ export const lessonSteps: ReaderStep[] = [
       ] },
     ] },
   ] },
-  { id: 'pronouns-practice', kind: 'practice', title: 'Практика местоимений', page: '14–15',
-    exercises: pronounPractice, partStarts: ['exercise-8-1'] },
-  { id: 'olema-theory', kind: 'theory', title: 'MA OLEN NAINE, SA OLED MEES… — Я женщина, ты мужчина…', page: '15', panels: [
+  { partId: 'pronouns-practice', kind: 'practice', templateType: 'matching_pairs', title: 'Практика местоимений', page: '14–15',
+    exercises: pronounPractice.slice(0, 1) },
+  { partId: 'pronouns-choices', kind: 'practice', templateType: 'multiple_choice', title: 'Практика местоимений', page: '15',
+    exercises: pronounPractice.slice(1) },
+  { partId: 'olema-theory', kind: 'theory', templateType: 'theory', title: 'MA OLEN NAINE, SA OLED MEES… — Я женщина, ты мужчина…', page: '15', panels: [
     { kind: 'heading', label: 'Глагол olema', title: 'MA OLEN NAINE, SA OLED MEES…', subtitle: 'Я женщина, ты мужчина…' },
     { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'В русском языке глагол быть в настоящем времени опускается. Русские не говорят: Я есть женщина или Он есть мужчина, а просто: Я женщина, Он мужчина.' },
@@ -83,9 +83,9 @@ export const lessonSteps: ReaderStep[] = [
       ],
     ] },
   ] },
-  { id: 'olema-practice', kind: 'practice', title: 'Выбираем форму olema', page: '15',
+  { partId: 'olema-practice', kind: 'practice', templateType: 'fill_blank', title: 'Выбираем форму olema', page: '15',
     exercises: olemaPractice },
-  { id: 'negation-theory', kind: 'theory', title: 'MA EI OLE NAINE, SA EI OLE MEES…', page: '16', panels: [
+  { partId: 'negation-theory', kind: 'theory', templateType: 'theory', title: 'MA EI OLE NAINE, SA EI OLE MEES…', page: '16', panels: [
     { kind: 'heading', label: 'Отрицание', title: 'MA EI OLE NAINE, SA EI OLE MEES…' },
     { kind: 'content-group', tone: 'theory', edgeToEdge: true, panels: [
       { kind: 'paragraph', text: 'Сказать он не мужчина, она не женщина можно двумя способами. Надо всего лишь добавить ei ole или pole.' },
@@ -100,10 +100,10 @@ export const lessonSteps: ReaderStep[] = [
         ] },
     ] },
   ] },
-  { id: 'negation-practice', kind: 'practice', title: 'Отрицание и закрепление', page: '16',
+  { partId: 'negation-practice', kind: 'practice', templateType: 'fill_blank', title: 'Отрицание и закрепление', page: '16',
     exercises: negativePractice },
-  { id: 'sentence-translation', kind: 'practice', title: 'Перевод предложений', page: '16', exercises: sentenceTranslation },
-]
+  { partId: 'sentence-translation', kind: 'practice', templateType: 'word_order', title: 'Перевод предложений', page: '16', exercises: sentenceTranslation },
+] satisfies Parameters<typeof defineLesson>[0]['parts']
 
 export type ReferenceContent = {
   id: string
@@ -127,18 +127,13 @@ export function referencesForExercise(references: ReferenceContent[], exerciseId
   return references.filter(({ exerciseIds }) => exerciseIds.includes(exerciseId))
 }
 
-export function stepExercises(step: ReaderStep, attempt: Scores) {
-  if (step.kind !== 'practice') return []
-  // A completed checkpoint from the previous lesson version remains completed.
-  if (step.id === 'greetings-practice' && legacyGreetingIds.every((id) => hasScore(attempt, id)) &&
-      !step.exercises.some(({ id }) => hasScore(attempt, id))) return practice(...legacyGreetingIds)
-  return step.exercises
-}
+export const firstLesson = defineLesson({
+  id: lessonId, number: 1, bookId, parts, references: lessonReferences,
+  legacyExerciseIds: [...exercises, ...legacyPronounExercises].map(({ id }) => id),
+  restoreProgress: restoreFirstLessonProgress,
+})
 
-export function firstIncompleteStep(attempt: Scores, steps = lessonSteps) {
-  if (!Object.keys(attempt).length) return steps[0]
-  return steps.find((step) => stepExercises(step, attempt).some(({ id }) => !hasScore(attempt, id)))
-}
+export const publishedLessons = [firstLesson]
 
 export function stageQuestionProgress(questions: Exercise[], attempt: Scores, activeId?: string) {
   const total = questions.length

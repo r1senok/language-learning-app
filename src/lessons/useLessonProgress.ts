@@ -1,86 +1,89 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { exercises, lessonId } from './course'
-import { restoreLegacyMatching } from './matchingProgress'
-import { legacyPronounExercises } from './tereLessonContent'
-import { lessonSteps } from './readerContent'
-import { newWordExercises } from './greetingsContent'
-import { completion, loadLesson, resumeFromCloud } from './engine'
-import type { LessonProgress, Scores } from './engine'
+import { lessonStorageKey, mergeLessonCloudResults, readLessonProgress } from './lessonModel'
+import type { LessonDefinition } from './lessonModel'
+import type { LessonProgress } from './engine'
 
-const exerciseIds = [...new Set([...exercises, ...legacyPronounExercises, ...newWordExercises, ...lessonSteps.flatMap((step) => step.kind === 'practice' ? step.exercises : [])].map(({ id }) => id))]
+type ProgressByLesson = Record<string, LessonProgress>
 
-export function useLessonProgress(client?: SupabaseClient | null, userId?: string) {
-  const key = `takku-lessons-v1:${userId ?? 'guest'}:${lessonId}`
-  const [progress, setProgress] = useState(() => restoreLegacyMatching(loadLesson(key, exerciseIds, { getItem: (name) => localStorage.getItem(name) })))
-  const [syncError, setSyncError] = useState(false)
-  const [storageError, setStorageError] = useState(false)
+export function useLessonProgress(lessons: readonly LessonDefinition[], client?: SupabaseClient | null, userId?: string) {
+  const [progress, setProgress] = useState<ProgressByLesson>(() => Object.fromEntries(lessons.map((lesson) => [
+    lesson.id, readLessonProgress(lesson, { getItem: (key) => localStorage.getItem(key) }, userId),
+  ])))
+  const [syncErrors, setSyncErrors] = useState<Record<string, boolean>>({})
+  const [storageErrors, setStorageErrors] = useState<Record<string, boolean>>({})
   const latest = useRef(progress)
-  const requestSync = useRef<() => void>(() => {})
+  const requestSync = useRef<(lesson: LessonDefinition) => void>(() => {})
 
-  function save(next: LessonProgress) {
-    latest.current = next
-    setProgress(next)
+  const persist = useCallback((lessonId: string, next: LessonProgress) => {
+    latest.current = { ...latest.current, [lessonId]: next }
+    setProgress(latest.current)
     try {
-      localStorage.setItem(key, JSON.stringify(next))
-      setStorageError(false)
+      localStorage.setItem(lessonStorageKey(lessonId, userId), JSON.stringify(next))
+      setStorageErrors((errors) => errors[lessonId] ? { ...errors, [lessonId]: false } : errors)
     } catch {
-      setStorageError(true)
+      setStorageErrors((errors) => errors[lessonId] ? errors : { ...errors, [lessonId]: true })
     }
-  }
+  }, [userId])
 
   useEffect(() => {
     if (!client || !userId) return
     let disposed = false
-    let running = false
-    async function sync() {
-      if (!client || disposed || running) return
-      running = true
+    const running = new Set<string>()
+
+    async function sync(lesson: LessonDefinition) {
+      if (!client || disposed || running.has(lesson.id)) return
+      running.add(lesson.id)
       try {
-        for (const [exercise, score] of Object.entries(latest.current.pending)) {
+        for (const [exercise, score] of Object.entries(latest.current[lesson.id].pending)) {
           if (disposed) return
           const { error } = await client.rpc('save_lesson_result', {
-            account: userId, lesson: lessonId, exercise, result: score,
+            account: userId, lesson: lesson.id, exercise, result: score,
           })
           if (error) throw error
           if (disposed) return
-          if (latest.current.pending[exercise] === score) {
-            const pending = { ...latest.current.pending }
+          const current = latest.current[lesson.id]
+          if (current.pending[exercise] === score) {
+            const pending = { ...current.pending }
             delete pending[exercise]
-            save({ ...latest.current, pending })
+            persist(lesson.id, { ...current, pending })
           }
         }
-        const { data, error } = await client.from('lesson_results').select('exercise_id,score').eq('user_id', userId).eq('lesson_id', lessonId)
+        const { data, error } = await client.from('lesson_results').select('exercise_id,score')
+          .eq('user_id', userId).eq('lesson_id', lesson.id)
         if (error) throw error
         if (disposed) return
-        const remote: Scores = Object.fromEntries((data ?? [])
-          .filter(({ exercise_id }) => exercise_id === completion || exerciseIds.includes(exercise_id))
-          .map(({ exercise_id, score }) => [exercise_id, score]))
-        const merged = restoreLegacyMatching(resumeFromCloud(latest.current, remote))
-        if (JSON.stringify(merged) !== JSON.stringify(latest.current)) save(merged)
-        setSyncError(false)
+        const current = latest.current[lesson.id]
+        const merged = mergeLessonCloudResults(lesson, current, data ?? [])
+        if (JSON.stringify(merged) !== JSON.stringify(current)) persist(lesson.id, merged)
+        setSyncErrors((errors) => errors[lesson.id] ? { ...errors, [lesson.id]: false } : errors)
       } catch {
-        if (!disposed) setSyncError(true)
+        if (!disposed) setSyncErrors((errors) => errors[lesson.id] ? errors : { ...errors, [lesson.id]: true })
       } finally {
-        running = false
+        running.delete(lesson.id)
       }
     }
-    requestSync.current = sync
-    const timer = window.setInterval(sync, 10_000)
-    window.addEventListener('online', sync)
-    window.addEventListener('focus', sync)
-    void sync()
+
+    const syncAll = () => { for (const lesson of lessons) void sync(lesson) }
+    requestSync.current = (lesson) => { void sync(lesson) }
+    const timer = window.setInterval(syncAll, 10_000)
+    window.addEventListener('online', syncAll)
+    window.addEventListener('focus', syncAll)
+    syncAll()
     return () => {
       disposed = true
       requestSync.current = () => {}
       window.clearInterval(timer)
-      window.removeEventListener('online', sync)
-      window.removeEventListener('focus', sync)
+      window.removeEventListener('online', syncAll)
+      window.removeEventListener('focus', syncAll)
     }
-  }, [client, userId, key])
+  }, [client, userId, lessons, persist])
 
-  return { progress, save: (next: LessonProgress) => {
-    save(next)
-    requestSync.current()
-  }, syncError, storageError, current: () => latest.current }
+  return { progress, syncErrors, storageErrors,
+    save(lesson: LessonDefinition, next: LessonProgress) {
+      persist(lesson.id, next)
+      requestSync.current(lesson)
+    },
+    current: (lessonId: string) => latest.current[lessonId],
+  }
 }

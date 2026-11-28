@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
+import { completeLesson, finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
 import type { Exercise, LessonProgress, WordIntro } from './engine'
-import { firstIncompleteStep, stageQuestionProgress, stepExercises, lessonReferences, referencesForExercise } from './readerContent'
-import type { ReaderStep } from './readerContent'
-import { exerciseTemplate, isFillBlank, isMultipleChoice, lessonPart, usesChoiceDraft } from './lessonTemplates'
+import { adjacentPart, firstIncompletePart, nextPartId, partExercises } from './lessonModel'
+import type { LessonDefinition } from './lessonModel'
+import { stageQuestionProgress, referencesForExercise } from './readerContent'
+import { exerciseTemplate, isFillBlank, isMultipleChoice, usesChoiceDraft } from './lessonTemplates'
 import { MatchingCard } from './MatchingCard'
-import { pronounMatching } from './tereLessonContent'
-import { foundPronounPairs, recordPronounPair } from './matchingProgress'
+import { foundMatchingPairs, recordMatchingPair } from './matchingProgress'
 import { BookChoiceCard } from './BookChoiceCard'
 import { ExerciseCard } from './ExerciseCard'
 import { NewWordCard } from './NewWordCard'
@@ -19,8 +19,8 @@ import { LessonReferenceSheet } from './LessonReferenceSheet'
 import type { Word } from '../types'
 import { studyGrammarRows } from '../domain/grammar'
 
-export function LessonReader({ lessonNumber, steps, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
-  lessonNumber: number; steps: ReaderStep[]; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
+export function LessonReader({ lesson, progress, current, save, onClose, studyWord, catalogWords, cloud, warnings }: {
+  lesson: LessonDefinition; progress: LessonProgress; current: () => LessonProgress; save: (progress: LessonProgress) => void
   onClose: () => void; studyWord: (catalogId: string) => boolean; catalogWords: Word[]; cloud: boolean; warnings: ReactNode
 }) {
   const [answered, setAnswered] = useState<Exercise>()
@@ -28,21 +28,22 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   const [actionTarget, setActionTarget] = useState<HTMLDivElement | null>(null)
   const exitDialog = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
-  const exercises = steps.flatMap((step) => stepExercises(step, progress.attempt))
-  const last = steps.length
+  const { parts } = lesson
+  const exercises = parts.flatMap((part) => partExercises(part, progress.attempt))
   const result = progress.stepId === '@result'
-  const step = steps.find((item) => item.id === progress.stepId) ?? firstIncompleteStep(progress.attempt, steps) ?? steps[last - 1]
-  const index = steps.indexOf(step)
-  const stepQuestions = stepExercises(step, progress.attempt)
-  const draftQuestion = stepQuestions.find(({ id }) => id === progress.choiceDraft?.exerciseId)
-  const active = answered ?? ((usesChoiceDraft(draftQuestion) || draftQuestion?.id === pronounMatching.id) ? draftQuestion : undefined)
-    ?? stepQuestions.find(({ id }) => !hasScore(progress.attempt, id))
+  const part = parts.find((item) => item.partId === progress.stepId) ?? firstIncompletePart(parts, progress.attempt) ?? parts[parts.length - 1]
+  const partQuestions = partExercises(part, progress.attempt)
+  const draftQuestion = partQuestions.find(({ id }) => id === progress.choiceDraft?.exerciseId)
+  const active = answered ?? ((usesChoiceDraft(draftQuestion) || draftQuestion?.kind === 'matching_pairs') ? draftQuestion : undefined)
+    ?? partQuestions.find(({ id }) => !hasScore(progress.attempt, id))
+  const matchingExercise = !result && (active ?? (partQuestions.length === 1 ? partQuestions[0] : undefined))
+  const matching = matchingExercise && matchingExercise.kind === 'matching_pairs' && matchingExercise.matchingMode !== 'submit'
+    ? matchingExercise : undefined
   const bookChoice = !result && usesChoiceDraft(active) ? active : undefined
   const selectedOption = bookChoice?.options.find(({ id }) => progress.choiceDraft?.exerciseId === bookChoice.id &&
     progress.choiceDraft.optionId === id)?.id
   const selectedOrder = bookChoice && progress.choiceDraft?.exerciseId === bookChoice.id
     ? [...new Set(progress.choiceDraft.order ?? [])].filter((id) => bookChoice.options.some((option) => option.id === id)) : []
-  const showMatching = !result && active?.id === pronounMatching.id
   const newWord = !result && active?.kind === 'word_intro' ? active : undefined
   const catalogWord = newWord && catalogWords.find(({ catalogId }) => catalogId === newWord.word.catalogId)
   const catalogForms = studyGrammarRows(catalogWord?.partOfSpeech, catalogWord?.grammaticalForms).map(({ value }) => value)
@@ -50,19 +51,19 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
   const fillBlankStep = isFillBlank(bookChoice)
   const multipleChoiceStep = isMultipleChoice(bookChoice)
   const wordOrderStep = bookChoice?.kind === 'word_order'
-  const pronounsTheory = !result && step.id === 'pronouns-theory'
-  const keyPhrasesStep = !result && step.id === 'greetings-theory'
-  const references = active && !result ? referencesForExercise(lessonReferences, active.id) : []
+  const theoryPresentation = !result && part.kind === 'theory' ? part.presentation : undefined
+  const keyPhrasesStep = !result && part.templateType === 'phrases'
+  const references = active && !result ? referencesForExercise(lesson.references ?? [], active.id) : []
   const reference = references.length > 0
     ? <LessonReferenceSheet key={active?.id} references={references} compactTrigger={fillBlankStep} />
     : undefined
-  const matchedPairs = showMatching ? foundPronounPairs(progress) : []
-  const stageProgress = result || showMatching ? undefined : stageQuestionProgress(stepQuestions, progress.attempt, active?.id)
+  const matchedPairs = matching ? foundMatchingPairs(matching, progress) : []
+  const stageProgress = result || matching ? undefined : stageQuestionProgress(partQuestions, progress.attempt, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
-  }, [step.id, result, active?.id])
+  }, [part.partId, result, active?.id])
 
   useLayoutEffect(() => {
     if (!bookChoice && active?.kind !== 'matching_pairs') return
@@ -77,20 +78,20 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
 
   function saveWordVisit(previous: LessonProgress, nextProgress: LessonProgress, item: WordIntro) {
     if (previous === nextProgress) return
-    const nextStage = steps[index + 1]
     const stageFinished = hasScore(nextProgress.attempt, item.id) &&
-      stepQuestions.every(({ id }) => hasScore(nextProgress.attempt, id))
-    save(stageFinished && nextStage ? moveLessonStage(nextProgress, nextStage.id) : nextProgress)
+      partQuestions.every(({ id }) => hasScore(nextProgress.attempt, id))
+    save(stageFinished ? enterNextPart(nextProgress) : nextProgress)
   }
 
-  function next() {
-    if (active) return
-    const incomplete = index + 1 === last ? firstIncompleteStep(current().attempt, steps) : undefined
-    if (incomplete) {
-      navigate(incomplete.id)
-      return
-    }
-    navigate(steps[index + 1]?.id ?? '@result')
+  function enterNextPart(previous: LessonProgress) {
+    const destination = nextPartId(parts, part.partId, previous.attempt)
+    const next = moveLessonStage({ ...previous, choiceDraft: undefined }, destination)
+    return destination === '@result' ? completeLesson(next, exercises, cloud) : next
+  }
+
+  function advancePart() {
+    setAnswered(undefined)
+    save(enterNextPart(current()))
   }
 
   function close() {
@@ -98,17 +99,13 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
     onClose()
   }
 
-  const numbered = keyPhrasesStep || step.id === 'greetings-practice' ||
-    step.id === 'phrase-translation' || showMatching || multipleChoiceStep || fillBlankStep || wordOrderStep ||
-    (step.kind === 'theory' && step.panels.some((panel) => panel.kind === 'heading' && panel.label))
-  const headerTitle = result ? 'Результат' : numbered
-    ? `Урок ${lessonNumber}, часть ${lessonPart(steps, index, active?.id)}` : step.title
-  const previousStage = result ? steps[last - 1] : steps[index - 1]
+  const headerTitle = result ? 'Результат' : `Урок ${lesson.number}, часть ${part.order}`
+  const previousStage = adjacentPart(parts, result ? '@result' : part.partId, -1)
   const confirmExit = () => exitDialog.current?.showModal()
-  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep || wordOrderStep ? ' lesson-reader--choice' : pronounsTheory ? ' lesson-reader--pronouns' : showMatching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
+  return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep || wordOrderStep ? ' lesson-reader--choice' : theoryPresentation?.tone === 'theory' ? ' lesson-reader--theory-footer' : matching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
     onKeyDown={(event) => { if (event.key === 'Escape') confirmExit() }}>
     <ReaderHeader headingRef={heading} title={headerTitle}
-      onBack={previousStage ? () => navigate(previousStage.id) : undefined}
+      onBack={previousStage ? () => navigate(previousStage.partId) : undefined}
       onClose={confirmExit} progress={stageProgress} />
     <LessonExitDialog dialogRef={exitDialog} onExit={close} />
     <div className="reader-scroll" ref={reader}>
@@ -118,28 +115,30 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
         <LessonResult summary={lessonResult(exercises, progress)} />
         <ReaderAction target={actionTarget}>
           <button className="tactile-button tactile-button--primary" onClick={close}>Завершить</button>
-          <button className="lesson-option reader-result__replay" onClick={() => navigate(steps[0].id, true)}>Пройти ещё раз</button>
+          <button className="lesson-option reader-result__replay" onClick={() => navigate(parts[0].partId, true)}>Пройти ещё раз</button>
         </ReaderAction>
       </div> : <>
         <div className="reader-panel">
           {!fillBlankStep && reference}
-          {step.kind === 'theory' ? <>
-            {keyPhrasesStep && <div className="reader-phrase-intro">
-              <p className="lesson-accent-heading">Начнём!</p>
-              <h2>{step.title}</h2>
+          {part.kind === 'theory' ? <>
+            {theoryPresentation?.introLabel && <div className="reader-phrase-intro">
+              <p className="lesson-accent-heading">{theoryPresentation.introLabel}</p>
+              <h2>{part.title}</h2>
             </div>}
-            {step.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
-          </> : showMatching ? <MatchingCard key={active?.id} actionTarget={actionTarget} matched={matchedPairs}
-            pairs={pronounMatching.pairs} shuffleKey={`${progress.attemptSeed ?? ''}:${pronounMatching.id}`} prompt="Сопоставьте короткую и полную формы"
-            leftLabel="Короткие формы" rightLabel="Полные формы"
+            {part.panels.map((panel, panelIndex) => <TheoryCard key={panelIndex} panel={panel} />)}
+          </> : matching ? <MatchingCard key={matching.id} actionTarget={actionTarget} matched={matchedPairs}
+            pairs={matching.pairs} shuffleKey={`${progress.attemptSeed ?? ''}:${matching.id}`} prompt={matching.instruction ?? matching.prompt}
+            leftLabel={matching.columnLabels?.left ?? 'Левая колонка'} rightLabel={matching.columnLabels?.right ?? 'Правая колонка'}
             onMatch={(left, right) => {
               const previous = current()
-              const nextProgress = recordPronounPair(previous, left, right, exercises, cloud)
+              const nextProgress = recordMatchingPair(matching, previous, left, right, exercises, cloud)
               if (nextProgress !== previous) save(nextProgress)
             }}
             onContinue={() => {
               const previous = current()
-              if (hasScore(previous.attempt, pronounMatching.id)) save({ ...previous, choiceDraft: undefined })
+              if (!hasScore(previous.attempt, matching.id)) return
+              if (partQuestions.every(({ id }) => hasScore(previous.attempt, id))) advancePart()
+              else save({ ...previous, choiceDraft: undefined })
             }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} attemptSeed={progress.attemptSeed ?? ''} selected={selectedOption}
             score={progress.attempt[bookChoice.id]} order={selectedOrder} reference={fillBlankStep ? reference : undefined}
             onOrder={(order) => {
@@ -164,10 +163,8 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
             }} onContinue={() => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) return
-              if (stepQuestions.every(({ id }) => hasScore(previous.attempt, id))) {
-                const destination = steps[index + 1] ?? firstIncompleteStep(previous.attempt, steps)
-                navigate(destination?.id ?? '@result')
-              } else save({ ...previous, choiceDraft: undefined })
+              if (partQuestions.every(({ id }) => hasScore(previous.attempt, id))) advancePart()
+              else save({ ...previous, choiceDraft: undefined })
             }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} word={newWord.word}
             forms={introForms} revealed={progress.wordDecisions?.[newWord.id] === 'learn'}
             onKnow={() => {
@@ -191,8 +188,8 @@ export function LessonReader({ lessonNumber, steps, progress, current, save, onC
             save(markAnswer(current(), active, answer, exercises, cloud))
           }} onContinue={() => setAnswered(undefined)} /> : <p>Упражнения этого шага завершены.</p>}
         </div>
-        {!active && <ReaderAction target={actionTarget}>
-          <button className="tactile-button tactile-button--primary" onClick={next}>Продолжить</button>
+        {!active && !matching && <ReaderAction target={actionTarget}>
+          <button className="tactile-button tactile-button--primary" onClick={advancePart}>Продолжить</button>
         </ReaderAction>}
       </>}
       </div>

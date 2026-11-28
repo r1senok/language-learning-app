@@ -44,15 +44,17 @@ test('recovers storage exceptions and restores a cloud checkpoint', () => {
 })
 
 test('reader preserves later exercise IDs and a theory checkpoint on reload', async () => {
-  const { lessonSteps, firstIncompleteStep } = await import('../src/lessons/readerContent.ts')
-  assert.equal(new Set(lessonSteps.map(({ id }) => id)).size, lessonSteps.length)
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
+  const { firstIncompletePart } = await import('../src/lessons/lessonModel.ts')
+  assert.equal(new Set(lessonSteps.map(({ partId }) => partId)).size, lessonSteps.length)
   const practice = lessonSteps.filter(({ kind }) => kind === 'practice').flatMap((step) => step.exercises)
   assert.equal(practice.length, 76)
   const state = { ...emptyProgress(), stepId: 'olema-theory' }
   assert.deepEqual(loadLesson('test', [], { getItem: () => JSON.stringify(state) }), state)
   const answered = markAnswer(state, exercises[0], correct(exercises[0]), exercises, false)
   assert.equal(answered.stepId, 'olema-theory')
-  assert.equal(firstIncompleteStep(answered.attempt).id, 'greetings-practice')
+  assert.equal(firstIncompletePart(lessonSteps, answered.attempt).partId, 'greetings-practice')
 })
 
 test('the text greeting exercise retains the original ID and saved answers', () => {
@@ -67,7 +69,9 @@ test('the text greeting exercise retains the original ID and saved answers', () 
 
 test('page 13 contains thirteen phrases and eight words, and prior users keep their checkpoint', async () => {
   const { keyPhrases, newWordExercises, legacyGreetingIds } = await import('../src/lessons/greetingsContent.ts')
-  const { firstIncompleteStep, lessonSteps, stepExercises } = await import('../src/lessons/readerContent.ts')
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
+  const { firstIncompletePart, partExercises } = await import('../src/lessons/lessonModel.ts')
   assert.equal(keyPhrases.length, 13)
   assert.deepEqual(newWordExercises.map(({ word }) => word.et), ['hommik', 'päev', 'õhtu', 'aeg', 'öö', 'hea', 'kõik', 'kuulama'])
   for (const exercise of newWordExercises) {
@@ -75,14 +79,16 @@ test('page 13 contains thirteen phrases and eight words, and prior users keep th
     assert.equal(answerIsCorrect(exercise, [exercise.word.et]), false)
   }
   const legacy = Object.fromEntries(legacyGreetingIds.map((id) => [id, 1]))
-  assert.equal(firstIncompleteStep(legacy).id, 'phrase-translation')
-  assert.equal(stepExercises(lessonSteps[1], legacy).length, 4)
-  assert.equal(stepExercises(lessonSteps[1], { ...legacy, [newWordExercises[0].id]: 0 }).length, 8)
+  assert.equal(firstIncompletePart(lessonSteps, legacy).partId, 'phrase-translation')
+  assert.equal(partExercises(lessonSteps[1], legacy).length, 4)
+  assert.equal(partExercises(lessonSteps[1], { ...legacy, [newWordExercises[0].id]: 0 }).length, 8)
 })
 
 test('book questions use all items in order, and selection and checked score survive reload', async () => {
   const { pronounBookExercises: questions } = await import('../src/lessons/pronounExercises.ts')
-  const { firstIncompleteStep, lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
+  const { firstIncompletePart } = await import('../src/lessons/lessonModel.ts')
   const expected = [
     [['Я', 'mina'], ['Он', 'tema'], ['Ты', 'sina'], ['Они', 'nemad'], ['Вы', 'teie'], ['Мы', 'meie']],
     [['sina', 'sa'], ['tema', 'ta'], ['meie', 'me'], ['teie', 'te'], ['mina', 'ma'], ['nemad', 'nad']],
@@ -106,13 +112,14 @@ test('book questions use all items in order, and selection and checked score sur
   assert.deepEqual(restore(saved), saved)
   assert.equal(saved.attempt[first.id], 0)
   assert.equal(markAnswer(saved, first, [first.correct], questions, true), saved)
-  const throughStepFour = Object.fromEntries(lessonSteps.slice(0, 5).flatMap((step) => (step.exercises ?? []).map(({ id }) => [id, 1])))
-  assert.equal(firstIncompleteStep(throughStepFour).id, 'olema-practice')
-  assert.equal(lessonSteps[5].id, 'olema-theory')
+  const throughStepFour = Object.fromEntries(lessonSteps.slice(0, 6).flatMap((step) => (step.exercises ?? []).map(({ id }) => [id, 1])))
+  assert.equal(firstIncompletePart(lessonSteps, throughStepFour).partId, 'olema-practice')
+  assert.equal(lessonSteps[6].partId, 'olema-theory')
 })
 
 test('book exercise counts, keys, aliases, and full lesson completion', async () => {
-  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
   const { deferredExercises } = await import('../src/lessons/tereLessonContent.ts')
   const entries = lessonSteps.flatMap((step) => step.exercises ?? [])
   assert.equal(new Set(entries.map(({ id }) => id)).size, 76)
@@ -161,7 +168,8 @@ test('book exercise counts, keys, aliases, and full lesson completion', async ()
 })
 
 test('reader progress counts checked questions within one stage, including incorrect answers', async () => {
-  const { stageQuestionProgress, lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { stageQuestionProgress, firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
   const words = lessonSteps[1].exercises
   const translations = lessonSteps[2].exercises
   const attempt = { [words[0].id]: 0 }
@@ -172,24 +180,27 @@ test('reader progress counts checked questions within one stage, including incor
   assert.deepEqual(stageQuestionProgress(words, attempt, words[1].id), { question: 2, completed: 1, total: 8 })
   assert.deepEqual(stageQuestionProgress(translations, attempt, translations[0].id), { question: 1, completed: 0, total: 12 })
 
-  const pairs = lessonSteps[4].exercises
-  assert.deepEqual(stageQuestionProgress(pairs, {}, pairs[4].id), { question: 1, completed: 0, total: 13 })
-  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[4].id), { question: 1, completed: 1, total: 13 })
-  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[0].id), { question: 2, completed: 1, total: 13 })
+  const pairs = lessonSteps[5].exercises
+  assert.deepEqual(stageQuestionProgress(pairs, {}, pairs[4].id), { question: 1, completed: 0, total: 12 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[4].id), { question: 1, completed: 1, total: 12 })
+  assert.deepEqual(stageQuestionProgress(pairs, { [pairs[4].id]: 1 }, pairs[0].id), { question: 2, completed: 1, total: 12 })
 })
 
 test('pronoun matching restores partial pairs and awards one result exactly once', async () => {
   const { pronounMatching, legacyPronounExercises } = await import('../src/lessons/tereLessonContent.ts')
-  const { foundPronounPairs, recordPronounPair, restoreLegacyMatching } = await import('../src/lessons/matchingProgress.ts')
+  const { foundMatchingPairs, recordMatchingPair } = await import('../src/lessons/matchingProgress.ts')
+  const { restoreFirstLessonProgress } = await import('../src/lessons/tereLessonCompatibility.ts')
+  const foundPronounPairs = (progress) => foundMatchingPairs(pronounMatching, progress)
+  const recordPronounPair = (...args) => recordMatchingPair(pronounMatching, ...args)
   const exercises = [pronounMatching]
   const pairs = pronounMatching.pairs.map(({ id }) => id)
-  const restore = (progress) => restoreLegacyMatching(loadLesson('test',
+  const restore = (progress) => restoreFirstLessonProgress(loadLesson('test',
     [pronounMatching.id, ...legacyPronounExercises.map(({ id }) => id)],
     { getItem: () => JSON.stringify(progress) }))
   assert.equal(legacyPronounExercises.filter(({ book }) => book.number === 6).length, 6)
   assert.deepEqual(pronounMatching.pairs.map(({ left }) => left), ['ma', 'sa', 'ta', 'me', 'te', 'nad'])
 
-  let progress = restore({ ...emptyProgress(), attempt: { 'exercise-6-1': 1, [pairs[0]]: 1,
+  let progress = restore({ ...emptyProgress(), stepId: 'pronouns-practice', attempt: { 'exercise-6-1': 1, [pairs[0]]: 1,
     [pairs[1]]: 0 }, choiceDraft: { exerciseId: pairs[0], optionId: 'mina' } })
   assert.deepEqual(foundPronounPairs(progress), [pairs[0]])
   assert.equal(recordPronounPair(progress, pairs[1], pairs[2], exercises, true), progress)
@@ -210,8 +221,9 @@ test('pronoun matching restores partial pairs and awards one result exactly once
 })
 
 test('olema theory keeps its grouped content and the reference is scoped to each applicable question', async () => {
-  const { lessonSteps, lessonReferences, referencesForExercise } = await import('../src/lessons/readerContent.ts')
-  const { panels } = lessonSteps.find(({ id }) => id === 'olema-theory')
+  const { firstLesson, lessonReferences, referencesForExercise } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
+  const { panels } = lessonSteps.find(({ partId }) => partId === 'olema-theory')
   assert.deepEqual(panels.map(({ kind }) => kind), ['heading', 'content-group', 'dialogue-group'])
   assert.deepEqual(panels[1].panels.map(({ kind }) => kind), ['paragraph', 'paragraph', 'example-group'])
   assert.equal(panels[1].tone, 'theory')
@@ -336,8 +348,9 @@ test('word introductions preserve the reveal across reload and count completion 
 })
 
 test('theory keeps highlight boundaries and the six pronoun forms and translations', async () => {
-  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
-  const pronouns = lessonSteps.find(({ id }) => id === 'pronouns-theory').panels
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
+  const pronouns = lessonSteps.find(({ partId }) => partId === 'pronouns-theory').panels
   assert.deepEqual(pronouns.map(({ kind }) => kind), ['heading', 'content-group'])
   const [intro, table, note] = pronouns[1].panels
   assert.equal(intro.kind, 'paragraph')
@@ -349,29 +362,30 @@ test('theory keeps highlight boundaries and the six pronoun forms and translatio
   assert.equal(note.kind, 'note')
   assert.equal(note.text.map(({ text }) => text).join(''),
     'Местоимения ОН и ОНА переводятся на эстонский язык одним словом tema (ta).')
-  const [heading, negation] = lessonSteps.find(({ id }) => id === 'negation-theory').panels
+  const [heading, negation] = lessonSteps.find(({ partId }) => partId === 'negation-theory').panels
   assert.equal(heading.label, 'Отрицание')
   assert.equal(negation.kind, 'content-group')
   assert.deepEqual(negation.panels.map(({ kind }) => kind), ['paragraph', 'table'])
 })
 
 test('lesson templates route choices, gaps, matching and unsupported content explicitly', async () => {
-  const { exerciseTemplate, lessonPart, multipleChoiceView, multipleChoiceState } = await import('../src/lessons/lessonTemplates.ts')
-  const { lessonSteps } = await import('../src/lessons/readerContent.ts')
+  const { exerciseTemplate, multipleChoiceView, multipleChoiceState } = await import('../src/lessons/lessonTemplates.ts')
+  const { firstLesson } = await import('../src/lessons/readerContent.ts')
+  const lessonSteps = firstLesson.parts
   const { phraseTranslation } = await import('../src/lessons/tereLessonContent.ts')
   const { pronounBookExercises } = await import('../src/lessons/pronounExercises.ts')
   const phrase = phraseTranslation[8]
   const word = pronounBookExercises[0]
   assert.equal(exerciseTemplate(phrase), 'multiple_choice')
   assert.equal(exerciseTemplate(word), 'multiple_choice')
-  assert.equal(exerciseTemplate(lessonSteps[6].exercises[0]), 'fill_blank')
+  assert.equal(exerciseTemplate(lessonSteps[7].exercises[0]), 'fill_blank')
   assert.equal(exerciseTemplate(lessonSteps[4].exercises[0]), 'matching_pairs')
   assert.equal(exerciseTemplate({ kind: 'future-audio-task' }), 'unsupported')
   assert.equal(exerciseTemplate({ kind: 'multiple_choice', book: { mode: 'match' } }), 'unsupported')
-  assert.equal(lessonPart(lessonSteps, 2, phrase.id), 3)
-  assert.equal(lessonPart(lessonSteps, 4, lessonSteps[4].exercises[0].id), 5)
-  assert.equal(lessonPart(lessonSteps, 4, word.id), 6)
-  assert.equal(lessonPart(lessonSteps, 5), 7)
+  assert.equal(lessonSteps[2].order, 3)
+  assert.equal(lessonSteps[4].order, 5)
+  assert.equal(lessonSteps[5].order, 6)
+  assert.equal(lessonSteps[6].order, 7)
   assert.equal(multipleChoiceView(phrase).optionSize, 'large')
   assert.equal(multipleChoiceView(pronounBookExercises[6]).optionSize, 'compact')
   assert.equal(multipleChoiceView({ ...word, options: word.options.slice(0, 3) }).optionSize, 'large')

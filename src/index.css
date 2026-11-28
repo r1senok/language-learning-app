@@ -999,13 +999,13 @@
 }
 .reader-content-group[data-tone="theory"] .reader-table tbody tr:last-child td { border-bottom: 0; }
 .reader-content-group[data-tone="theory"] .reader-accent { background: var(--lesson-theory-background); }
-.lesson-reader--pronouns .reader-content { padding-bottom: 0; }
+.lesson-reader--theory-footer .reader-content { padding-bottom: 0; }
 .reader-content-group[data-edge-to-edge] {
   margin-inline: calc(-1 * var(--lesson-space)); border-radius: 0;
 }
 .reader-content-group[data-tone="theory"][data-edge-to-edge] .reader-table td,
 .reader-content-group[data-tone="theory"] .reader-table[data-roomy] td { padding-block: clamp(12px, 4vw, 20px); font-weight: 750; }
-.lesson-reader--pronouns .reader-action {
+.lesson-reader--theory-footer .reader-action {
   background: var(--lesson-theory-background); border-top-color: var(--lesson-theory-border);
 }
 
