@@ -5,6 +5,9 @@ import { LearningPath } from './LearningPath'
 import { lessons } from './course'
 import { completion, hasScore } from './engine'
 import { publishedLessons, stageQuestionProgress } from './readerContent'
+import { masteredScores } from './reviewQueue'
+import { learningPath } from './learningPath'
+import type { LessonDefinition } from './lessonModel'
 import { openLesson, partExercises } from './lessonModel'
 import { LessonReader } from './LessonReader'
 import { useLessonProgress } from './useLessonProgress'
@@ -15,22 +18,36 @@ export function Lessons({ client, userId, onReaderChange, studyWord, catalogWord
   const { progress, save, syncErrors, storageErrors, current } = useLessonProgress(publishedLessons, client, userId)
   const [activeLessonId, setActiveLessonId] = useState<string>()
   const activeLesson = publishedLessons.find(({ id }) => id === activeLessonId)
-  const pathLessons = lessons.map((entry, index) => {
-    const number = index + 1
-    const lesson = publishedLessons.find((item) => item.number === number)
+  const checkpoint = publishedLessons.find((lesson) => lesson.checkpointTitle)
+
+  function pathNode(number: number, title: string, lesson?: LessonDefinition) {
     const saved = lesson && progress[lesson.id]
     const questions = lesson && saved ? lesson.parts.flatMap((part) => partExercises(part, saved.attempt)) : []
-    const questionProgress = saved && stageQuestionProgress(questions, saved.attempt)
+    const questionProgress = saved && stageQuestionProgress(questions, lesson?.repeatErrors ? masteredScores(saved) : saved.attempt)
     const percentage = questionProgress ? Math.floor(questionProgress.completed / questionProgress.total * 100) : 0
-    return { number, title: entry?.[1] ?? `Урок ${number}`, available: Boolean(lesson),
-      completed: Boolean(saved && hasScore(saved.best, completion)), progress: percentage,
+    return { number, title, available: Boolean(lesson), checkpointId: lesson?.checkpointTitle ? lesson.id : undefined,
+      subtitle: lesson?.checkpointSubtitle, completed: Boolean(saved && hasScore(saved.best, completion)), progress: percentage,
       started: Boolean(saved && (saved.stepId || Object.keys(saved.attempt).length)) }
+  }
+
+  const pathLessons = lessons.flatMap((entry, index) => {
+    const number = index + 1
+    const lesson = publishedLessons.find((item) => !item.checkpointTitle && item.number === number)
+    const node = pathNode(number, entry?.[1] ?? `Урок ${number}`, lesson)
+    return checkpoint?.number === number && checkpoint.checkpointTitle
+      ? [node, pathNode(number, checkpoint.checkpointTitle, checkpoint)]
+      : [node]
   })
 
-  function open(number: number) {
-    const lesson = publishedLessons.find((item) => item.number === number)
+  function open(key: number | string) {
+    const node = learningPath(pathLessons).find(({ number, checkpointId }) => (checkpointId ?? number) === key)
+    if (!node || !node.available || node.status === 'locked') return
+    const lesson = publishedLessons.find((item) => item.checkpointTitle ? item.id === key : item.number === key)
     if (!lesson) return
-    save(lesson, openLesson(lesson, current(lesson.id)))
+    const saved = current(lesson.id)
+    save(lesson, lesson.repeatErrors && node.completed && !saved.stepId
+      ? { ...saved, stepId: '@result' }
+      : openLesson(lesson, saved))
     setActiveLessonId(lesson.id)
     onReaderChange(true)
   }

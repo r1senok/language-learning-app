@@ -1,10 +1,12 @@
 import { completion, hasScore, loadLesson, moveLessonStage, resumeFromCloud } from './engine.ts'
+import { masteredScores } from './reviewQueue.ts'
 import type { Exercise, LessonProgress, Scores } from './engine.ts'
 import type { ReferenceContent, TheoryPanel } from './readerContent.ts'
 
 type PartContent = {
   partId: string
   title: string
+  examples?: string[]
 } & (
   | { kind: 'theory'; templateType: 'phrases' | 'theory'; panels: TheoryPanel[]
     presentation?: { introLabel?: string; tone?: 'theory' } }
@@ -17,6 +19,10 @@ export type LessonPart = PartContent & { order: number; source: { bookId: string
 export type LessonDefinition = {
   id: string
   number: number
+  checkpointTitle?: string
+  checkpointSubtitle?: string
+  repeatErrors?: boolean
+  deferredSources?: readonly { page: number; exercise?: string; medium: string; resource?: number }[]
   parts: readonly LessonPart[]
   references?: ReferenceContent[]
   legacyExerciseIds?: readonly string[]
@@ -60,7 +66,7 @@ export function openLesson(lesson: LessonDefinition, progress: LessonProgress) {
   const draftPart = lesson.parts.find((part) =>
     partExercises(part, progress.attempt).some(({ id }) => id === progress.choiceDraft?.exerciseId))
   if (draftPart) return { ...progress, stepId: draftPart.partId }
-  const incomplete = Object.keys(progress.attempt).length ? firstIncompletePart(lesson.parts, progress.attempt) : lesson.parts[0]
+  const incomplete = Object.keys(progress.attempt).length ? firstIncompletePart(lesson.parts, lesson.repeatErrors ? masteredScores(progress) : progress.attempt) : lesson.parts[0]
   return incomplete ? moveLessonStage(progress, incomplete.partId) : moveLessonStage(progress, lesson.parts[0].partId, true)
 }
 

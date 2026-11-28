@@ -1,6 +1,8 @@
 export type PathLesson = {
   number: number
   title: string
+  checkpointId?: string
+  subtitle?: string
   available: boolean
   completed: boolean
   progress: number

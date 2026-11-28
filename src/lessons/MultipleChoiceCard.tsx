@@ -16,7 +16,7 @@ export function MultipleChoiceCard({ actionTarget, exercise, attemptSeed, select
   return <div className="multiple-choice">
     <h2 className="lesson-accent-heading">{view.instruction}</h2>
     {speech ? <QuestionPrompt text={exercise.prompt} language={view.language}
-      characterSrc={speech.characterSrc} onPlayAudio={onPlayAudio} /> : <p className="book-choice-prompt" lang={view.language}>{exercise.prompt}</p>}
+      plain={speech.silent} characterSrc={speech.characterSrc} onPlayAudio={onPlayAudio} /> : <p className="book-choice-prompt" lang={view.language}>{exercise.prompt}</p>}
     <AnswerGrid className="multiple-choice__options" options={shuffledOptions(exercise.options, `${attemptSeed}:${exercise.id}`)} language={view.optionLanguage}
       selected={selected} checked={score !== undefined} onSelect={onSelect}
       result={(id) => multipleChoiceState(exercise, id, selected, score)} />

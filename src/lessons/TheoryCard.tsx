@@ -72,6 +72,6 @@ export function TheoryCard({ panel, onPlayDialogueAudio }: { panel: TheoryPanel;
   </ul>
   if (panel.kind === 'dialogue-group') return <DialogueGroup dialogues={panel.dialogues} onPlayAudio={onPlayDialogueAudio} />
   return <div className="reader-phrases">
-    {panel.items.map(({ et, ru }) => <AudioPhrase key={et} et={et} ru={ru} />)}
+    {panel.items.map(({ et, ru }) => <AudioPhrase key={et} et={et} ru={ru} silent={panel.silent} />)}
   </div>
 }

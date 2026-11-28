@@ -36,7 +36,7 @@ export function multipleChoiceView(exercise: MultipleChoice) {
     language: exercise.promptLanguage ?? exercise.book?.language,
     optionLanguage: exercise.optionLanguage ?? (exercise.book ? 'et' : undefined),
     presentation: presentation.kind === 'speech'
-      ? { kind: 'speech' as const, characterSrc: presentation.characterSrc ?? '/lesson-translation-character.svg' }
+      ? { kind: 'speech' as const, silent: presentation.silent, characterSrc: presentation.characterSrc ?? '/lesson-translation-character.svg' }
       : { kind: 'text' as const },
     answerText: exercise.showCorrectAnswer === false ? undefined :
       (exercise.accepted ?? [exercise.correct]).map((id) => exercise.options.find((option) => option.id === id)?.text)

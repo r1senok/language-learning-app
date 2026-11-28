@@ -1,11 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { completeLesson, finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, moveLessonStage } from './engine'
+import { completeLesson, finishWordIntro, hasScore, lessonResult, markAnswer, markWordDecision, moveLessonStage, wordOrderReady } from './engine'
 import type { Exercise, LessonProgress, WordIntro } from './engine'
 import { adjacentPart, firstIncompletePart, nextPartId, partExercises } from './lessonModel'
 import type { LessonDefinition } from './lessonModel'
 import { stageQuestionProgress, referencesForExercise } from './readerContent'
 import { exerciseTemplate, isFillBlank, isMultipleChoice, usesChoiceDraft } from './lessonTemplates'
+import { checkRetry, continueRetry, masteredScores, practiceFinished, reviewQuestions } from './reviewQueue'
 import { MatchingCard } from './MatchingCard'
 import { foundMatchingPairs, recordMatchingPair } from './matchingProgress'
 import { BookChoiceCard } from './BookChoiceCard'
@@ -31,11 +32,15 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
   const { parts } = lesson
   const exercises = parts.flatMap((part) => partExercises(part, progress.attempt))
   const result = progress.stepId === '@result'
-  const part = parts.find((item) => item.partId === progress.stepId) ?? firstIncompletePart(parts, progress.attempt) ?? parts[parts.length - 1]
+  const partScores = lesson.repeatErrors ? masteredScores(progress) : progress.attempt
+  const part = parts.find((item) => item.partId === progress.stepId) ?? firstIncompletePart(parts, partScores) ?? parts[parts.length - 1]
   const partQuestions = partExercises(part, progress.attempt)
   const draftQuestion = partQuestions.find(({ id }) => id === progress.choiceDraft?.exerciseId)
+  const firstQuestion = partQuestions.find(({ id }) => !hasScore(progress.attempt, id))
+  const retryQueue = lesson.repeatErrors && !firstQuestion ? reviewQuestions(part.partId, partQuestions, progress) : []
   const active = answered ?? ((usesChoiceDraft(draftQuestion) || draftQuestion?.kind === 'matching_pairs') ? draftQuestion : undefined)
-    ?? partQuestions.find(({ id }) => !hasScore(progress.attempt, id))
+    ?? firstQuestion ?? partQuestions.find(({ id }) => id === retryQueue[0])
+  const retrying = Boolean(progress.choiceDraft?.retry || (!draftQuestion && active?.id && active.id === retryQueue[0]))
   const matchingExercise = !result && (active ?? (partQuestions.length === 1 ? partQuestions[0] : undefined))
   const matching = matchingExercise && matchingExercise.kind === 'matching_pairs' && matchingExercise.matchingMode !== 'submit'
     ? matchingExercise : undefined
@@ -58,7 +63,7 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
     ? <LessonReferenceSheet key={active?.id} references={references} compactTrigger={fillBlankStep} />
     : undefined
   const matchedPairs = matching ? foundMatchingPairs(matching, progress) : []
-  const stageProgress = result || matching ? undefined : stageQuestionProgress(partQuestions, progress.attempt, active?.id)
+  const stageProgress = result || matching ? undefined : stageQuestionProgress(partQuestions, partScores, active?.id)
 
   useLayoutEffect(() => {
     reader.current?.scrollTo(0, 0)
@@ -84,7 +89,7 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
   }
 
   function enterNextPart(previous: LessonProgress) {
-    const destination = nextPartId(parts, part.partId, previous.attempt)
+    const destination = nextPartId(parts, part.partId, lesson.repeatErrors ? masteredScores(previous) : previous.attempt)
     const next = moveLessonStage({ ...previous, choiceDraft: undefined }, destination)
     return destination === '@result' ? completeLesson(next, exercises, cloud) : next
   }
@@ -99,7 +104,7 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
     onClose()
   }
 
-  const headerTitle = result ? 'Результат' : `Урок ${lesson.number}, часть ${part.order}`
+  const headerTitle = result ? 'Результат' : `${lesson.checkpointTitle ?? `Урок ${lesson.number}`}, часть ${part.order}`
   const previousStage = adjacentPart(parts, result ? '@result' : part.partId, -1)
   const confirmExit = () => exitDialog.current?.showModal()
   return <section className={`lesson-reader${keyPhrasesStep ? ' lesson-reader--key-phrases' : newWord ? ' lesson-reader--word-intro' : multipleChoiceStep || fillBlankStep || wordOrderStep ? ' lesson-reader--choice' : theoryPresentation?.tone === 'theory' ? ' lesson-reader--theory-footer' : matching ? ' lesson-reader--matching' : ''}`} aria-labelledby="reader-heading"
@@ -119,6 +124,11 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
         </ReaderAction>
       </div> : <>
         <div className="reader-panel">
+          {part.examples?.length && !retrying ? <aside aria-label="Образцы">
+            <p className="reader-instruction">{part.examples.length === 1 ? 'Образец' : 'Образцы'}</p>
+            {part.examples.map((example) => <p key={example}>{example}</p>)}
+          </aside> : null}
+          {retrying && <p role="status">Повторение ошибок</p>}
           {!fillBlankStep && reference}
           {part.kind === 'theory' ? <>
             {theoryPresentation?.introLabel && <div className="reader-phrase-intro">
@@ -131,40 +141,42 @@ export function LessonReader({ lesson, progress, current, save, onClose, studyWo
             leftLabel={matching.columnLabels?.left ?? 'Левая колонка'} rightLabel={matching.columnLabels?.right ?? 'Правая колонка'}
             onMatch={(left, right) => {
               const previous = current()
-              const nextProgress = recordMatchingPair(matching, previous, left, right, exercises, cloud)
+              const nextProgress = recordMatchingPair(matching, previous, left, right, exercises, cloud, lesson.repeatErrors)
               if (nextProgress !== previous) save(nextProgress)
             }}
             onContinue={() => {
               const previous = current()
               if (!hasScore(previous.attempt, matching.id)) return
-              if (partQuestions.every(({ id }) => hasScore(previous.attempt, id))) advancePart()
+              if (practiceFinished(partQuestions, previous, lesson.repeatErrors)) advancePart()
               else save({ ...previous, choiceDraft: undefined })
             }} /> : bookChoice ? <BookChoiceCard key={bookChoice.id} actionTarget={actionTarget} exercise={bookChoice} attemptSeed={progress.attemptSeed ?? ''} selected={selectedOption}
-            score={progress.attempt[bookChoice.id]} order={selectedOrder} reference={fillBlankStep ? reference : undefined}
+            score={retrying ? progress.choiceDraft?.reviewScore : progress.attempt[bookChoice.id]} order={selectedOrder} reference={fillBlankStep ? reference : undefined}
             onOrder={(order) => {
               const previous = current()
-              if (!hasScore(previous.attempt, bookChoice.id)) {
-                save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId: '', order } })
+              if (retrying ? previous.choiceDraft?.reviewScore === undefined : !hasScore(previous.attempt, bookChoice.id)) {
+                save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId: '', order, retry: retrying || undefined } })
               }
             }}
             onSelect={(optionId) => {
               const previous = current()
-              if (hasScore(previous.attempt, bookChoice.id)) return
-              save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId } })
+              if (retrying ? previous.choiceDraft?.reviewScore !== undefined : hasScore(previous.attempt, bookChoice.id)) return
+              save({ ...previous, choiceDraft: { exerciseId: bookChoice.id, optionId, retry: retrying || undefined } })
             }} onCheck={() => {
               const previous = current()
               const draft = previous.choiceDraft
-              if (draft?.exerciseId !== bookChoice.id || hasScore(previous.attempt, bookChoice.id)) return
+              if (draft?.exerciseId !== bookChoice.id || (!retrying && hasScore(previous.attempt, bookChoice.id))) return
               const inputs = bookChoice.kind === 'word_order' ? selectedOrder : [draft.optionId]
               if (inputs.length && inputs.every((id) => bookChoice.options.some((option) => option.id === id)) &&
-                  (bookChoice.kind !== 'word_order' || inputs.length === bookChoice.order.length)) {
-                save(markAnswer(previous, bookChoice, inputs, exercises, cloud))
+                  (bookChoice.kind !== 'word_order' || wordOrderReady(bookChoice, inputs.length))) {
+                save(retrying ? checkRetry(previous, bookChoice, inputs) :
+                  markAnswer(previous, bookChoice, inputs, exercises, cloud, lesson.repeatErrors))
               }
             }} onContinue={() => {
               const previous = current()
               if (!hasScore(previous.attempt, bookChoice.id)) return
-              if (partQuestions.every(({ id }) => hasScore(previous.attempt, id))) advancePart()
-              else save({ ...previous, choiceDraft: undefined })
+              const next = retrying ? continueRetry(previous, part.partId, retryQueue) : { ...previous, choiceDraft: undefined }
+              if (next === previous) return
+              save(practiceFinished(partQuestions, next, lesson.repeatErrors) ? enterNextPart(next) : next)
             }} /> : newWord ? <NewWordCard key={newWord.id} actionTarget={actionTarget} word={newWord.word}
             forms={introForms} revealed={progress.wordDecisions?.[newWord.id] === 'learn'}
             onKnow={() => {

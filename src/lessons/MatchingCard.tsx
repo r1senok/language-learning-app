@@ -34,7 +34,7 @@ export function MatchingCard({ pairs, shuffleKey, prompt, leftLabel, rightLabel,
       timer.current = undefined
       setFeedback(undefined)
     }, correct ? 500 : 700)
-    if (correct) onMatch(left, right)
+    onMatch(left, right)
   }
 
   return <div className="matching-card">

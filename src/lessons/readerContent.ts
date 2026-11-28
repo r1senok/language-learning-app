@@ -1,4 +1,5 @@
 import { exercises, lessonId } from './course.ts'
+import { secondLesson, reviewCheckpoint } from './tereLessonTwo.ts'
 import { defineLesson } from './lessonModel.ts'
 import { restoreFirstLessonProgress } from './tereLessonCompatibility.ts'
 import { bookId, legacyPronounExercises, phraseTranslation, pronounPractice, olemaPractice, negativePractice, sentenceTranslation } from './tereLessonContent.ts'
@@ -17,7 +18,7 @@ export type TheoryPanel =
   | { kind: 'heading'; label?: string; title: string; subtitle?: string }
   | { kind: 'paragraph'; text: TheoryText }
   | { kind: 'note'; text: TheoryText }
-  | { kind: 'phrases'; items: { et: string; ru: string; icon?: string }[] }
+  | { kind: 'phrases'; silent?: boolean; items: { et: string; ru: string; icon?: string }[] }
   | { kind: 'table'; title?: string; headers?: string[]; rows: TheoryText[][]; accent?: number; estonianColumns?: number[]; roomy?: boolean; scrollable?: boolean }
   | { kind: 'example'; item: BilingualExample }
   | { kind: 'example-group'; items: BilingualExample[]; tableHeaders?: [string, string] }
@@ -133,7 +134,7 @@ export const firstLesson = defineLesson({
   restoreProgress: restoreFirstLessonProgress,
 })
 
-export const publishedLessons = [firstLesson]
+export const publishedLessons = [firstLesson, secondLesson, reviewCheckpoint]
 
 export function stageQuestionProgress(questions: Exercise[], attempt: Scores, activeId?: string) {
   const total = questions.length

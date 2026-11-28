@@ -22,6 +22,7 @@ export function FillInBlank({ exercise, attemptSeed, reference, actionTarget, se
       <h2 className="lesson-accent-heading">Заполните пропуск</h2>
       {reference}
     </div>
+    {exercise.kind === 'fill_blank' && exercise.context && <p>{exercise.context}</p>}
     <p className="book-choice-prompt fill-in-blank__sentence"
       lang={exercise.kind === 'multiple_choice' ? exercise.book?.language : exercise.sentence ? 'et' : undefined}>
       {sentence.before}<strong className="reader-accent" lang="et">{selectedText ?? '...'}</strong>{sentence.after}

@@ -357,7 +357,8 @@
   border: var(--tactile-side-width, 2px) solid transparent;
   border-bottom: var(--tactile-edge-width, 6px) solid var(--tactile-edge-color, transparent);
   min-height: 61px; border-radius: 17px; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .1s, border-width .1s, filter .15s; }
-.tactile-button, .learning-path__cta { text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; }
+.tactile-button, .learning-path__subtitle { display: block; font-size: var(--type-supporting); font-weight: 600; }
+.learning-path__cta { text-transform: uppercase; font-size: 14px; font-weight: 900; letter-spacing: .5px; }
 .tactile-button small { font-size: 9px; opacity: .75; margin-top: 1px; }
 .tactile-button--primary { min-height: var(--primary-button-height); border-radius: var(--radius-card); background: var(--brand); --tactile-edge-color: var(--brand-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
 .tactile-button--green { background: var(--success); --tactile-edge-color: var(--success-dark); text-shadow: 0 1px rgba(0,0,0,.08); }
@@ -778,6 +779,8 @@
   display: flex; align-items: baseline; gap: 6px; text-align: start;
   font-size: 18px; font-weight: 700;
 }
+.reader-phrase[data-silent] h3 { font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+.reader-phrase[data-silent] .reader-phrase__body > p { margin-inline-start: 0; }
 .reader-phrase__audio:disabled { cursor: default; }
 .reader-phrase__audio svg { align-self: center; width: 23px; flex: none; color: var(--color-secondary); }
 .reader-phrase__audio > span { overflow-wrap: anywhere; text-decoration: underline dotted #a4a4a4 2px; text-underline-offset: 5px; }
@@ -1142,6 +1145,7 @@
   display: grid; gap: 10px; width: 100%; padding: 13px 12px; margin-bottom: 20px;
   border-radius: 15px; background: var(--path-blue); color: #fff;
 }
+.learning-path__subtitle { display: block; font-size: var(--type-supporting); font-weight: 600; }
 .learning-path__cta {
   display: grid; place-items: center; min-height: 44px; padding: 5px;
   border-bottom: 3px solid var(--brand-border); border-radius: 12px; background: var(--color-background);
