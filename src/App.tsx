@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
-import { TrainingHome } from './TrainingHome'
+import { ReaderHeader } from './lessons/ReaderLayout'
+import { StudyCount, TrainingHome } from './TrainingHome'
 import { WordTraining, wordForms } from './WordTraining'
 import { trainingCandidates, wordStatus } from './domain/wordTraining'
 import { shuffledOptions } from './lessons/wordBank'
@@ -71,6 +72,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const [training, setTraining] = useState<TrainingSession>()
   const [dictionaryStatus, setDictionaryStatus] = useState('all')
   const [category, setCategory] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
   const [search, setSearch] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [newEstonian, setNewEstonian] = useState('')
@@ -269,14 +271,15 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
 
   function renderDictionaryWord(word: Word) {
     const status = wordStatus(word)
-    return <article className={`word-card my-words__word${(status === 'learning' || status === 'pending_reverse') ? ' word-card--studying' : ''}`} key={word.id}>
+    const studying = status === 'learning' || status === 'pending_reverse'
+    return <article className="word-card my-words__word" data-state={studying ? 'studying' : status} key={word.id}>
       <button type="button" className="my-words__word-info" onClick={() => setStatusWordId(word.id)} aria-haspopup="dialog">
         <span className="my-words__word-name" lang="et">{word.estonian}</span>
         <span className="my-words__translation">{word.russian}</span>
-        <span className="status-label">{statusLabels[status]}</span>
       </button>
       {status === 'new' && <button type="button" className="add-study" aria-label={`Учить ${word.estonian}`}
         onClick={() => addToStudy([word.id])}><Icon name="plus" /></button>}
+      {status !== 'new' && <span className="my-words__status">{studying ? 'Изучаю' : 'Выучено'}</span>}
     </article>
   }
 
@@ -286,29 +289,22 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       allLearned={dictionary.length > 0 && dictionary.every(({ progress }) => progress === 3) && !studyingCount}
       onClose={() => setTraining(undefined)}
       onClassify={classifyTrainingWord} onReview={reviewTrainingWord} onNext={() => nextTrainingWord()} />
-      : <main className="phone-frame">
-      {!lessonReader && <header className={primaryTab === 'library' ? 'topbar topbar--learning-path' : 'topbar'}>
-        <button className="brand" onClick={() => selectTab('library')} aria-label="На главную"><span>takku</span></button>
-      </header>}
-
-      <div className="content">
-        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} studyWord={studyLessonWord} catalogWords={words} />}
-
-        {primaryTab === 'vocabulary' && (catalogOpen
-          ? <section className="screen screen--dictionary my-words" aria-labelledby="my-words-heading">
-          <div className="dictionary-toolbar">
-            <div className="section-row my-words__heading"><h1 id="my-words-heading">Общий словарь</h1></div>
-            <div className="dictionary-toolbar__actions">
-              <button type="button" className="profile-secondary" onClick={() => selectTab('vocabulary')}>К тренировке</button>
-              <button type="button" className="tactile-button tactile-button--primary" onClick={() => startTraining('review')}
-                disabled={!queue.length}>Начать изучение{queue.length ? ` · ${queue.length}` : ''}</button>
-            </div>
+      : catalogOpen && primaryTab === 'vocabulary' ? <main className="dictionary-screen" aria-labelledby="my-words-heading">
+        <ReaderHeader title="Общий словарь" headingId="my-words-heading"
+          onBack={() => selectTab('vocabulary')} backLabel="К тренировке" />
+        <div className="dictionary-toolbar reader-content">
+          <div className="dictionary-search">
+            <label className="search-box"><Icon name="search" />
+              <input type="search" aria-label="Поиск слов" value={search} onChange={(event) => setSearch(event.target.value)}
+                placeholder="Искать на эстонском или русском" />
+            </label>
+            <button type="button" className="lesson-option dictionary-filter-toggle" aria-label="Фильтры"
+              aria-expanded={showFilters} aria-controls="dictionary-filters"
+              data-filtered={dictionaryStatus !== 'all' || !!category} onClick={() => setShowFilters(!showFilters)}>
+              <Icon name="filter" />
+            </button>
           </div>
-          <label className="search-box"><Icon name="search" />
-            <input type="search" aria-label="Поиск слов" value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="Искать на эстонском или русском" />
-          </label>
-          <div className="dictionary-filters">
+          <div className="dictionary-filters" id="dictionary-filters" hidden={!showFilters}>
             <label>Статус<select value={dictionaryStatus} onChange={(event) => setDictionaryStatus(event.target.value)}>
               <option value="all">Все</option><option value="new">Новые</option>
               <option value="learning">Изучаю</option><option value="learned">Выученные</option>
@@ -317,6 +313,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
               <option value="">Все темы</option>{categories.map((name) => <option key={name}>{name}</option>)}
             </select></label>}
           </div>
+        </div>
+        <div className="reader-scroll dictionary-scroll">
           <div className="dictionary-results">
             {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем общий словарь…</h3></div>}
             {catalog.status === 'error' && <div className="empty-state" role="alert">
@@ -332,12 +330,27 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
                   Сбросить фильтры
                 </button> : <p>Опубликованные слова появятся здесь.</p>}
               </div>}
-              <button type="button" className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
             </div>}
           </div>
-        </section> : <TrainingHome active={studyingCount} learned={learnedWords.length}
+        </div>
+        <div className="dictionary-action">
+          <div className="reader-action">
+            <button type="button" className="tactile-button tactile-button--primary tactile-button--wide dictionary-action__button"
+              onClick={() => startTraining('review')} disabled={!queue.length}>Изучение <StudyCount count={queue.length} /></button>
+          </div>
+        </div>
+      </main>
+      : <main className="phone-frame">
+      {!lessonReader && <header className="topbar">
+        <button className="brand" onClick={() => selectTab('library')} aria-label="На главную"><span>takku</span></button>
+      </header>}
+
+      <div className="content">
+        {primaryTab === 'library' && <Lessons client={client} userId={session?.user.id} onReaderChange={setLessonReader} studyWord={studyLessonWord} catalogWords={words} />}
+
+        {primaryTab === 'vocabulary' && <TrainingHome total={catalog.words?.length} active={queue.length} learned={learnedWords.length}
           loading={catalog.status === 'loading' || Boolean(session && !cloud?.progress)}
-          onStart={startTraining} onOpenCatalog={openCatalog} />)}
+          onStart={startTraining} onOpenCatalog={openCatalog} />}
 
         {primaryTab === 'profile' && <section className="screen screen--profile">
           <div className="profile-hero">
@@ -374,9 +387,9 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         </section>}
       </div>
 
-      {!lessonReader && <nav className={primaryTab === 'library' ? 'bottom-nav bottom-nav--learning-path' : primaryTab === 'vocabulary' ? 'bottom-nav bottom-nav--vocabulary' : 'bottom-nav'} aria-label="Основная навигация">
+      {!lessonReader && <nav className="bottom-nav" aria-label="Основная навигация">
         <button aria-current={primaryTab === 'library' ? 'page' : undefined} className={primaryTab === 'library' ? 'active' : ''} onClick={() => selectTab('library')}><span><img src="/navigation/home.svg" alt="" /></span><b>Главная</b></button>
-        <button aria-current={primaryTab === 'vocabulary' ? 'page' : undefined} className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => selectTab('vocabulary')}><span><img src="/navigation/dictionary.svg" alt="" /></span><b>Тренировка</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
+        <button aria-current={primaryTab === 'vocabulary' ? 'page' : undefined} className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => selectTab('vocabulary')}><span><img src="/navigation/dictionary.svg" alt="" /></span><b>Тренировка</b></button>
         <button aria-current={primaryTab === 'profile' ? 'page' : undefined} className={primaryTab === 'profile' ? 'active' : ''} onClick={() => selectTab('profile')}><span><img src="/navigation/profile.svg" alt="" /></span><b>Профиль</b></button>
       </nav>}
     </main>}
