@@ -17,6 +17,7 @@ export type Word = {
   forms?: string
   grammaticalForms?: GrammaticalForms
   progress: Progress
+  lastReviewedAt?: string
 }
 
 export type StoredProgress = {

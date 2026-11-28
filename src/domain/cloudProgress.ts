@@ -9,6 +9,7 @@ export type ProgressRow = WordRef & {
   stage: Progress
   queue_position: number | null
   revision: number | null
+  last_reviewed_at?: string | null
 }
 
 export type PersonalDraft = {
@@ -38,6 +39,7 @@ export type StudyChange = {
   stage: Progress
   placement: 'answer' | 'append'
   random: number
+  reviewedAt?: string
 }
 
 export type CloudAction = { id: string } & (
@@ -86,7 +88,10 @@ export function projectProgress(snapshot: CloudSnapshot, catalog: readonly Word[
   for (const row of snapshot.progress) {
     const id = ids.get(keyOf(row))
     const word = id === undefined ? undefined : words.get(id)
-    if (word && (row.kind === 'personal' || !word.personalId)) word.progress = row.stage
+    if (word && (row.kind === 'personal' || !word.personalId)) {
+      word.progress = row.stage
+      if (row.last_reviewed_at) word.lastReviewedAt = row.last_reviewed_at
+    }
   }
   const queue = order(snapshot.progress).flatMap((row) => {
     const id = ids.get(keyOf(row))
@@ -130,7 +135,7 @@ export function planAction(
     return { kind: 'personal', id: draft.id }
   }
 
-  function stage(ref: WordRef, next: Progress, placement: 'answer' | 'append', random = 0) {
+  function stage(ref: WordRef, next: Progress, placement: 'answer' | 'append', random = 0, reviewedAt?: string) {
     const key = keyOf(ref)
     const existing = rows.get(key)
     if (!isQueued(next)) queue = queue.filter((id) => id !== key)
@@ -153,13 +158,14 @@ export function planAction(
       }
       queue = [...reordered, ...nextQueue.slice(index)]
     } else if (!queue.includes(key)) queue.push(key)
-    rows.set(key, { ...ref, stage: next, queue_position: null, revision: existing?.revision ?? null })
+    rows.set(key, { ...ref, stage: next, queue_position: null, revision: existing?.revision ?? null,
+      ...(reviewedAt || existing?.last_reviewed_at ? { last_reviewed_at: reviewedAt ?? existing?.last_reviewed_at } : {}) })
   }
 
   if (action.type === 'study') {
     const ref = resolve(action.word, action.id)
     if ((rows.get(keyOf(ref))?.stage ?? 0) !== action.expected) return null
-    stage(ref, action.stage, action.placement, action.random)
+    stage(ref, action.stage, action.placement, action.random, action.reviewedAt)
   } else if (action.type === 'personal') {
     resolve(action.word, action.id)
   } else if (!snapshot.imported && action.guest) {
@@ -172,7 +178,7 @@ export function planAction(
       if (!word.progress && (word.catalogId || published || legacyCatalogIds.has(word.id))) continue
       const ref = resolve(word, action.keys[word.id])
       const current = rows.get(keyOf(ref))?.stage ?? 0
-      if (word.progress > current) stage(ref, word.progress, 'append')
+      if (word.progress > current) stage(ref, word.progress, 'append', 0, word.lastReviewedAt)
     }
   }
 
@@ -186,7 +192,7 @@ export function planAction(
     personal: newWords,
     progress: progress.filter((row) => {
       const old = oldRows.get(keyOf(row))
-      return !old || row.stage !== old.stage || row.queue_position !== old.queue_position
+      return !old || row.stage !== old.stage || row.queue_position !== old.queue_position || (row.last_reviewed_at ?? null) !== (old.last_reviewed_at ?? null)
     }),
     decideImport: action.type === 'import' && !snapshot.imported,
   }

@@ -97,7 +97,9 @@ export function mergePublishedCatalog(guest: StoredProgress, catalog: readonly W
       aliases.set(alias.id, entry.id)
     }
     // Existing progress comes from the guest snapshot, never from the catalog.
-    words.set(entry.id, { ...entry, progress: previous?.progress ?? alias?.progress ?? 0 })
+    const saved = previous ?? alias
+    words.set(entry.id, { ...entry, progress: saved?.progress ?? 0,
+      ...(saved?.lastReviewedAt && { lastReviewedAt: saved.lastReviewedAt }) })
   }
 
   const queue = [...new Set(guest.queue.map((id) => aliases.get(id) ?? id))]
@@ -115,7 +117,7 @@ export function availableLearningProgress(progress: StoredProgress, catalog: rea
     if (isPersonalWord(word)) return [word]
 
     const entry = published.get(word.id)
-    if (entry) return [{ ...entry, progress: word.progress, ...(word.personalId && { personalId: word.personalId }) }]
+    if (entry) return [{ ...entry, progress: word.progress, ...(word.lastReviewedAt && { lastReviewedAt: word.lastReviewedAt }), ...(word.personalId && { personalId: word.personalId }) }]
     // While offline, only previously downloaded catalog words remain usable.
     return catalog === undefined && word.catalogId ? [word] : []
   })

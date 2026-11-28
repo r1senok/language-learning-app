@@ -35,13 +35,13 @@ test('persists Know immediately and restores direction and queue', () => {
   assert.deepEqual(next.queue, [2, 1])
 })
 
-test('persists Don’t Know immediately and restores forward direction', () => {
+test('persists a missed review without discarding the previously confirmed direction', () => {
   const initial = { words: starters, queue: [2, 1] }
   const next = applyAnswer(initial, 2, false)
   saveGuestProgress(next)
 
   assert.deepEqual(loadGuestProgress(starters), next)
-  assert.equal(next.words[1].progress, 1)
+  assert.equal(next.words[1].progress, 2)
   assert.deepEqual(next.queue, [1, 2])
 })
 
@@ -49,7 +49,7 @@ test('uses both directions before learned and keeps a lone missed word in the qu
   const initial = { words: [word(1, 1)], queue: [1] }
   const reverse = applyAnswer(initial, 1, true)
   assert.equal(reverse.words[0].progress, 2)
-  assert.equal(applyAnswer(reverse, 1, false).words[0].progress, 1)
+  assert.equal(applyAnswer(reverse, 1, false).words[0].progress, 2)
   assert.deepEqual(applyAnswer(initial, 1, false), initial)
   const learned = applyAnswer(reverse, 1, true)
   assert.equal(learned.words[0].progress, 3)

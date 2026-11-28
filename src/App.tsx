@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from './Icon'
-import { StudyScreen } from './StudyScreen'
+import { TrainingHome } from './TrainingHome'
+import { WordTraining, wordForms } from './WordTraining'
+import { trainingCandidates, wordStatus } from './domain/wordTraining'
+import { shuffledOptions } from './lessons/wordBank'
 import { Lessons } from './lessons/Lessons'
 import { filterDictionary } from './domain/myWords'
 import { sortByEstonian } from './domain/wordOrder'
-import { applyAnswer, completesActiveSession, setWordProgress } from './domain/learning'
+import { reviewQueuedWord, setWordProgress } from './domain/learning'
 import { AuthDialog } from './AuthDialog'
 import { authErrorMessage, isAuthReturn, signOutHere } from './services/auth'
 import type { AuthIntent } from './services/auth'
@@ -34,8 +37,10 @@ const catalogErrorMessages = {
   response: 'Supabase вернул неожиданный ответ. Проверьте настройки API и повторите загрузку.',
 }
 
-const statusOf = (word: Word) => word.progress === 0 ? 'new' : word.progress === 3 ? 'learned' : 'studying'
-const shuffled = <T,>(items: T[]) => [...items].sort(() => Math.random() - .5)
+const statusLabels = { new: 'Новое', learning: 'Изучаю', pending_reverse: 'Обратная проверка', learned: 'Выучено' }
+type TrainingMode = 'new' | 'review'
+type TrainingSession = { mode: TrainingMode; ids: WordId[]; total: number; introduced?: WordId }
+
 function Mascot({ small = false, className = '' }: { small?: boolean; className?: string }) {
   return <img className={`mascot ${small ? 'mascot--small' : ''} ${className}`.trim()} src="/takku-dachshund.png" alt="" aria-hidden="true" />
 }
@@ -61,12 +66,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     ? { words: [], queue: [] } satisfies StoredProgress
     : loadGuestProgress([]))
   const latestGuest = useRef(guest)
-  const answerTimer = useRef<number | null>(null)
   const [lessonReader, setLessonReader] = useState(false)
   const [catalogOpen, setCatalogOpen] = useState(false)
-  const [studyRound, setStudyRound] = useState(0)
+  const [training, setTraining] = useState<TrainingSession>()
+  const [dictionaryStatus, setDictionaryStatus] = useState('all')
+  const [category, setCategory] = useState('')
   const [search, setSearch] = useState('')
-  const [feedback, setFeedback] = useState<{ kind: 'known' | 'unknown'; before: StoredProgress } | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newEstonian, setNewEstonian] = useState('')
   const [newRussian, setNewRussian] = useState('')
@@ -77,12 +82,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   const [authIntent, setAuthIntent] = useState<AuthIntent | null>(null)
   const [signingOut, setSigningOut] = useState(false)
   const [signOutError, setSignOutError] = useState('')
-  const [sessionCompleted, setSessionCompleted] = useState(false)
-
-  useEffect(() => () => {
-    if (answerTimer.current !== null) window.clearTimeout(answerTimer.current)
-  }, [])
-
   useEffect(() => {
     if (catalog.status === 'loading') return
     if (sync) sync.setCatalog(catalog.words)
@@ -125,17 +124,25 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }
 
   const individualProgress = useMemo(() => {
-    if (feedback) return feedback.before
     const progress = cloud?.progress ?? mergePublishedCatalog(guest, catalog.words ?? [])
     return availableLearningProgress(progress, catalog.words)
-  }, [feedback, cloud?.progress, guest, catalog.words])
+  }, [cloud?.progress, guest, catalog.words])
   const { words, queue } = individualProgress
 
   const dictionary = useMemo(() => sortByEstonian(sharedCatalogWithProgress(catalog.words ?? [], words)), [catalog.words, words])
-  const filteredWords = useMemo(() => filterDictionary(dictionary, search), [dictionary, search])
+  const filteredWords = useMemo(() => filterDictionary(dictionary, search, dictionaryStatus, category),
+    [dictionary, search, dictionaryStatus, category])
+  const categories = useMemo(() => [...new Set(dictionary.flatMap((word) => word.categories ?? []))].sort(), [dictionary])
   const learnedWords = words.filter((word) => word.progress === 3)
   const studyingCount = words.filter((word) => word.progress === 1 || word.progress === 2).length
-  const currentWord = words.find((word) => word.id === queue[0] && (word.progress === 1 || word.progress === 2))
+  const trainingById = new Map(training ? trainingCandidates(training.mode, individualProgress, catalog.words ?? [])
+    .map((word) => [word.id, word]) : [])
+  if (training?.introduced !== undefined) {
+    const introduced = words.find((word) => word.id === training.introduced)
+    if (introduced) trainingById.set(introduced.id, introduced)
+  }
+  const trainingIds = training?.ids.filter((id) => trainingById.has(id)) ?? []
+  const trainingWord = trainingById.get(trainingIds[0])
   const statusWord = words.find((word) => word.id === statusWordId)
 
   useEffect(() => {
@@ -143,24 +150,29 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }, [primaryTab, catalogOpen])
 
   function selectTab(tab: PrimaryTab) {
-    if (answerTimer.current !== null) window.clearTimeout(answerTimer.current)
-    answerTimer.current = null
-    setFeedback(null)
+    setTraining(undefined)
     setStatusWordId(null)
-    setSessionCompleted(false)
     setCatalogOpen(false)
     setPrimaryTab(tab)
   }
 
-  function startStudy() {
-    if (currentProgress().queue.length) selectTab('vocabulary')
+  function startTraining(mode: TrainingMode) {
+    const candidates = trainingCandidates(mode, currentProgress(), catalog.words ?? [])
+    const ids = shuffledOptions(candidates.map(({ id }) => id), crypto.randomUUID())
+    setStatusWordId(null)
+    setCatalogOpen(false)
+    setTraining({ mode, ids, total: ids.length })
   }
 
   function openCatalog() {
-    if (answerTimer.current !== null) window.clearTimeout(answerTimer.current)
-    answerTimer.current = null
-    setFeedback(null)
+    setTraining(undefined)
     setCatalogOpen(true)
+  }
+
+  function nextTrainingWord(repeat = false) {
+    if (!training || !trainingWord) return
+    setTraining({ ...training, introduced: undefined,
+      ids: [...trainingIds.slice(1), ...(repeat ? [trainingWord.id] : [])] })
   }
 
   const progress = words.length ? Math.round(learnedWords.length / words.length * 100) : 0
@@ -169,7 +181,7 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     const { words, queue } = currentProgress()
     const fresh = ids.filter((id) => words.some((word) => word.id === id && word.progress === 0))
     if (!fresh.length) return
-    const additions = shuffled(fresh.filter((id) => !queue.includes(id)))
+    const additions = shuffledOptions([...new Set(fresh.filter((id) => !queue.includes(id)))], crypto.randomUUID())
     commitProgress({
       words: words.map((word) => fresh.includes(word.id) ? setWordProgress(word, 1) : word),
       queue: [...queue, ...additions],
@@ -177,7 +189,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
       type: 'study', id: crypto.randomUUID(), word: words.find((word) => word.id === id)!,
       expected: 0, stage: 1, placement: 'append', random: 0,
     })) : [])
-    setSessionCompleted(false)
   }
 
   function studyLessonWord(catalogId: string) {
@@ -187,27 +198,47 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     return true
   }
 
-  const answer = (known: boolean) => {
-    if (primaryTab !== 'vocabulary' || catalogOpen || !currentWord || answerTimer.current !== null || feedback) return
+  function classifyTrainingWord(known: boolean) {
+    if (!training || !trainingWord) return false
     const before = currentProgress()
-    const random = Math.random()
-    const next = applyAnswer(before, currentWord.id, known, () => random)
-    if (next === before) return
-
-    const active = before.words.find(({ id }) => id === currentWord.id)!
-    const stage = next.words.find(({ id }) => id === active.id)!.progress
-    const completesSession = completesActiveSession(active.progress, known, before.queue, active.id)
-    answerTimer.current = window.setTimeout(() => {
-      answerTimer.current = null
-      setFeedback(null)
-      setStudyRound((round) => round + 1)
-      setSessionCompleted(completesSession && currentProgress().queue.length === 0)
-    }, 430)
-    setFeedback({ kind: known ? 'known' : 'unknown', before })
-    commitProgress(next, sync ? [{
-      type: 'study', id: crypto.randomUUID(), word: active, expected: active.progress,
-      stage, placement: 'answer', random,
+    const word = before.words.find(({ id }) => id === trainingWord.id)
+    if (!word || word.progress !== 0) return false
+    const stage = known ? 2 : 1
+    const reviewedAt = known ? new Date().toISOString() : undefined
+    commitProgress({ words: before.words.map((entry) => entry.id === word.id
+      ? { ...entry, progress: stage, ...(reviewedAt && { lastReviewedAt: reviewedAt }) } : entry),
+      queue: [...before.queue, word.id] }, sync ? [{
+      type: 'study', id: crypto.randomUUID(), word, expected: 0, stage, placement: 'append', random: 0, reviewedAt,
     }] : [])
+    setTraining(known ? { ...training, ids: trainingIds.slice(1) } : { ...training, introduced: word.id })
+    return true
+  }
+
+  function reviewTrainingWord(known: boolean) {
+    if (!trainingWord) return false
+    const before = currentProgress()
+    const word = before.words.find(({ id }) => id === trainingWord.id)
+    if (!word || word.progress !== trainingWord.progress) return false
+    const random = Math.random()
+    const reviewedAt = new Date().toISOString()
+    const next = reviewQueuedWord(before, word.id, known, () => random, reviewedAt)
+    if (next === before) return false
+    const stage = next.words.find(({ id }) => id === word.id)!.progress
+    commitProgress(next, sync ? [{
+      type: 'study', id: crypto.randomUUID(), word, expected: word.progress, stage, placement: 'answer', random, reviewedAt,
+    }] : [])
+    nextTrainingWord(stage !== 3)
+    return true
+  }
+
+  function returnToStudy(word: Word) {
+    const before = currentProgress()
+    if (before.words.find(({ id }) => id === word.id)?.progress !== 3) return
+    commitProgress({ words: before.words.map((entry) => entry.id === word.id ? setWordProgress(entry, 1) : entry),
+      queue: [...before.queue, word.id] }, sync ? [{
+      type: 'study', id: crypto.randomUUID(), word, expected: 3, stage: 1, placement: 'append', random: 0,
+    }] : [])
+    setStatusWordId(null)
   }
 
   const removeFromStudy = (id: WordId) => {
@@ -220,7 +251,6 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
     }, sync ? [{ type: 'study', id: crypto.randomUUID(), word, expected: word.progress, stage: 0,
       placement: 'append', random: 0 }] : [])
     setStatusWordId(null)
-    setSessionCompleted(false)
   }
 
   const addWord = (event: React.FormEvent) => {
@@ -238,12 +268,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }
 
   function renderDictionaryWord(word: Word) {
-    const status = statusOf(word)
-    return <article className={`word-card my-words__word${status === 'studying' ? ' word-card--studying' : ''}`} key={word.id}>
+    const status = wordStatus(word)
+    return <article className={`word-card my-words__word${(status === 'learning' || status === 'pending_reverse') ? ' word-card--studying' : ''}`} key={word.id}>
       <button type="button" className="my-words__word-info" onClick={() => setStatusWordId(word.id)} aria-haspopup="dialog">
         <span className="my-words__word-name" lang="et">{word.estonian}</span>
         <span className="my-words__translation">{word.russian}</span>
-        {status === 'studying' && <span className="status-label">Изучаю</span>}
+        <span className="status-label">{statusLabels[status]}</span>
       </button>
       {status === 'new' && <button type="button" className="add-study" aria-label={`Учить ${word.estonian}`}
         onClick={() => addToStudy([word.id])}><Icon name="plus" /></button>}
@@ -251,7 +281,12 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
   }
 
   return <div className="app-shell">
-    <main className="phone-frame">
+    {training ? <WordTraining mode={training.mode} word={trainingWord} total={training.total}
+      completed={training.total - trainingIds.length} catalogEmpty={!dictionary.length}
+      allLearned={dictionary.length > 0 && dictionary.every(({ progress }) => progress === 3) && !studyingCount}
+      onClose={() => setTraining(undefined)}
+      onClassify={classifyTrainingWord} onReview={reviewTrainingWord} onNext={() => nextTrainingWord()} />
+      : <main className="phone-frame">
       {!lessonReader && <header className={primaryTab === 'library' ? 'topbar topbar--learning-path' : 'topbar'}>
         <button className="brand" onClick={() => selectTab('library')} aria-label="На главную"><span>takku</span></button>
       </header>}
@@ -264,8 +299,8 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
           <div className="dictionary-toolbar">
             <div className="section-row my-words__heading"><h1 id="my-words-heading">Общий словарь</h1></div>
             <div className="dictionary-toolbar__actions">
-              <button type="button" className="profile-secondary" onClick={() => selectTab('vocabulary')}>К карточкам</button>
-              <button type="button" className="tactile-button tactile-button--primary" onClick={startStudy}
+              <button type="button" className="profile-secondary" onClick={() => selectTab('vocabulary')}>К тренировке</button>
+              <button type="button" className="tactile-button tactile-button--primary" onClick={() => startTraining('review')}
                 disabled={!queue.length}>Начать изучение{queue.length ? ` · ${queue.length}` : ''}</button>
             </div>
           </div>
@@ -273,6 +308,15 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             <input type="search" aria-label="Поиск слов" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Искать на эстонском или русском" />
           </label>
+          <div className="dictionary-filters">
+            <label>Статус<select value={dictionaryStatus} onChange={(event) => setDictionaryStatus(event.target.value)}>
+              <option value="all">Все</option><option value="new">Новые</option>
+              <option value="learning">Изучаю</option><option value="learned">Выученные</option>
+            </select></label>
+            {categories.length > 0 && <label>Тема<select value={category} onChange={(event) => setCategory(event.target.value)}>
+              <option value="">Все темы</option>{categories.map((name) => <option key={name}>{name}</option>)}
+            </select></label>}
+          </div>
           <div className="dictionary-results">
             {catalog.status === 'loading' && <div className="empty-state" role="status"><h3>Загружаем общий словарь…</h3></div>}
             {catalog.status === 'error' && <div className="empty-state" role="alert">
@@ -283,17 +327,17 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
             {catalog.status === 'ready' && <div className="word-list" aria-label="Опубликованные слова">
               {filteredWords.map(renderDictionaryWord)}
               {!filteredWords.length && <div className="empty-state">
-                <h3>{dictionary.length ? 'Слова не найдены' : 'Supabase не вернул опубликованные слова'}</h3>
-                {dictionary.length ? <button type="button" className="profile-secondary" onClick={() => setSearch('')}>
-                  Сбросить поиск
-                </button> : <p>Проверьте публикацию эстонских слов и доступ к их русским переводам.</p>}
+                <h3>{dictionary.length ? 'Слова не найдены' : 'Общий словарь пока пуст'}</h3>
+                {dictionary.length ? <button type="button" className="profile-secondary" onClick={() => { setSearch(''); setDictionaryStatus('all'); setCategory('') }}>
+                  Сбросить фильтры
+                </button> : <p>Опубликованные слова появятся здесь.</p>}
               </div>}
               <button type="button" className="profile-secondary" onClick={reloadCatalog}>Обновить словарь</button>
             </div>}
           </div>
-        </section> : <StudyScreen word={currentWord} feedback={feedback?.kind} round={studyRound}
-          completed={sessionCompleted} loading={catalog.status === 'loading' || Boolean(session && !cloud?.progress)}
-          onOpenCatalog={openCatalog} onAnswer={answer} isLocked={() => answerTimer.current !== null} />)}
+        </section> : <TrainingHome active={studyingCount} learned={learnedWords.length}
+          loading={catalog.status === 'loading' || Boolean(session && !cloud?.progress)}
+          onStart={startTraining} onOpenCatalog={openCatalog} />)}
 
         {primaryTab === 'profile' && <section className="screen screen--profile">
           <div className="profile-hero">
@@ -332,10 +376,10 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
 
       {!lessonReader && <nav className={primaryTab === 'library' ? 'bottom-nav bottom-nav--learning-path' : primaryTab === 'vocabulary' ? 'bottom-nav bottom-nav--vocabulary' : 'bottom-nav'} aria-label="Основная навигация">
         <button aria-current={primaryTab === 'library' ? 'page' : undefined} className={primaryTab === 'library' ? 'active' : ''} onClick={() => selectTab('library')}><span><img src="/navigation/home.svg" alt="" /></span><b>Главная</b></button>
-        <button aria-current={primaryTab === 'vocabulary' ? 'page' : undefined} className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => selectTab('vocabulary')}><span><img src="/navigation/dictionary.svg" alt="" /></span><b>Словарь</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
+        <button aria-current={primaryTab === 'vocabulary' ? 'page' : undefined} className={primaryTab === 'vocabulary' ? 'active' : ''} onClick={() => selectTab('vocabulary')}><span><img src="/navigation/dictionary.svg" alt="" /></span><b>Тренировка</b>{studyingCount > 0 && <i>{studyingCount}</i>}</button>
         <button aria-current={primaryTab === 'profile' ? 'page' : undefined} className={primaryTab === 'profile' ? 'active' : ''} onClick={() => selectTab('profile')}><span><img src="/navigation/profile.svg" alt="" /></span><b>Профиль</b></button>
       </nav>}
-    </main>
+    </main>}
 
     {showAdd && <div className="modal-backdrop" onMouseDown={() => setShowAdd(false)}><form className="add-modal" onSubmit={addWord} onMouseDown={(e) => e.stopPropagation()}><button type="button" className="modal-close" onClick={() => setShowAdd(false)} aria-label="Закрыть"><Icon name="close" /></button><span className="modal-emoji">🇪🇪</span><h2>Новое слово</h2><p>Добавь эстонское слово в свою коллекцию</p>
       <label><span>НА ЭСТОНСКОМ *</span><input autoFocus value={newEstonian} onChange={(e) => setNewEstonian(e.target.value)} placeholder="например, imeline" /></label>
@@ -351,11 +395,16 @@ function Takku({ auth, primaryTab, setPrimaryTab, catalog, reloadCatalog }: {
         <div className="status-sheet__icon status-sheet__icon--studying"><Icon name="cards" /></div>
         <span className="status-sheet__word">{statusWord.estonian}</span>
         <h2 id="status-sheet-title">{statusWord.russian}</h2>
+        {wordForms(statusWord).length > 0 && <p lang="et">{wordForms(statusWord).join(' · ')}</p>}
+        <p>{statusLabels[wordStatus(statusWord)]}{statusWord.lastReviewedAt &&
+          <> · Проверено {new Date(statusWord.lastReviewedAt).toLocaleDateString('ru')}</>}</p>
+        {statusWord.progress === 3 && <button type="button" className="tactile-button tactile-button--primary tactile-button--wide"
+          onClick={() => returnToStudy(statusWord)}>Вернуть в изучение</button>}
         {statusWord.progress === 0 && <button className="tactile-button tactile-button--primary tactile-button--wide"
-          onClick={() => { addToStudy([statusWord.id]); setStatusWordId(null) }}>Начать учить</button>}
+          onClick={() => { addToStudy([statusWord.id]); setStatusWordId(null) }}>Добавить в изучение</button>}
         {(statusWord.progress === 1 || statusWord.progress === 2) && <>
           <p>Можно продолжить тренировку или убрать слово. При удалении прогресс этого слова сбросится.</p>
-          <button className="tactile-button sheet-action--blue tactile-button--wide" onClick={() => { setStatusWordId(null); startStudy() }}>Продолжить изучение</button>
+          <button className="tactile-button sheet-action--blue tactile-button--wide" onClick={() => { startTraining('review') }}>Продолжить изучение</button>
           <button className="sheet-action--remove" onClick={() => removeFromStudy(statusWord.id)}>Убрать из изучения</button>
         </>}
       </div>

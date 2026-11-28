@@ -37,6 +37,7 @@ function recoverWord(value: unknown, starters: ReadonlyMap<WordId, Word>): Word 
     ...(typeof value.partOfSpeech === 'string' && { partOfSpeech: value.partOfSpeech }),
     ...(typeof value.forms === 'string' && { forms: value.forms }),
     ...(grammaticalForms && { grammaticalForms }),
+    ...(typeof value.lastReviewedAt === 'string' && Number.isFinite(Date.parse(value.lastReviewedAt)) && { lastReviewedAt: value.lastReviewedAt }),
     progress: isProgress(value.progress) ? value.progress : starter?.progress ?? 0,
   }
 }

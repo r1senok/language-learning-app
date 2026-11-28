@@ -1,3 +1,4 @@
+import { WordStudyCard } from './WordStudyCard'
 import { useState } from 'react'
 import type { IntroWord } from './engine'
 import { ReaderAction } from './ReaderLayout'
@@ -10,17 +11,8 @@ export function NewWordCard({ actionTarget, word, forms, revealed, onKnow, onLea
 
   return <div className="word-intro">
     <h2 className="lesson-accent-heading">Вы знаете это слово?</h2>
-    <div className="word-intro__card">
-      <div className="word-intro__body">
-        <p className="word-intro__word" lang="et">{word.et}</p>
-        {forms.length > 0 && <ul className="word-intro__forms" lang="et" aria-label="Основные формы">
-          {forms.map((form, index) => <li key={index}>{form}</li>)}
-        </ul>}
-        <div className="word-intro__translation" aria-live="polite">
-          {revealed && <><p>{word.ru}</p>{word.note && <small>{word.note}</small>}</>}
-        </div>
-      </div>
-    </div>
+    <WordStudyCard prompt={word.et} answer={word.ru} promptLanguage="et" answerLanguage="ru"
+      forms={forms} revealed={revealed} note={word.note} />
     <ReaderAction target={actionTarget}>
       {revealed ? <button className="tactile-button tactile-button--primary" type="button" onClick={onContinue}>
         Продолжить

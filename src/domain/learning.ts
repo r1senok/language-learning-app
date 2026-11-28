@@ -1,7 +1,7 @@
 import type { Progress, StoredProgress, Word, WordId } from '../types'
 
 export function advanceProgress(progress: Progress, known: boolean): Progress {
-  if (!known) return 1
+  if (!known) return progress
   if (progress === 1) return 2
   if (progress === 2) return 3
   return progress
@@ -19,19 +19,22 @@ export function setWordProgress(word: Word, progress: Progress): Word {
   return { ...word, progress }
 }
 
-export function completesActiveSession(progress: Progress, known: boolean, queue: WordId[], wordId: WordId): boolean {
-  return known && progress === 2 && queue.length > 0 && queue.every((id) => id === wordId)
-}
-
 export function applyAnswer(session: StoredProgress, wordId: WordId, known: boolean, random = Math.random): StoredProgress {
   if (session.queue[0] !== wordId) return session
+
+  return reviewQueuedWord(session, wordId, known, random)
+}
+
+export function reviewQueuedWord(session: StoredProgress, wordId: WordId, known: boolean,
+  random = Math.random, reviewedAt?: string): StoredProgress {
+  if (!session.queue.includes(wordId)) return session
 
   const word = session.words.find(({ id }) => id === wordId)
   if (!word || (word.progress !== 1 && word.progress !== 2)) return session
 
   const progress = advanceProgress(word.progress, known)
   return {
-    words: session.words.map((entry) => entry.id === wordId ? setWordProgress(entry, progress) : entry),
+    words: session.words.map((entry) => entry.id === wordId ? { ...entry, progress, ...(reviewedAt && { lastReviewedAt: reviewedAt }) } : entry),
     queue: requeueAfterAnswer(session.queue, wordId, progress === 3, random),
   }
 }
